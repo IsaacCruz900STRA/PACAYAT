@@ -15,6 +15,7 @@ import AdminPeriodos from '../pages/admin/ConfigurarPeriodos';
 import AdminAvisos from '../pages/admin/GestionAvisos';
 import AdminAsistencia from '../pages/admin/AsistenciaGeneral';
 import AdminConfig from '../pages/admin/Configuracion';
+//Prefecto
 import PrefectoLayout    from '../layouts/PrefectoLayout';
 import PrefectoDashboard from '../pages/prefecto/Dashboard';
 import PrefectoAlumnos   from '../pages/prefecto/Alumnos';
@@ -27,6 +28,14 @@ import DocenteDashboard from '../pages/docente/Dashboard';
 import DocenteHorario from '../pages/docente/Horario';
 import DocenteCalificaciones from '../pages/docente/Calificaciones';
 import DocenteAvisos from '../pages/docente/Avisos';
+//Control
+import ControlEscolarLayout        from '../layouts/ControlEscolarLayout';
+import ControlEscolarDashboard     from '../pages/control-escolar/Dashboard';
+import ControlEscolarCalificaciones from '../pages/control-escolar/Calificaciones';
+import ControlEscolarGrupos        from '../pages/control-escolar/Grupos';
+import ControlEscolarAsignaciones  from '../pages/control-escolar/Asignaciones';
+import ControlEscolarReportes      from '../pages/control-escolar/Reportes';
+import ControlEscolarPeriodos      from '../pages/control-escolar/Periodos';
 
 const EnConstruccion = () => (
   <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
@@ -100,7 +109,21 @@ export default function AppRouter() {
 </Route>
 
         <Route path="/secretaria/*" element={<EnConstruccion />} />
-        <Route path="/control-escolar/*" element={<EnConstruccion />} />
+
+      {/* CONTROL ESCOLAR */}
+<Route element={<ProtectedRoute rolesPermitidos={['CONTROL_ESCOLAR', 'ADMIN']} />}>
+  <Route path="/control-escolar" element={<ControlEscolarLayout />}>
+    <Route index element={<Navigate to="dashboard" replace />} />
+    <Route path="dashboard"      element={<ControlEscolarDashboard />}        />
+    <Route path="calificaciones" element={<ControlEscolarCalificaciones />}   />
+    <Route path="grupos"         element={<ControlEscolarGrupos />}           />
+    <Route path="asignaciones"   element={<ControlEscolarAsignaciones />}     />
+    <Route path="reportes"       element={<ControlEscolarReportes />}         />
+    <Route path="periodos"       element={<ControlEscolarPeriodos />}         />
+  </Route>
+</Route>
+
+        
         <Route path="/tutor/*" element={<EnConstruccion />} />
         <Route path="/no-autorizado" element={<EnConstruccion />} />
 
