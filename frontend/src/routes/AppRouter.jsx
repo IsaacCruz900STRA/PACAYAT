@@ -15,6 +15,11 @@ import AdminPeriodos from '../pages/admin/ConfigurarPeriodos';
 import AdminAvisos from '../pages/admin/GestionAvisos';
 import AdminAsistencia from '../pages/admin/AsistenciaGeneral';
 import AdminConfig from '../pages/admin/Configuracion';
+import PrefectoLayout    from '../layouts/PrefectoLayout';
+import PrefectoDashboard from '../pages/prefecto/Dashboard';
+import PrefectoAlumnos   from '../pages/prefecto/Alumnos';
+import PrefectoHorarios  from '../pages/prefecto/Horarios';
+import PrefectoReportes  from '../pages/prefecto/Reportes';
 
 // Docente
 import DocenteLayout from '../layouts/DocenteLayout';
@@ -84,7 +89,16 @@ export default function AppRouter() {
 
         {/* RESTO DE ROLES */}
         <Route path="/directivo/*" element={<EnConstruccion />} />
-        <Route path="/prefecto/*" element={<EnConstruccion />} />
+<Route element={<ProtectedRoute rolesPermitidos={['PREFECTO']} />}>
+  <Route path="/prefecto" element={<PrefectoLayout />}>
+    <Route index element={<Navigate to="dashboard" replace />} />
+    <Route path="dashboard" element={<PrefectoDashboard />} />
+    <Route path="alumnos"   element={<PrefectoAlumnos />}   />
+    <Route path="horarios"  element={<PrefectoHorarios />}  />
+    <Route path="reportes"  element={<PrefectoReportes />}  />
+  </Route>
+</Route>
+
         <Route path="/secretaria/*" element={<EnConstruccion />} />
         <Route path="/control-escolar/*" element={<EnConstruccion />} />
         <Route path="/tutor/*" element={<EnConstruccion />} />
