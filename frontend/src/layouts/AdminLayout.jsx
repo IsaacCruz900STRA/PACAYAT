@@ -5,22 +5,22 @@ import Navbar from '../components/layout/Navbar';
 import { Toast } from '../components/ui/Toast';
 
 const NAV_ITEMS = [
-  { to: '/admin/dashboard',  icon: '⊞', label: 'Dashboard' },
+  { to: '/admin/dashboard',  icon: '⊞', label: 'Inicio' },
   { to: '/admin/alumnos',    icon: '👥', label: 'Alumnos' },
   { to: '/admin/personal',   icon: '👤', label: 'Personal' },
   { to: '/admin/periodos',   icon: '📅', label: 'Configurar Periodos' },
-  { to: '/admin/avisos',     icon: '🔔', label: 'Avisos' },
-  { to: '/admin/asistencia', icon: '📋', label: 'Asistencia' },
+  { to: '/admin/avisos',    icon: '🔔', label: 'Avisos' },
+  { to: '/admin/horarios',  icon: '📅', label: 'Horarios' },
   { to: '/admin/config',     icon: '⚙️', label: 'Configuración' },
 ];
 
 const BREADCRUMBS = {
-  '/admin/dashboard':  'Panel de Administración',
+  '/admin/dashboard':  'Inicio',
   '/admin/alumnos':    'Alumnos',
   '/admin/personal':   'Personal',
   '/admin/periodos':   'Configurar Periodos',
-  '/admin/avisos':     'Avisos',
-  '/admin/asistencia': 'Asistencia',
+  '/admin/avisos':    'Avisos',
+  '/admin/horarios':  'Horarios',
   '/admin/config':     'Configuración',
 };
 

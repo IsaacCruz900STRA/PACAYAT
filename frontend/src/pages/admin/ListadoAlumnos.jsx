@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PageHeader          from '../../components/layout/PageHeader';
 import Card                from '../../components/ui/Card';
 import Badge               from '../../components/ui/Badge';
 import Button              from '../../components/ui/Button';
 import Table               from '../../components/ui/Table';
-import ModalCrearReporte   from '../../components/reportes/ModalCrearReporte';
+import ModalAlumno         from '../../components/alumnos/ModalAlumno';
+import StatusToggle        from '../../components/ui/StatusToggle';
 import { useFetch }        from '../../hooks/useFetch';
-import { getAlumnos }      from '../../api/alumnos.api';
-
-const GRUPOS = ['Todos los grupos','1°A','1°B','1°C','2°A','2°B','2°C','3°A','3°B','3°C'];
+import { deleteAlumno, getAlumnos, updateAlumno } from '../../api/alumnos.api';
+import { getGrupos } from '../../api/grupos.api';
+import { showToast } from '../../components/ui/Toast';
 
 function PtsBadge({ pts }) {
   const variant = pts <= 45 ? 'danger' : pts <= 65 ? 'warning' : 'success';
@@ -19,44 +21,59 @@ export default function ListadoAlumnos() {
   const [query,   setQuery]   = useState('');
   const [grupo,   setGrupo]   = useState('');
   const [estado,  setEstado]  = useState('');
-  const [modalOpen,  setModalOpen]  = useState(false);
-  const [alumnoReporte, setAlumnoReporte] = useState(null);
+  const [modalAlumnoOpen, setModalAlumnoOpen] = useState(false);
+  const [grupos, setGrupos] = useState([]);
+  const navigate = useNavigate();
 
-  // TODO: conectar con parámetros reales de filtro
-  const { data, loading, refetch } = useFetch(() => getAlumnos({ q: query, grupo, estado }), []);
+  useEffect(() => {
+    getGrupos().then(r => setGrupos(r.data?.grupos || [])).catch(() => {});
+  }, []);
+
+  const { data, loading, refetch } = useFetch(() => getAlumnos({ q: query, grupo, estado }), [query, grupo, estado]);
 
   const alumnos = data?.alumnos || [];
 
-  const abrirReporte = (alumno) => {
-    setAlumnoReporte({
-      id:               alumno.id,
-      nombre:           alumno.nombreCompleto,
-      matricula:        alumno.matricula,
-      puntosConducta:   alumno.puntosConducta,
-    });
-    setModalOpen(true);
+  const eliminarAlumno = async (alumno) => {
+    const confirmed = window.confirm(`¿Estás seguro de eliminar a ${alumno.nombreCompleto}?`);
+    if (!confirmed) return;
+
+    try {
+      await deleteAlumno(alumno.id);
+      showToast('Alumno eliminado');
+      refetch();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error al eliminar alumno', 'error');
+    }
+  };
+
+  const cambiarEstado = async (alumno, active) => {
+    try {
+      await updateAlumno(alumno.id, { activo: active });
+      showToast(`Alumno ${active ? 'activado' : 'desactivado'}`);
+      refetch();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error al actualizar estado', 'error');
+    }
   };
 
   const columns = [
     { key: 'matricula',   label: 'Matrícula', width: 100,
-      render: v => <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>{v}</span> },
+      render: (v, row) => <span style={{ color: row.activo ? 'var(--text-secondary)' : 'var(--text-muted)', fontSize: 13 }}>{v}</span> },
     { key: 'nombreCompleto', label: 'Nombre completo',
-      render: v => <span style={{ fontWeight: 500 }}>{v}</span> },
+      render: (v, row) => <span style={{ fontWeight: 500, color: row.activo ? 'var(--text-primary)' : 'var(--text-muted)' }}>{v}</span> },
     { key: 'grupo', label: 'Grupo', width: 90,
       render: v => <Badge variant="success">{v}</Badge> },
     { key: 'puntosConducta', label: 'Puntos', width: 110,
       render: v => <PtsBadge pts={v} /> },
     { key: 'tutor',  label: 'Tutor',
       render: v => <span style={{ color: 'var(--text-secondary)' }}>{v}</span> },
-    { key: 'estado', label: 'Estado', width: 90,
-      render: v => <Badge variant={v === 'Activo' ? 'success' : 'neutral'}>{v}</Badge> },
+    { key: 'estado', label: 'Estado', width: 120,
+      render: (_, row) => <StatusToggle active={row.activo} onChange={(active) => cambiarEstado(row, active)} /> },
     { key: 'id', label: 'Acciones', width: 130,
       render: (_, row) => (
         <div style={{ display: 'flex', gap: 4 }}>
-          <ActionBtn title="Ver expediente" color="var(--green-700)">👁</ActionBtn>
-          <ActionBtn title="Editar" color="var(--blue-600)">✏️</ActionBtn>
-          <ActionBtn title="Crear reporte" color="var(--green-600)" onClick={() => abrirReporte(row)}>📋</ActionBtn>
-          <ActionBtn title="Eliminar" color="var(--red-500)">✕</ActionBtn>
+          <ActionBtn title="Ver expediente" color="var(--green-700)" onClick={() => navigate(`/admin/alumnos/${row.id}`)}>👁</ActionBtn>
+          <ActionBtn title="Eliminar" color="var(--red-500)" onClick={() => eliminarAlumno(row)}>✕</ActionBtn>
         </div>
       ),
     },
@@ -73,18 +90,15 @@ export default function ListadoAlumnos() {
       <PageHeader
         title="Alumnos"
         subtitle="Gestión del alumnado"
-        action={
-          <Button onClick={() => { setAlumnoReporte(null); setModalOpen(true); }} icon="📋">
-            Crear Reporte
-          </Button>
-        }
       />
 
-      <ModalCrearReporte
-        open={modalOpen}
-        onClose={() => { setModalOpen(false); setAlumnoReporte(null); }}
-        alumnoPreset={alumnoReporte}
-        onSuccess={refetch}
+      <ModalAlumno
+        open={modalAlumnoOpen}
+        onClose={() => setModalAlumnoOpen(false)}
+        onSaved={() => {
+          setModalAlumnoOpen(false);
+          refetch();
+        }}
       />
 
       {/* Filtros */}
@@ -98,15 +112,15 @@ export default function ListadoAlumnos() {
           />
         </div>
         <select value={grupo} onChange={e => setGrupo(e.target.value)} style={filterStyle}>
-          {GRUPOS.map(g => <option key={g} value={g === 'Todos los grupos' ? '' : g}>{g}</option>)}
+          <option value="">Todos los grupos</option>
+          {grupos.map(g => <option key={g.id} value={g.nombre}>{g.nombre}</option>)}
         </select>
         <select value={estado} onChange={e => setEstado(e.target.value)} style={filterStyle}>
           <option value="">Todos</option>
           <option value="Activo">Activo</option>
           <option value="Inactivo">Inactivo</option>
         </select>
-        <Button>+ Nuevo Alumno</Button>
-        <Button variant="outline">+ Inscribir</Button>
+        <Button onClick={() => setModalAlumnoOpen(true)}>+ Nuevo Alumno</Button>
       </div>
 
       {/* Tabla */}

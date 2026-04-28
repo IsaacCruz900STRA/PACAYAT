@@ -4,11 +4,15 @@ import Card       from '../../components/ui/Card';
 import Badge      from '../../components/ui/Badge';
 import Button     from '../../components/ui/Button';
 import Table      from '../../components/ui/Table';
+import StatusToggle from '../../components/ui/StatusToggle';
+import ModalPersonal from '../../components/personal/ModalPersonal';
 import { useFetch }      from '../../hooks/useFetch';
-import { getPersonal }   from '../../api/personal.api';
+import { deletePersonal, getPersonal, updatePersonal } from '../../api/personal.api';
+import { showToast } from '../../components/ui/Toast';
 
 const ROL_VARIANT = {
   DOCENTE:        'docente',
+  ADMINISTRATIVO: 'neutral',
   PREFECTO:       'prefecto',
   SECRETARIA:     'secretaria',
   CONTROL_ESCOLAR:'control',
@@ -17,15 +21,40 @@ const ROL_VARIANT = {
 };
 const ROL_LABEL = {
   DOCENTE: 'Docente', PREFECTO: 'Prefecto', SECRETARIA: 'Secretaria',
-  CONTROL_ESCOLAR: 'Control Escolar', DIRECTIVO: 'Directivo', ADMIN: 'Administrador',
+  ADMINISTRATIVO: 'Administrativo', CONTROL_ESCOLAR: 'Control Escolar',
+  DIRECTIVO: 'Directivo', ADMIN: 'Administrador',
 };
 
 export default function ListadoPersonal() {
   const [query, setQuery] = useState('');
   const [rolFiltro, setRolFiltro] = useState('');
+  const [estadoFiltro, setEstadoFiltro] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [personalEdit, setPersonalEdit] = useState(null);
 
-  const { data, loading, refetch } = useFetch(() => getPersonal({ q: query, rol: rolFiltro }), []);
+  const { data, loading, refetch } = useFetch(() => getPersonal({ q: query, rol: rolFiltro, estado: estadoFiltro }), [query, rolFiltro, estadoFiltro]);
   const personal = data?.personal || [];
+
+  const cambiarEstado = async (row, active) => {
+    try {
+      await updatePersonal(row.id, { activo: active });
+      showToast(`Personal ${active ? 'activado' : 'desactivado'}`);
+      refetch();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error al actualizar estado', 'error');
+    }
+  };
+
+  const eliminar = async (row) => {
+    if (!window.confirm(`¿Estás seguro de eliminar a ${row.nombre}?`)) return;
+    try {
+      await deletePersonal(row.id);
+      showToast('Personal eliminado');
+      refetch();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error al eliminar personal', 'error');
+    }
+  };
 
   const filterStyle = {
     padding: '9px 12px', border: '1.5px solid var(--border)',
@@ -35,19 +64,18 @@ export default function ListadoPersonal() {
 
   const columns = [
     { key: 'nombre', label: 'Nombre',
-      render: v => <span style={{ fontWeight: 500 }}>{v}</span> },
+      render: (v, row) => <span style={{ fontWeight: 500, color: row.activo ? 'var(--text-primary)' : 'var(--text-muted)' }}>{v}</span> },
     { key: 'rol', label: 'Rol', width: 140,
       render: v => <Badge variant={ROL_VARIANT[v] || 'neutral'}>{ROL_LABEL[v] || v}</Badge> },
     { key: 'telefono', label: 'Teléfono',
       render: v => <span style={{ color: 'var(--text-secondary)' }}>{v}</span> },
-    { key: 'estado', label: 'Estado', width: 100,
-      render: v => <Badge variant={v === 'Activo' ? 'success' : 'neutral'}>{v}</Badge> },
+    { key: 'estado', label: 'Estado', width: 120,
+      render: (_, row) => <StatusToggle active={row.activo} onChange={(active) => cambiarEstado(row, active)} /> },
     { key: 'id', label: 'Acciones', width: 110,
       render: (_, row) => (
         <div style={{ display: 'flex', gap: 4 }}>
-          <ActionBtn title="Ver" color="var(--green-700)">👁</ActionBtn>
-          <ActionBtn title="Editar" color="var(--blue-600)">✏️</ActionBtn>
-          <ActionBtn title="Eliminar" color="var(--red-500)">✕</ActionBtn>
+          <ActionBtn title="Editar" color="var(--blue-600)" onClick={() => { setPersonalEdit(row); setModalOpen(true); }}>✏️</ActionBtn>
+          <ActionBtn title="Eliminar" color="var(--red-500)" onClick={() => eliminar(row)}>✕</ActionBtn>
         </div>
       ),
     },
@@ -56,7 +84,18 @@ export default function ListadoPersonal() {
   return (
     <div style={{ padding: '0 2rem 2rem' }}>
       <PageHeader title="Personal" subtitle="Gestión del personal escolar"
-        action={<Button>+ Nuevo Personal</Button>} />
+        action={<Button onClick={() => { setPersonalEdit(null); setModalOpen(true); }}>+ Nuevo Personal</Button>} />
+
+      <ModalPersonal
+        open={modalOpen}
+        personal={personalEdit}
+        onClose={() => setModalOpen(false)}
+        onSaved={() => {
+          setModalOpen(false);
+          setPersonalEdit(null);
+          refetch();
+        }}
+      />
 
       <div style={{ display: 'flex', gap: 10, marginBottom: '1.25rem', flexWrap: 'wrap' }}>
         <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
@@ -69,7 +108,11 @@ export default function ListadoPersonal() {
           <option value="">Todos los roles</option>
           {Object.entries(ROL_LABEL).map(([v,l]) => <option key={v} value={v}>{l}</option>)}
         </select>
-        <select style={filterStyle}><option>Todos</option><option>Activo</option></select>
+        <select value={estadoFiltro} onChange={e => setEstadoFiltro(e.target.value)} style={filterStyle}>
+          <option value="">Todos</option>
+          <option value="Activo">Activo</option>
+          <option value="Inactivo">Inactivo</option>
+        </select>
       </div>
 
       <Card style={{ padding: 0 }}>

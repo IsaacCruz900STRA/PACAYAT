@@ -6,6 +6,7 @@ const ctrl       = require('../controllers/alumnoController');
 
 // Buscador (para modal de reportes) — todos los roles autenticados
 router.get('/buscar', auth, ctrl.buscarAlumnos);
+router.get('/validar-matricula', auth, roleGuard(['ADMIN','SECRETARIA']), ctrl.validarMatricula);
 
 // Listado y detalle
 router.get('/',    auth, roleGuard(['ADMIN','DIRECTIVO','PREFECTO','SECRETARIA','CONTROL_ESCOLAR']), ctrl.getAlumnos);

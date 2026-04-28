@@ -1,11 +1,92 @@
 const prisma = require('../config/db');
+const { generarPasswordTutor, hashPassword } = require('../services/passwordService');
+
+const REQUIRED_MESSAGE = 'Todos los campos son obligatorios excepto domicilio';
+
+function hasValue(value) {
+  return value !== undefined && value !== null && String(value).trim() !== '';
+}
+
+function validateAlumnoPayload(body) {
+  const required = [
+    body.nombreCompleto,
+    body.matricula,
+    body.curp,
+    body.fechaNacimiento,
+    body.grupo,
+    body.tutor?.nombreCompleto,
+    body.tutor?.telefono,
+    body.tutor?.correo,
+  ];
+  return required.every(hasValue);
+}
+
+function sanitizeTutor(tutor) {
+  return {
+    nombreCompleto: tutor.nombreCompleto.trim(),
+    telefono: tutor.telefono.trim(),
+    correo: tutor.correo.trim().toLowerCase(),
+  };
+}
+
+async function findOrCreateTutor(tx, tutorData, matricula) {
+  const tutor = sanitizeTutor(tutorData);
+  const existing = await tx.tutor.findFirst({
+    where: {
+      OR: [
+        { correo: tutor.correo },
+        { telefono: tutor.telefono },
+      ],
+    },
+  });
+
+  if (existing) {
+    return tx.tutor.update({
+      where: { id: existing.id },
+      data: tutor,
+    });
+  }
+
+  const password = await hashPassword(generarPasswordTutor());
+  const usuario = await tx.usuario.create({
+    data: {
+      username: `tutor_${matricula}`,
+      nombre: tutor.nombreCompleto,
+      password,
+      rol: 'TUTOR',
+    },
+  });
+
+  return tx.tutor.create({
+    data: {
+      ...tutor,
+      idUsuario: usuario.id,
+    },
+  });
+}
+
+async function findOrCreateGrupo(tx, nombre) {
+  const existing = await tx.grupo.findUnique({ where: { nombre } });
+  if (existing) return existing;
+
+  const match = nombre.match(/^(\d+)°([A-Z])$/i);
+  if (!match) throw new Error('El grupo seleccionado no es válido');
+
+  return tx.grupo.create({
+    data: {
+      nombre,
+      grado: parseInt(match[1]),
+      seccion: match[2].toUpperCase(),
+    },
+  });
+}
 
 /**
  * GET /api/alumnos
- * Query: { q, grupo, estado, page, limit }
+ * Query: { q, grupo, estado, sort, page, limit }
  */
 async function getAlumnos(req, res) {
-  const { q = '', grupo = '', estado = '', page = 1, limit = 20 } = req.query;
+  const { q = '', grupo = '', estado = '', sort = '', page = 1, limit = 20 } = req.query;
   const skip = (parseInt(page) - 1) * parseInt(limit);
 
   const where = {
@@ -25,18 +106,16 @@ async function getAlumnos(req, res) {
     const [alumnos, total] = await Promise.all([
       prisma.alumno.findMany({
         where, skip, take: parseInt(limit),
-        orderBy: { nombreCompleto: 'asc' },
+        orderBy: sort === 'puntaje' ? { puntosConducta: 'asc' } : { nombreCompleto: 'asc' },
         select: {
           id: true, matricula: true, nombreCompleto: true,
-          puntosConducta: true, activo: true,
+          puntosConducta: true, activo: true, grado: true,
           inscripciones: {
             where: { activa: true },
             select: { grupo: { select: { nombre: true } } },
             take: 1,
           },
-          tutor: {
-            select: { nombreCompleto: true },
-          },
+          tutor: { select: { nombreCompleto: true } },
         },
       }),
       prisma.alumno.count({ where }),
@@ -47,6 +126,8 @@ async function getAlumnos(req, res) {
       matricula:      a.matricula,
       nombreCompleto: a.nombreCompleto,
       puntosConducta: a.puntosConducta,
+      activo:         a.activo,
+      grado:          a.grado,
       estado:         a.activo ? 'Activo' : 'Inactivo',
       grupo:          a.inscripciones[0]?.grupo?.nombre || '—',
       tutor:          a.tutor?.nombreCompleto || '—',
@@ -59,10 +140,6 @@ async function getAlumnos(req, res) {
   }
 }
 
-/**
- * GET /api/alumnos/buscar?q=texto
- * Para el buscador del modal de reportes.
- */
 async function buscarAlumnos(req, res) {
   const { q = '' } = req.query;
   if (q.length < 2) return res.json([]);
@@ -101,9 +178,25 @@ async function buscarAlumnos(req, res) {
   }
 }
 
-/**
- * GET /api/alumnos/:id
- */
+async function validarMatricula(req, res) {
+  const { matricula = '', excludeId = '' } = req.query;
+
+  if (!hasValue(matricula)) {
+    return res.status(400).json({ message: 'La matrícula es requerida' });
+  }
+
+  try {
+    const alumno = await prisma.alumno.findUnique({
+      where: { matricula: matricula.trim() },
+      select: { id: true },
+    });
+    const disponible = !alumno || String(alumno.id) === String(excludeId);
+    res.json({ disponible, existe: !disponible });
+  } catch (err) {
+    res.status(500).json({ message: 'Error al validar matrícula' });
+  }
+}
+
 async function getAlumno(req, res) {
   const { id } = req.params;
   try {
@@ -112,7 +205,7 @@ async function getAlumno(req, res) {
       include: {
         inscripciones: {
           where: { activa: true },
-          include: { grupo: true },
+          include: { grupo: true, periodoEscolar: true },
         },
         tutor: true,
       },
@@ -124,44 +217,122 @@ async function getAlumno(req, res) {
   }
 }
 
-/**
- * POST /api/alumnos
- */
 async function createAlumno(req, res) {
-  const { matricula, nombreCompleto, fechaNacimiento, curp, domicilio } = req.body;
+  const { matricula, nombreCompleto, fechaNacimiento, curp, domicilio = '', grupo, puntosConducta = 100, tutor } = req.body;
+
+  if (!validateAlumnoPayload(req.body)) {
+    return res.status(400).json({ message: REQUIRED_MESSAGE });
+  }
+
   try {
-    const alumno = await prisma.alumno.create({
-      data: { matricula, nombreCompleto, fechaNacimiento: new Date(fechaNacimiento), curp, domicilio },
+    const periodoActivo = await prisma.periodoEscolar.findFirst({ where: { activo: true } });
+    if (!periodoActivo) return res.status(400).json({ message: 'No existe un periodo escolar activo' });
+
+    const alumno = await prisma.$transaction(async (tx) => {
+      const grupoDb = await findOrCreateGrupo(tx, grupo);
+      const tutorDb = await findOrCreateTutor(tx, tutor, matricula.trim());
+      const nuevoAlumno = await tx.alumno.create({
+        data: {
+          matricula: matricula.trim(),
+          nombreCompleto: nombreCompleto.trim(),
+          fechaNacimiento: new Date(fechaNacimiento),
+          curp: curp.trim(),
+          domicilio,
+          puntosConducta: parseInt(puntosConducta),
+          grado: grupoDb.grado,
+          idGrupo: grupoDb.id,
+          idTutor: tutorDb.id,
+        },
+      });
+
+      await tx.inscripcion.create({
+        data: {
+          idAlumno: nuevoAlumno.id,
+          idPeriodoEscolar: periodoActivo.id,
+          idGrupo: grupoDb.id,
+          activa: true,
+        },
+      });
+
+      return nuevoAlumno;
     });
+
     res.status(201).json(alumno);
   } catch (err) {
     if (err.code === 'P2002') {
       return res.status(409).json({ message: 'La matrícula o CURP ya existe' });
     }
+    console.error(err);
     res.status(500).json({ message: 'Error al crear el alumno' });
   }
 }
 
-/**
- * PUT /api/alumnos/:id
- */
 async function updateAlumno(req, res) {
   const { id } = req.params;
-  const { nombreCompleto, domicilio, curp } = req.body;
+  const { nombreCompleto, matricula, fechaNacimiento, domicilio = '', curp, puntosConducta, activo, grupo, tutor } = req.body;
+
+  if (Object.keys(req.body).length === 1 && activo !== undefined) {
+    try {
+      const alumno = await prisma.alumno.update({
+        where: { id: parseInt(id) },
+        data: { activo: Boolean(activo) },
+      });
+      return res.json(alumno);
+    } catch (err) {
+      return res.status(500).json({ message: 'Error al actualizar el estado del alumno' });
+    }
+  }
+
+  if (!validateAlumnoPayload(req.body)) {
+    return res.status(400).json({ message: REQUIRED_MESSAGE });
+  }
+
   try {
-    const alumno = await prisma.alumno.update({
-      where: { id: parseInt(id) },
-      data:  { nombreCompleto, domicilio, curp },
+    const alumno = await prisma.$transaction(async (tx) => {
+      const grupoDb = await findOrCreateGrupo(tx, grupo);
+      const actual = await tx.alumno.findUnique({ where: { id: parseInt(id) } });
+      if (!actual) throw new Error('Alumno no encontrado');
+
+      const tutorDb = actual.idTutor
+        ? await tx.tutor.update({
+            where: { id: actual.idTutor },
+            data: sanitizeTutor(tutor),
+          })
+        : await findOrCreateTutor(tx, tutor, matricula.trim());
+
+      const actualizado = await tx.alumno.update({
+        where: { id: parseInt(id) },
+        data: {
+          nombreCompleto: nombreCompleto.trim(),
+          matricula: matricula.trim(),
+          fechaNacimiento: new Date(fechaNacimiento),
+          domicilio,
+          curp: curp.trim(),
+          puntosConducta: parseInt(puntosConducta),
+          activo: Boolean(activo),
+          grado: grupoDb.grado,
+          idGrupo: grupoDb.id,
+          idTutor: tutorDb.id,
+        },
+      });
+
+      await tx.inscripcion.updateMany({
+        where: { idAlumno: actualizado.id, activa: true },
+        data: { idGrupo: grupoDb.id },
+      });
+
+      return actualizado;
     });
+
     res.json(alumno);
   } catch (err) {
-    res.status(500).json({ message: 'Error al actualizar el alumno' });
+    if (err.code === 'P2002') {
+      return res.status(409).json({ message: 'La matrícula o CURP ya existe' });
+    }
+    res.status(500).json({ message: err.message || 'Error al actualizar el alumno' });
   }
 }
 
-/**
- * DELETE /api/alumnos/:id  (soft delete)
- */
 async function deleteAlumno(req, res) {
   const { id } = req.params;
   try {
@@ -175,4 +346,12 @@ async function deleteAlumno(req, res) {
   }
 }
 
-module.exports = { getAlumnos, buscarAlumnos, getAlumno, createAlumno, updateAlumno, deleteAlumno };
+module.exports = {
+  getAlumnos,
+  buscarAlumnos,
+  validarMatricula,
+  getAlumno,
+  createAlumno,
+  updateAlumno,
+  deleteAlumno,
+};
