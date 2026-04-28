@@ -28,6 +28,14 @@ import DocenteHorario from '../pages/docente/Horario';
 import DocenteCalificaciones from '../pages/docente/Calificaciones';
 import DocenteAvisos from '../pages/docente/Avisos';
 
+//Tutor
+import TutorLayout   from '../layouts/TutorLayout';
+import TutorInicio   from '../pages/tutor/Inicio';
+import TutorHorario  from '../pages/tutor/Horario';
+import TutorBoleta   from '../pages/tutor/Boleta';
+import TutorReportes from '../pages/tutor/Reportes';
+import TutorContacto from '../pages/tutor/Contacto';
+
 const EnConstruccion = () => (
   <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
     <div style={{ fontSize: 48, marginBottom: 16 }}>🚧</div>
@@ -48,7 +56,7 @@ function RootRedirect() {
     PREFECTO: '/prefecto/dashboard',
     SECRETARIA: '/secretaria/dashboard',
     CONTROL_ESCOLAR: '/control-escolar/dashboard',
-    TUTOR: '/tutor/dashboard',
+    TUTOR: '/tutor/inicio',
   };
 
   return <Navigate to={routes[user.rol] || '/login'} replace />;
@@ -87,8 +95,10 @@ export default function AppRouter() {
           </Route>
         </Route>
 
-        {/* RESTO DE ROLES */}
+        {/* DIRECTIVO */}
         <Route path="/directivo/*" element={<EnConstruccion />} />
+
+        {/* PREFECTO */}
 <Route element={<ProtectedRoute rolesPermitidos={['PREFECTO']} />}>
   <Route path="/prefecto" element={<PrefectoLayout />}>
     <Route index element={<Navigate to="dashboard" replace />} />
@@ -101,7 +111,19 @@ export default function AppRouter() {
 
         <Route path="/secretaria/*" element={<EnConstruccion />} />
         <Route path="/control-escolar/*" element={<EnConstruccion />} />
-        <Route path="/tutor/*" element={<EnConstruccion />} />
+
+          {/* TUTOR */}
+        <Route element={<ProtectedRoute rolesPermitidos={['TUTOR']} />}>
+  <Route path="/tutor" element={<TutorLayout />}>
+    <Route index element={<Navigate to="inicio" replace />} />
+    <Route path="inicio"   element={<TutorInicio />}   />
+    <Route path="horario"  element={<TutorHorario />}  />
+    <Route path="boleta"   element={<TutorBoleta />}   />
+    <Route path="reportes" element={<TutorReportes />} />
+    <Route path="contacto" element={<TutorContacto />} />
+  </Route>
+</Route>
+
         <Route path="/no-autorizado" element={<EnConstruccion />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
