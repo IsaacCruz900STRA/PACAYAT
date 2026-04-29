@@ -4,9 +4,9 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --green-900: #14532d; --green-800: #166534; --green-700: #15803d;
-  --green-600: #16a34a; --green-500: #22c55e; --green-100: #dcfce7; --green-50: #f0fdf4;
-  --sidebar-bg: #1a3a28; --sidebar-active: #2d5a3f; --sidebar-hover: #234836;
+  --green-900: hsl(144, 71%, 43%); --green-800: #166534; --green-700: #15803d;
+  --green-600: #1e5131; --green-500: #22c55e; --green-100: #dcfce7; --green-50: #f0fdf4;
+  --sidebar-bg: #1e9a54; --sidebar-active: #2d5a3f; --sidebar-hover: #234836;
   --sidebar-border: rgba(255,255,255,0.08); --sidebar-width: 240px;
   --text-primary: #111827; --text-secondary: #6b7280; --text-muted: #9ca3af;
   --bg-page: #f5f6f0; --bg-card: #ffffff; --bg-hover: #f9fafb; --border: #e5e7eb;
