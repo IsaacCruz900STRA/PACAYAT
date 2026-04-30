@@ -5,6 +5,7 @@ import Card                from '../../components/ui/Card';
 import Badge               from '../../components/ui/Badge';
 import Button              from '../../components/ui/Button';
 import Table               from '../../components/ui/Table';
+import Modal               from '../../components/ui/Modal';
 import ModalAlumno         from '../../components/alumnos/ModalAlumno';
 import StatusToggle        from '../../components/ui/StatusToggle';
 import { useFetch }        from '../../hooks/useFetch';
@@ -22,6 +23,9 @@ export default function ListadoAlumnos() {
   const [grupo,   setGrupo]   = useState('');
   const [estado,  setEstado]  = useState('');
   const [modalAlumnoOpen, setModalAlumnoOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [alumnoEliminar, setAlumnoEliminar] = useState(null);
+  const [countdown, setCountdown] = useState(10);
   const [grupos, setGrupos] = useState([]);
   const navigate = useNavigate();
 
@@ -33,14 +37,34 @@ export default function ListadoAlumnos() {
 
   const alumnos = data?.alumnos || [];
 
-  const eliminarAlumno = async (alumno) => {
-    const confirmed = window.confirm(`¿Estás seguro de eliminar a ${alumno.nombreCompleto}?`);
-    if (!confirmed) return;
+  useEffect(() => {
+    if (!deleteModalOpen) return;
+    if (countdown <= 0) return;
+
+    const timer = setTimeout(() => setCountdown(prev => prev - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [deleteModalOpen, countdown]);
+
+  const openDeleteModal = (alumno) => {
+    setAlumnoEliminar(alumno);
+    setCountdown(10);
+    setDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModalOpen(false);
+    setAlumnoEliminar(null);
+    setCountdown(5);
+  };
+
+  const confirmarEliminarAlumno = async () => {
+    if (!alumnoEliminar) return;
 
     try {
-      await deleteAlumno(alumno.id);
+      await deleteAlumno(alumnoEliminar.id);
       showToast('Alumno eliminado');
       refetch();
+      closeDeleteModal();
     } catch (err) {
       showToast(err.response?.data?.message || 'Error al eliminar alumno', 'error');
     }
@@ -73,7 +97,7 @@ export default function ListadoAlumnos() {
       render: (_, row) => (
         <div style={{ display: 'flex', gap: 4 }}>
           <ActionBtn title="Ver expediente" color="var(--green-700)" onClick={() => navigate(`/admin/alumnos/${row.id}`)}>👁</ActionBtn>
-          <ActionBtn title="Eliminar" color="var(--red-500)" onClick={() => eliminarAlumno(row)}>✕</ActionBtn>
+          <ActionBtn title="Eliminar" color="var(--red-500)" onClick={() => openDeleteModal(row)}>✕</ActionBtn>
         </div>
       ),
     },
@@ -100,6 +124,36 @@ export default function ListadoAlumnos() {
           refetch();
         }}
       />
+
+      <Modal open={deleteModalOpen} onClose={closeDeleteModal} title="Eliminar alumno" width={520}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ color: 'var(--red-700)', fontWeight: 700 }}>Advertencia</div>
+          <div style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+            Estás a punto de quitar a este alumno del sistema. Confirma que deseas continuar con la eliminación.
+          </div>
+          {alumnoEliminar && (
+            <div style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius)', background: '#fef2f2' }}>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>Alumno</div>
+              <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{alumnoEliminar.nombreCompleto}</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 14 }}>
+                <div><strong>Matrícula:</strong> {alumnoEliminar.matricula}</div>
+                <div><strong>Grupo:</strong> {alumnoEliminar.grupo}</div>
+                <div><strong>Estado:</strong> {alumnoEliminar.activo ? 'Activo' : 'Inactivo'}</div>
+                <div><strong>Puntos:</strong> {alumnoEliminar.puntosConducta}</div>
+              </div>
+            </div>
+          )}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <Button variant="outline" onClick={closeDeleteModal}>Cancelar</Button>
+            <Button variant="danger" onClick={confirmarEliminarAlumno} disabled={countdown > 0}>
+              {countdown > 0 ? `Aceptar en ${countdown}s` : 'Aceptar y eliminar'}
+            </Button>
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+            Debes esperar {countdown} segundos antes de confirmar para asegurarte de que leíste el aviso.
+          </div>
+        </div>
+      </Modal>
 
       {/* Filtros */}
       <div style={{ display: 'flex', gap: 10, marginBottom: '1.25rem', flexWrap: 'wrap', alignItems: 'center' }}>
