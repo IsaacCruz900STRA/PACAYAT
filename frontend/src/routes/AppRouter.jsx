@@ -39,6 +39,16 @@ import ControlEscolarAsignaciones   from '../pages/control-escolar/Asignaciones'
 import ControlEscolarReportes       from '../pages/control-escolar/Reportes';
 import ControlEscolarPeriodos       from '../pages/control-escolar/Periodos';
 
+//Secretaria
+import SecretariaLayout     from '../layouts/SecretariaLayout';
+import SecretariaDashboard  from '../pages/secretaria/Dashboard';
+import SecretariaAlumnos    from '../pages/secretaria/GestionAlumnos';
+import SecretariaTutores    from '../pages/secretaria/GestionTutores';
+import SecretariaGrupos     from '../pages/secretaria/GestionGrupos';
+import SecretariaDocumentos from '../pages/secretaria/Documentos';
+import SecretariaAvisos     from '../pages/secretaria/Avisos';
+import SecretariaReportes   from '../pages/secretaria/Reportes';
+
 // ── Placeholder con logout ────────────────────────────────────────────────────
 function EnConstruccion({ title = 'En construcción', message = 'Esta sección estará disponible próximamente.' }) {
   const { user, logout } = useAuth();
@@ -150,9 +160,23 @@ export default function AppRouter() {
         <Route element={<ProtectedRoute rolesPermitidos={['DIRECTIVO']} />}>
           <Route path="/directivo/*" element={<EnConstruccion />} />
         </Route>
+
+
         <Route element={<ProtectedRoute rolesPermitidos={['SECRETARIA']} />}>
-          <Route path="/secretaria/*" element={<EnConstruccion />} />
+         <Route element={<ProtectedRoute rolesPermitidos={['SECRETARIA', 'ADMIN']} />}>
+  <Route path="/secretaria" element={<SecretariaLayout />}>
+    <Route index element={<Navigate to="dashboard" replace />} />
+    <Route path="dashboard"  element={<SecretariaDashboard />}  />
+    <Route path="alumnos"    element={<SecretariaAlumnos />}    />
+    <Route path="tutores"    element={<SecretariaTutores />}    />
+    <Route path="grupos"     element={<SecretariaGrupos />}     />
+    <Route path="documentos" element={<SecretariaDocumentos />} />
+    <Route path="avisos"     element={<SecretariaAvisos />}     />
+    <Route path="reportes"   element={<SecretariaReportes />}   />
+  </Route>
+</Route>
         </Route>
+
         <Route element={<ProtectedRoute rolesPermitidos={['TUTOR']} />}>
           <Route path="/tutor/*" element={<EnConstruccion />} />
         </Route>
