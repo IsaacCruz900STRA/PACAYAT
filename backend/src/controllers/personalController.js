@@ -95,15 +95,22 @@ async function createPersonal(req, res) {
     estado,
     especialidad = 'ninguno',
     materiaIds = [],
+    password: passwordPlain,
   } = req.body;
 
   if (!validatePersonalPayload(req.body)) {
     return res.status(400).json({ message: REQUIRED_MESSAGE });
   }
+  if (!passwordPlain || !passwordPlain.trim()) {
+    return res.status(400).json({ message: 'La contraseña es obligatoria' });
+  }
+  if (passwordPlain.trim().length < 6) {
+    return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres' });
+  }
 
   try {
     const personal = await prisma.$transaction(async (tx) => {
-      const password = await hashPassword(generarPasswordPersonal(nombre.split(' ').at(-1) || nombre));
+      const password = await hashPassword(passwordPlain.trim());
       const usuario = await tx.usuario.create({
         data: {
           username: usernameFromNombre(nombre),
@@ -191,9 +198,16 @@ async function updatePersonal(req, res) {
         },
       });
 
+      const usuarioData = { nombre: nombre.trim(), rol, activo: estado === 'Activo' };
+      if (req.body.password?.trim()) {
+        if (req.body.password.trim().length < 6) {
+          throw new Error('La contraseña debe tener al menos 6 caracteres');
+        }
+        usuarioData.password = await hashPassword(req.body.password.trim());
+      }
       await tx.usuario.update({
         where: { id: updated.idUsuario },
-        data: { nombre: nombre.trim(), rol, activo: estado === 'Activo' },
+        data: usuarioData,
       });
 
       return updated;
@@ -202,7 +216,8 @@ async function updatePersonal(req, res) {
     res.json(personal);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error al actualizar personal' });
+    const msg = err.message?.includes('contraseña') ? err.message : 'Error al actualizar personal';
+    res.status(err.message?.includes('contraseña') ? 400 : 500).json({ message: msg });
   }
 }
 

@@ -6,6 +6,7 @@ import { getAlumnos }  from '../../api/alumnos.api';
 import { getReportes } from '../../api/reportes.api';
 import { getPersonal } from '../../api/personal.api';
 import { formatDateTime } from '../../utils/formatters';
+import ModalCrearReporte from '../../components/reportes/ModalCrearReporte';
 
 // ── Stat Card ─────────────────────────────────────────────
 function StatCard({ icon, iconBg, value, label }) {
@@ -39,6 +40,7 @@ export default function AdminDashboard() {
   const [promedioConducta, setPromedioConducta] = useState('—');
   const [reportes, setReportes] = useState([]);
   const [totalReportes, setTotalReportes] = useState(0);
+  const [modalReporteOpen, setModalReporteOpen] = useState(false);
 
   useEffect(() => {
     async function cargarDashboard() {
@@ -80,6 +82,27 @@ export default function AdminDashboard() {
     <div style={{ padding: '0 2rem 2rem' }}>
       <PageHeader title="Inicio" subtitle="Panel de Administración · Gestión escolar PACAYAT" />
 
+      {/* Botón centralizado Crear Reporte */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+        <button
+          onClick={() => setModalReporteOpen(true)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            padding: '14px 36px', borderRadius: 'var(--radius)',
+            background: 'var(--green-700)', color: '#fff',
+            border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+            fontSize: 16, fontWeight: 700,
+            boxShadow: 'var(--shadow-md)',
+            transition: 'all var(--transition)',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#14532d'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'var(--green-700)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+        >
+          <span style={{ fontSize: 20 }}>📋</span>
+          Crear Reporte de Conducta
+        </button>
+      </div>
+
       {/* Banner reinscripción */}
       <div style={{
         background: '#fffbeb', borderLeft: '4px solid var(--yellow-500)',
@@ -97,6 +120,12 @@ export default function AdminDashboard() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
         {stats.map(s => <StatCard key={s.label} {...s} />)}
       </div>
+
+      <ModalCrearReporte
+        open={modalReporteOpen}
+        onClose={() => setModalReporteOpen(false)}
+        onSuccess={() => { setModalReporteOpen(false); }}
+      />
 
       {/* Two columns */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>

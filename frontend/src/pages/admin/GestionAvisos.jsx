@@ -7,11 +7,23 @@ import { getAvisos, createAviso, updateAviso, deleteAviso } from '../../api/avis
 
 // ── Constantes ────────────────────────────────────────────────────────────────
 const TABS = [
-  { label: 'Conducta',     tipo: 'CONDUCTA' },
-  { label: 'Evaluación',   tipo: 'PERIODO_EVALUACION' },
-  { label: 'Reinscripción',tipo: 'REINSCRIPCION' },
-  { label: 'Generales',    tipo: 'GENERAL' },
+  { label: 'Conducta', tipo: 'CONDUCTA' },
+  { label: 'Generales', tipo: 'GENERAL' },
 ];
+
+// Tipos disponibles para crear (PERIODO_EVALUACION se gestiona automáticamente)
+const TIPOS_FORM = [
+  { value: 'CONDUCTA',     label: 'Conducta',      destinatario: 'Tutores' },
+  { value: 'REINSCRIPCION',label: 'Reinscripción', destinatario: 'Tutores' },
+  { value: 'GENERAL',      label: 'General',       destinatario: 'Todos'   },
+];
+
+const DESTINATARIO_LABEL = {
+  CONDUCTA:           'Tutores',
+  REINSCRIPCION:      'Tutores',
+  GENERAL:            'Todos',
+  PERIODO_EVALUACION: 'Tutores y Docentes',
+};
 
 const TIPO_STYLE = {
   CONDUCTA:           { border: '#ef4444', bg: '#fff5f5', badgeBg: '#fee2e2', badgeColor: '#991b1b' },
@@ -34,7 +46,8 @@ const FORM_INICIAL = {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function labelTipo(tipo) {
-  return TABS.find(t => t.tipo === tipo)?.label || tipo;
+  if (tipo === 'CONDUCTA') return 'Conducta';
+  return 'Generales';
 }
 
 // ── Componente principal ───────────────────────────────────────────────────────
@@ -62,12 +75,15 @@ export default function GestionAvisos() {
 
   useEffect(() => { cargar(); }, [cargar]);
 
-  const avisosFiltrados = avisos.filter(a => a.tipo === tab);
+  const avisosFiltrados = tab === 'CONDUCTA'
+    ? avisos.filter(a => a.tipo === 'CONDUCTA')
+    : avisos.filter(a => a.tipo !== 'CONDUCTA');
 
   // ── Modal helpers ─────────────────────────────────────────────────────────────
   const abrirCrear = () => {
     setEditando(null);
-    setForm({ ...FORM_INICIAL, tipo: tab });
+    // Si el tab es GENERAL, el formulario inicia en GENERAL; CONDUCTA en CONDUCTA
+    setForm({ ...FORM_INICIAL, tipo: tab === 'CONDUCTA' ? 'CONDUCTA' : 'GENERAL' });
     setModalOpen(true);
   };
 
@@ -224,8 +240,12 @@ export default function GestionAvisos() {
               disabled={!!editando}
               style={inputStyle}
             >
-              {TABS.map(t => <option key={t.tipo} value={t.tipo}>{t.label}</option>)}
+              {TIPOS_FORM.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
+            <div style={{ marginTop: 6, fontSize: 12, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span>👥</span>
+              <span>Destinatarios: <strong>{DESTINATARIO_LABEL[form.tipo] || 'Todos'}</strong></span>
+            </div>
           </FormField>
 
           <FormField label="Título *">
@@ -320,6 +340,9 @@ function AvisoCard({ aviso, onEditar, onEliminar, onToggleActivo }) {
               ≤ {aviso.umbralPuntos} pts
             </span>
           )}
+          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+            👥 {DESTINATARIO_LABEL[aviso.tipo] || 'Todos'}
+          </span>
           {(aviso.canales || []).map(c => (
             <span key={c} title={c} style={{ fontSize: 17 }}>{CANAL_ICON[c] || c}</span>
           ))}

@@ -61,4 +61,17 @@ async function updatePeriodo(req, res) {
   }
 }
 
-module.exports = { getPeriodoActivo, getPeriodos, updatePeriodo };
+async function getPeriodoEvaluacionActivo(req, res) {
+  try {
+    const hoy = new Date();
+    const periodo = await prisma.periodoEvaluacion.findFirst({
+      where: { fechaInicio: { lte: hoy }, fechaFin: { gte: hoy } },
+      orderBy: { fechaFin: 'asc' },
+    });
+    res.json(periodo || null);
+  } catch (err) {
+    res.status(500).json({ message: 'Error al obtener periodo de evaluación activo' });
+  }
+}
+
+module.exports = { getPeriodoActivo, getPeriodos, updatePeriodo, getPeriodoEvaluacionActivo };

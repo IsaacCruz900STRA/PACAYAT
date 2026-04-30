@@ -13,7 +13,7 @@ export default function Modal({ open, onClose, title, children, width = 520 }) {
 
   const overlayStyle = {
     position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
-    zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center',
+    zIndex: 600, display: 'flex', alignItems: 'center', justifyContent: 'center',
     padding: '1rem',
   };
   const boxStyle = {

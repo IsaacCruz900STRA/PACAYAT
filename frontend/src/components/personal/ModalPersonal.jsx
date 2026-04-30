@@ -25,12 +25,15 @@ const initialForm = {
   especialidad: 'ninguno',
   gradoMateria: '1',
   materiaIds: [],
+  password: '',
+  confirmarPassword: '',
 };
 
 export default function ModalPersonal({ open, personal = null, onClose, onSaved }) {
   const [form, setForm] = useState(initialForm);
   const [materias, setMaterias] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [showPass, setShowPass] = useState(false);
   const isEdit = Boolean(personal?.id);
 
   useEffect(() => {
@@ -44,7 +47,10 @@ export default function ModalPersonal({ open, personal = null, onClose, onSaved 
       especialidad: personal.especialidad || 'ninguno',
       gradoMateria: '1',
       materiaIds: personal.materiaIds || personal.materias?.map(materia => materia.id) || [],
+      password: '',
+      confirmarPassword: '',
     } : initialForm);
+    setShowPass(false);
   }, [open, personal]);
 
   useEffect(() => {
@@ -54,11 +60,24 @@ export default function ModalPersonal({ open, personal = null, onClose, onSaved 
       .catch(() => showToast('Error al cargar materias', 'error'));
   }, [open]);
 
+  const passwordError = useMemo(() => {
+    if (!isEdit) {
+      if (!form.password.trim()) return 'La contraseña es obligatoria';
+      if (form.password.trim().length < 6) return 'Mínimo 6 caracteres';
+      if (form.password !== form.confirmarPassword) return 'Las contraseñas no coinciden';
+    } else if (form.password.trim()) {
+      if (form.password.trim().length < 6) return 'Mínimo 6 caracteres';
+      if (form.password !== form.confirmarPassword) return 'Las contraseñas no coinciden';
+    }
+    return '';
+  }, [isEdit, form.password, form.confirmarPassword]);
+
   const requiredComplete = useMemo(() => {
     const base = form.nombre.trim() && form.rol && form.contacto.trim() && form.estado;
-    if (form.rol !== 'DOCENTE') return base;
-    return base && form.especialidad && form.materiaIds.length > 0;
-  }, [form]);
+    const passOk = !passwordError;
+    if (form.rol !== 'DOCENTE') return base && passOk;
+    return base && passOk && form.especialidad && form.materiaIds.length > 0;
+  }, [form, passwordError]);
 
   if (!open) return null;
 
@@ -95,6 +114,8 @@ export default function ModalPersonal({ open, personal = null, onClose, onSaved 
         materiaIds: form.rol === 'DOCENTE' ? form.materiaIds : [],
       };
 
+      if (form.password.trim()) payload.password = form.password.trim();
+
       if (isEdit) await updatePersonal(personal.id, payload);
       else await createPersonal(payload);
 
@@ -126,6 +147,33 @@ export default function ModalPersonal({ open, personal = null, onClose, onSaved 
           <Field label="Contacto" value={form.contacto} onChange={v => setValue('contacto', v)} required />
           <Field label="Correo" type="email" value={form.correo} onChange={v => setValue('correo', v)} />
           <SelectField label="Estado" value={form.estado} onChange={v => setValue('estado', v)} options={[['Activo', 'Activo'], ['Inactivo', 'Inactivo']]} required />
+        </div>
+
+        <div style={{ marginTop: 18, padding: 16, border: '1px solid var(--border)', borderRadius: 10, background: 'var(--bg-hover)' }}>
+          <h4 style={{ marginBottom: 12, fontSize: 14 }}>
+            {isEdit ? 'Cambiar contraseña (opcional)' : 'Contraseña de acceso'}
+          </h4>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <PasswordField
+              label={isEdit ? 'Nueva contraseña' : 'Contraseña'}
+              value={form.password}
+              onChange={v => setValue('password', v)}
+              show={showPass}
+              onToggle={() => setShowPass(p => !p)}
+              required={!isEdit}
+            />
+            <PasswordField
+              label="Confirmar contraseña"
+              value={form.confirmarPassword}
+              onChange={v => setValue('confirmarPassword', v)}
+              show={showPass}
+              onToggle={() => setShowPass(p => !p)}
+              required={!isEdit}
+            />
+          </div>
+          {passwordError && (form.password || !isEdit) && (
+            <p style={{ marginTop: 6, fontSize: 12, color: 'var(--color-error, #dc2626)' }}>{passwordError}</p>
+          )}
         </div>
 
         {form.rol === 'DOCENTE' && (
@@ -169,6 +217,32 @@ function Field({ label, value, onChange, type = 'text', required = false }) {
         onChange={event => onChange(event.target.value)}
         style={{ padding: '9px 11px', border: '1.5px solid var(--border)', borderRadius: 'var(--radius)', fontSize: 14, outline: 'none' }}
       />
+    </label>
+  );
+}
+
+function PasswordField({ label, value, onChange, show, onToggle, required = false }) {
+  return (
+    <label style={{ display: 'grid', gap: 6, fontSize: 13, fontWeight: 600 }}>
+      {label}
+      <div style={{ position: 'relative' }}>
+        <input
+          type={show ? 'text' : 'password'}
+          value={value}
+          required={required}
+          onChange={event => onChange(event.target.value)}
+          style={{ width: '100%', padding: '9px 38px 9px 11px', border: '1.5px solid var(--border)', borderRadius: 'var(--radius)', fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
+        />
+        <button
+          type="button"
+          onClick={onToggle}
+          style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 16, color: 'var(--text-secondary, #6b7280)', padding: 0, lineHeight: 1 }}
+          tabIndex={-1}
+          title={show ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+        >
+          {show ? '🙈' : '👁'}
+        </button>
+      </div>
     </label>
   );
 }

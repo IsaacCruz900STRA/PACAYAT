@@ -1,25 +1,17 @@
 // src/pages/docente/Dashboard.jsx
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import Card from '../../components/ui/Card';
 import PageHeader from '../../components/layout/PageHeader';
 import Button from '../../components/ui/Button';
+import { getPeriodoEvaluacionActivo } from '../../api/periodos.api';
 
-// ── Datos mock — reemplazar con useFetch en Fase 3 ──────────────
-const AVISOS_MOCK = [
-  {
-    tipo: 'warning',
-    titulo: 'Periodo de evaluación activo',
-    texto: "El periodo 'Marzo-Abril 2026' está abierto para captura de calificaciones. Cierra el 30 de abril.",
-    hora: 'Hoy, 7:00 AM',
-  },
-  {
-    tipo: 'danger',
-    titulo: '8 alumnos en riesgo en tus grupos',
-    texto: 'Tienes alumnos con menos de 60 puntos de conducta. Revisa la lista completa abajo.',
-    hora: 'Hoy, 8:30 AM',
-  },
-];
+function fmtFecha(iso) {
+  const d = new Date(iso);
+  const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  return `${d.getUTCDate()} de ${meses[d.getUTCMonth()]} de ${d.getUTCFullYear()}`;
+}
 
 const GRUPOS_MOCK = [
   { grupo: '1° A', materia: 'Matemáticas',  alumnos: 32, promedio: 8.2, idAsignacion: 1 },
@@ -61,6 +53,13 @@ function avisoColors(tipo) {
 export default function DocenteDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [periodoEval, setPeriodoEval] = useState(null);
+
+  useEffect(() => {
+    getPeriodoEvaluacionActivo()
+      .then(({ data }) => setPeriodoEval(data))
+      .catch(() => {});
+  }, []);
 
   const thStyle = {
     textAlign: 'left', padding: '10px 16px', fontSize: 13,
@@ -80,39 +79,38 @@ export default function DocenteDashboard() {
         subtitle={user?.nombre || 'Docente'}
       />
 
-      {/* ── Avisos importantes ── */}
-      <section style={{ marginBottom: '1.5rem' }}>
-        <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: '1rem', color: 'var(--text-primary)' }}>
-          Avisos Importantes
-        </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          {AVISOS_MOCK.map((a, i) => {
-            const c = avisoColors(a.tipo);
-            return (
-              <div key={i} style={{
-                borderLeft: `4px solid ${c.border}`, borderRadius: 'var(--radius-lg)',
-                background: c.bg, padding: '1.25rem',
-                border: `1px solid ${c.border}`, borderLeftWidth: 4,
-              }}>
-                <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                  <span style={{ fontSize: 22, lineHeight: 1 }}>{c.icon}</span>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: c.titleColor, marginBottom: 6 }}>{a.titulo}</div>
-                    <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 8 }}>{a.texto}</div>
-                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{a.hora}</div>
-                  </div>
+      {/* ── Aviso de periodo de evaluación ── */}
+      {periodoEval && (
+        <section style={{ marginBottom: '1.5rem' }}>
+          <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: '1rem', color: 'var(--text-primary)' }}>
+            🔔 Avisos de Evaluación
+          </h2>
+          <div style={{
+            borderLeft: '4px solid #f59e0b', borderRadius: 'var(--radius-lg)',
+            background: '#fffbeb', padding: '1rem 1.25rem',
+            border: '1px solid #f59e0b', borderLeftWidth: 4,
+          }}>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+              <span style={{ fontSize: 20, lineHeight: 1 }}>🔔</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#92400e', marginBottom: 4 }}>
+                  Periodo de evaluación activo
+                </div>
+                <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                  El periodo <strong>'{periodoEval.nombre}'</strong> está abierto para captura de calificaciones.
+                  Cierra el {fmtFecha(periodoEval.fechaFin)}. No olvides subir tus calificaciones.
                 </div>
               </div>
-            );
-          })}
-        </div>
-      </section>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── Stats ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
         {[
           { label: 'Mis Grupos',          value: GRUPOS_MOCK.length,  icon: '👥', iconBg: '#dcfce7' },
-          { label: 'Periodo Actual',       value: 'Marzo-Abril',     icon: '📅', iconBg: '#dbeafe', big: true },
+          { label: 'Periodo Actual',       value: periodoEval?.nombre || '—', icon: '📅', iconBg: '#dbeafe', big: true },
           { label: 'Alumnos en Riesgo',    value: RIESGO_MOCK.length,  icon: '⚠️', iconBg: '#fee2e2' },
         ].map((s, i) => (
           <Card key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem' }}>

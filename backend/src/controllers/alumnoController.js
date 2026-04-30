@@ -1,5 +1,15 @@
 const prisma = require('../config/db');
-const { generarPasswordTutor, hashPassword } = require('../services/passwordService');
+const { hashPassword } = require('../services/passwordService');
+
+function usernameFromNombre(nombre) {
+  return nombre
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '.')
+    .replace(/^\.+|\.+$/g, '')
+    .slice(0, 40);
+}
 
 const REQUIRED_MESSAGE = 'Todos los campos son obligatorios excepto domicilio';
 
@@ -17,6 +27,7 @@ function validateAlumnoPayload(body) {
     body.tutor?.nombreCompleto,
     body.tutor?.telefono,
     body.tutor?.correo,
+    body.tutor?.curp,
   ];
   return required.every(hasValue);
 }
@@ -26,42 +37,42 @@ function sanitizeTutor(tutor) {
     nombreCompleto: tutor.nombreCompleto.trim(),
     telefono: tutor.telefono.trim(),
     correo: tutor.correo.trim().toLowerCase(),
+    curp: tutor.curp.trim().toUpperCase(),
   };
 }
 
-async function findOrCreateTutor(tx, tutorData, matricula) {
+async function findOrCreateTutor(tx, tutorData) {
   const tutor = sanitizeTutor(tutorData);
-  const existing = await tx.tutor.findFirst({
-    where: {
-      OR: [
-        { correo: tutor.correo },
-        { telefono: tutor.telefono },
-      ],
-    },
-  });
+
+  // Buscar tutor existente por CURP (identificador único del tutor)
+  const existing = await tx.tutor.findUnique({ where: { curp: tutor.curp } });
 
   if (existing) {
+    // Mismo tutor: actualizar datos de contacto sin tocar credenciales
     return tx.tutor.update({
       where: { id: existing.id },
-      data: tutor,
+      data: {
+        nombreCompleto: tutor.nombreCompleto,
+        telefono: tutor.telefono,
+        correo: tutor.correo,
+      },
     });
   }
 
-  const password = await hashPassword(generarPasswordTutor());
+  // Tutor nuevo: requiere contraseña
+  const passwordPlain = tutorData.password?.trim();
+  if (!passwordPlain) throw new Error('La contraseña del tutor es obligatoria');
+  if (passwordPlain.length < 6) throw new Error('La contraseña del tutor debe tener al menos 6 caracteres');
+
+  const username = usernameFromNombre(tutor.nombreCompleto);
+  const password = await hashPassword(passwordPlain);
+
   const usuario = await tx.usuario.create({
-    data: {
-      username: `tutor_${matricula}`,
-      nombre: tutor.nombreCompleto,
-      password,
-      rol: 'TUTOR',
-    },
+    data: { username, nombre: tutor.nombreCompleto, password, rol: 'TUTOR' },
   });
 
   return tx.tutor.create({
-    data: {
-      ...tutor,
-      idUsuario: usuario.id,
-    },
+    data: { ...tutor, idUsuario: usuario.id },
   });
 }
 
@@ -230,7 +241,7 @@ async function createAlumno(req, res) {
 
     const alumno = await prisma.$transaction(async (tx) => {
       const grupoDb = await findOrCreateGrupo(tx, grupo);
-      const tutorDb = await findOrCreateTutor(tx, tutor, matricula.trim());
+      const tutorDb = await findOrCreateTutor(tx, tutor);
       const nuevoAlumno = await tx.alumno.create({
         data: {
           matricula: matricula.trim(),
@@ -261,6 +272,9 @@ async function createAlumno(req, res) {
   } catch (err) {
     if (err.code === 'P2002') {
       return res.status(409).json({ message: 'La matrícula o CURP ya existe' });
+    }
+    if (err.message?.includes('contraseña') || err.message?.includes('CURP')) {
+      return res.status(400).json({ message: err.message });
     }
     console.error(err);
     res.status(500).json({ message: 'Error al crear el alumno' });
@@ -293,12 +307,7 @@ async function updateAlumno(req, res) {
       const actual = await tx.alumno.findUnique({ where: { id: parseInt(id) } });
       if (!actual) throw new Error('Alumno no encontrado');
 
-      const tutorDb = actual.idTutor
-        ? await tx.tutor.update({
-            where: { id: actual.idTutor },
-            data: sanitizeTutor(tutor),
-          })
-        : await findOrCreateTutor(tx, tutor, matricula.trim());
+      const tutorDb = await findOrCreateTutor(tx, tutor);
 
       const actualizado = await tx.alumno.update({
         where: { id: parseInt(id) },

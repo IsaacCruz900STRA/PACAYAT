@@ -1,8 +1,9 @@
 // src/layouts/PrefectoLayout.jsx
 import { useLocation, Outlet } from 'react-router-dom';
-import Sidebar from '../components/layout/Sidebar';
-import Navbar  from '../components/layout/Navbar';
+import Sidebar   from '../components/layout/Sidebar';
+import Navbar    from '../components/layout/Navbar';
 import { Toast } from '../components/ui/Toast';
+import HelpFAB   from '../components/ui/HelpFAB';
 
 const NAV_ITEMS = [
   { to: '/prefecto/dashboard', icon: '⊞', label: 'Dashboard' },
@@ -29,13 +30,7 @@ export default function PrefectoLayout() {
         <main style={{ flex: 1 }}><Outlet /></main>
       </div>
       <Toast />
-      <button style={{
-        position: 'fixed', bottom: 24, right: 24, width: 44, height: 44,
-        borderRadius: '50%', background: '#374151', color: '#fff',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 18, fontWeight: 700, cursor: 'pointer',
-        boxShadow: 'var(--shadow-md)', zIndex: 300, border: 'none',
-      }}>?</button>
+      <HelpFAB />
     </div>
   );
 }

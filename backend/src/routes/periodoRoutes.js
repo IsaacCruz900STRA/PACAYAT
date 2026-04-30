@@ -5,6 +5,7 @@ const roleGuard = require('../middlewares/roleGuard');
 const ctrl = require('../controllers/periodoController');
 
 router.get('/activo', auth, ctrl.getPeriodoActivo);
+router.get('/evaluacion-activo', auth, ctrl.getPeriodoEvaluacionActivo);
 router.get('/', auth, ctrl.getPeriodos);
 router.put('/:id', auth, roleGuard(['ADMIN','SECRETARIA','CONTROL_ESCOLAR']), ctrl.updatePeriodo);
 

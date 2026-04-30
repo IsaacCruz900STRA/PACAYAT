@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Button from '../ui/Button';
 import { showToast } from '../ui/Toast';
 import { createAlumno, updateAlumno, validarMatricula } from '../../api/alumnos.api';
+import { getTutores } from '../../api/tutores.api';
 
 const GRADOS = ['1', '2', '3'];
 const SECCIONES = ['A', 'B', 'C', 'D', 'E', 'F'];
@@ -21,6 +22,9 @@ const initialForm = {
   tutorNombre: '',
   tutorTelefono: '',
   tutorCorreo: '',
+  tutorCurp: '',
+  tutorPassword: '',
+  tutorConfirmarPassword: '',
 };
 
 function normalizeWord(value) {
@@ -95,6 +99,8 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
   const [saving, setSaving] = useState(false);
   const [checkingMatricula, setCheckingMatricula] = useState(false);
   const [matriculaDisponible, setMatriculaDisponible] = useState(true);
+  const [showPass, setShowPass] = useState(false);
+  const [tutorExistente, setTutorExistente] = useState(false);
   const isEdit = Boolean(alumno?.id);
 
   useEffect(() => {
@@ -112,8 +118,13 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
       tutorNombre: alumno.tutor?.nombreCompleto || '',
       tutorTelefono: alumno.tutor?.telefono || '',
       tutorCorreo: alumno.tutor?.correo || '',
+      tutorCurp: alumno.tutor?.curp || '',
+      tutorPassword: '',
+      tutorConfirmarPassword: '',
     } : initialForm);
     setMatriculaDisponible(true);
+    setShowPass(false);
+    setTutorExistente(false);
   }, [open, alumno]);
 
   useEffect(() => {
@@ -137,6 +148,17 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
     return () => clearTimeout(timeout);
   }, [open, form.matricula, alumno?.id]);
 
+  useEffect(() => {
+    const curp = form.tutorCurp.trim().toUpperCase();
+    if (!open || curp.length < 18) { setTutorExistente(false); return; }
+    const timeout = setTimeout(() => {
+      getTutores({ curp })
+        .then(({ data }) => setTutorExistente((data.tutores || []).some(t => t.curp === curp)))
+        .catch(() => setTutorExistente(false));
+    }, 400);
+    return () => clearTimeout(timeout);
+  }, [open, form.tutorCurp]);
+
   const fechaNacimientoValida = useMemo(() => {
     if (!form.fechaNacimiento) return false;
     return new Date(form.fechaNacimiento) < new Date('2015-01-01');
@@ -154,6 +176,14 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
     fechaNacimiento: form.fechaNacimiento,
   }), [form.nombres, form.apellidoPaterno, form.apellidoMaterno, form.fechaNacimiento]);
 
+  const tutorPasswordError = useMemo(() => {
+    if (tutorExistente) return '';
+    if (!form.tutorPassword.trim()) return 'La contraseña del tutor es obligatoria';
+    if (form.tutorPassword.trim().length < 6) return 'Mínimo 6 caracteres';
+    if (form.tutorPassword !== form.tutorConfirmarPassword) return 'Las contraseñas no coinciden';
+    return '';
+  }, [tutorExistente, form.tutorPassword, form.tutorConfirmarPassword]);
+
   const requiredComplete = useMemo(() => (
     form.nombres.trim()
     && form.apellidoPaterno.trim()
@@ -169,7 +199,9 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
     && form.tutorNombre.trim()
     && form.tutorTelefono.trim()
     && form.tutorCorreo.trim()
-  ), [form, puntosConductaValida]);
+    && form.tutorCurp.trim().length === 18
+    && !tutorPasswordError
+  ), [form, puntosConductaValida, tutorPasswordError]);
 
   if (!open) return null;
 
@@ -211,6 +243,8 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
         nombreCompleto: form.tutorNombre,
         telefono: form.tutorTelefono,
         correo: form.tutorCorreo,
+        curp: form.tutorCurp.trim().toUpperCase(),
+        ...(form.tutorPassword.trim() ? { password: form.tutorPassword.trim() } : {}),
       },
     };
 
@@ -256,7 +290,7 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
           <Field label="Apellido materno" value={form.apellidoMaterno} onChange={v => setValue('apellidoMaterno', v)} required />
           <div style={{ gridColumn: 'span 2' }}>
             <label style={{ display: 'grid', gap: 6, fontSize: 13, fontWeight: 600 }}>
-              CURP
+              <span>CURP <span style={{ color: '#dc2626' }}>*</span></span>
               <div style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -332,9 +366,59 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
         <h4 style={{ margin: '22px 0 12px' }}>Tutor</h4>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
           <Field label="Nombre del tutor" value={form.tutorNombre} onChange={v => setValue('tutorNombre', v)} required />
+          <Field
+            label="CURP del tutor"
+            value={form.tutorCurp}
+            onChange={v => setValue('tutorCurp', v.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 18))}
+            required
+            maxLength={18}
+            hint={
+              form.tutorCurp.length === 18
+                ? tutorExistente
+                  ? '✓ Tutor registrado — se vinculará a su cuenta existente'
+                  : 'Tutor nuevo — se creará una cuenta'
+                : 'Escribe los 18 caracteres de la CURP'
+            }
+            error={form.tutorCurp.length > 0 && form.tutorCurp.length < 18 ? 'La CURP debe tener 18 caracteres' : ''}
+          />
           <Field label="Teléfono" value={form.tutorTelefono} onChange={v => setValue('tutorTelefono', v)} required />
           <Field label="Correo" type="email" value={form.tutorCorreo} onChange={v => setValue('tutorCorreo', v)} required />
         </div>
+
+        {!tutorExistente && (
+          <div style={{ marginTop: 14, padding: 14, border: '1px solid var(--border)', borderRadius: 10, background: 'var(--bg-hover)' }}>
+            <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12 }}>
+              Contraseña de acceso del tutor (usuario: nombre completo normalizado)
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <PasswordField
+                label="Contraseña del tutor"
+                value={form.tutorPassword}
+                onChange={v => setValue('tutorPassword', v)}
+                show={showPass}
+                onToggle={() => setShowPass(p => !p)}
+                required={!tutorExistente}
+              />
+              <PasswordField
+                label="Confirmar contraseña"
+                value={form.tutorConfirmarPassword}
+                onChange={v => setValue('tutorConfirmarPassword', v)}
+                show={showPass}
+                onToggle={() => setShowPass(p => !p)}
+                required={!tutorExistente}
+              />
+            </div>
+            {tutorPasswordError && (form.tutorPassword || !isEdit) && (
+              <p style={{ marginTop: 6, fontSize: 12, color: 'var(--color-error, #dc2626)' }}>{tutorPasswordError}</p>
+            )}
+          </div>
+        )}
+
+        {tutorExistente && (
+          <div style={{ marginTop: 14, padding: 12, borderRadius: 8, background: '#f0fdf4', border: '1px solid #bbf7d0', fontSize: 13, color: '#166534' }}>
+            Este tutor ya tiene cuenta en el sistema. Se vinculará a los alumnos sin cambiar su contraseña.
+          </div>
+        )}
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 24 }}>
           <Button variant="outline" onClick={onClose}>Cancelar</Button>
@@ -350,7 +434,7 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
 function Field({ label, value, onChange, type = 'text', required = false, error = '', hint = '', readOnly = false, ...inputProps }) {
   return (
     <label style={{ display: 'grid', gap: 6, fontSize: 13, fontWeight: 600 }}>
-      {label}
+      <span>{label}{required && <span style={{ color: '#dc2626', marginLeft: 2 }}>*</span>}</span>
       <input
         type={type}
         value={value}
@@ -375,10 +459,35 @@ function Field({ label, value, onChange, type = 'text', required = false, error 
   );
 }
 
+function PasswordField({ label, value, onChange, show, onToggle, required = false }) {
+  return (
+    <label style={{ display: 'grid', gap: 6, fontSize: 13, fontWeight: 600 }}>
+      {label}{required && <span style={{ color: '#dc2626', marginLeft: 2 }}>*</span>}
+      <div style={{ position: 'relative' }}>
+        <input
+          type={show ? 'text' : 'password'}
+          value={value}
+          required={required}
+          onChange={event => onChange(event.target.value)}
+          style={{ width: '100%', padding: '9px 38px 9px 11px', border: '1.5px solid var(--border)', borderRadius: 'var(--radius)', fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
+        />
+        <button
+          type="button"
+          onClick={onToggle}
+          tabIndex={-1}
+          style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 16, color: 'var(--text-secondary, #6b7280)', padding: 0, lineHeight: 1 }}
+        >
+          {show ? '🙈' : '👁'}
+        </button>
+      </div>
+    </label>
+  );
+}
+
 function SelectField({ label, value, onChange, options, required = false }) {
   return (
     <label style={{ display: 'grid', gap: 6, fontSize: 13, fontWeight: 600 }}>
-      {label}
+      <span>{label}{required && <span style={{ color: '#dc2626', marginLeft: 2 }}>*</span>}</span>
       <select
         value={value}
         required={required}

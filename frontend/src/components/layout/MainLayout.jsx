@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import { Toast } from '../ui/Toast';
+import HelpFAB   from '../ui/HelpFAB';
 
 export default function MainLayout({ sidebar, navbar }) {
   return (
@@ -12,14 +13,7 @@ export default function MainLayout({ sidebar, navbar }) {
         </main>
       </div>
       <Toast />
-      {/* Help FAB */}
-      <button style={{
-        position: 'fixed', bottom: 24, right: 24, width: 44, height: 44,
-        borderRadius: '50%', background: '#374151', color: '#fff',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 18, fontWeight: 700, cursor: 'pointer',
-        boxShadow: 'var(--shadow-md)', zIndex: 300, border: 'none',
-      }}>?</button>
+      <HelpFAB />
     </div>
   );
 }
