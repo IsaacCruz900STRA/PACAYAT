@@ -24,11 +24,11 @@ import PrefectoHorarios  from '../pages/prefecto/Horarios';
 import PrefectoReportes  from '../pages/prefecto/Reportes';
 
 // Docente
-import DocenteLayout        from '../layouts/DocenteLayout';
-import DocenteDashboard     from '../pages/docente/Dashboard';
-import DocenteHorario       from '../pages/docente/Horario';
+import DocenteLayout         from '../layouts/DocenteLayout';
+import DocenteDashboard      from '../pages/docente/Dashboard';
+import DocenteHorario        from '../pages/docente/Horario';
 import DocenteCalificaciones from '../pages/docente/Calificaciones';
-import DocenteAvisos        from '../pages/docente/Avisos';
+import DocenteAvisos         from '../pages/docente/Avisos';
 
 // Control Escolar
 import ControlEscolarLayout         from '../layouts/ControlEscolarLayout';
@@ -39,7 +39,7 @@ import ControlEscolarAsignaciones   from '../pages/control-escolar/Asignaciones'
 import ControlEscolarReportes       from '../pages/control-escolar/Reportes';
 import ControlEscolarPeriodos       from '../pages/control-escolar/Periodos';
 
-//Secretaria
+// Secretaría
 import SecretariaLayout     from '../layouts/SecretariaLayout';
 import SecretariaDashboard  from '../pages/secretaria/Dashboard';
 import SecretariaAlumnos    from '../pages/secretaria/GestionAlumnos';
@@ -49,7 +49,15 @@ import SecretariaDocumentos from '../pages/secretaria/Documentos';
 import SecretariaAvisos     from '../pages/secretaria/Avisos';
 import SecretariaReportes   from '../pages/secretaria/Reportes';
 
-// ── Placeholder con logout ────────────────────────────────────────────────────
+// Tutor
+import TutorLayout   from '../layouts/TutorLayout';
+import TutorInicio   from '../pages/tutor/Inicio';
+import TutorHorario  from '../pages/tutor/Horario';
+import TutorBoleta   from '../pages/tutor/Boleta';
+import TutorReportes from '../pages/tutor/Reportes';
+import TutorContacto from '../pages/tutor/Contacto';
+
+// ── Placeholder con logout ────────────────────────────────────
 function EnConstruccion({ title = 'En construcción', message = 'Esta sección estará disponible próximamente.' }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -83,18 +91,18 @@ function EnConstruccion({ title = 'En construcción', message = 'Esta sección e
   );
 }
 
-// ── Redirección según rol ─────────────────────────────────────────────────────
+// ── Redirección según rol ─────────────────────────────────────
 function RootRedirect() {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
   const routes = {
-    ADMIN:         '/admin/dashboard',
-    DIRECTIVO:     '/directivo/dashboard',
-    DOCENTE:       '/docente/dashboard',
-    PREFECTO:      '/prefecto/dashboard',
-    SECRETARIA:    '/secretaria/dashboard',
+    ADMIN:           '/admin/dashboard',
+    DIRECTIVO:       '/directivo/dashboard',
+    DOCENTE:         '/docente/dashboard',
+    PREFECTO:        '/prefecto/dashboard',
+    SECRETARIA:      '/secretaria/dashboard',
     CONTROL_ESCOLAR: '/control-escolar/dashboard',
-    TUTOR:         '/tutor/dashboard',
+    TUTOR:           '/tutor/inicio',   // ← corregido
   };
   return <Navigate to={routes[user.rol] || '/login'} replace />;
 }
@@ -156,30 +164,38 @@ export default function AppRouter() {
           </Route>
         </Route>
 
-        {/* ── RESTO DE ROLES ─────────────────────────────────── */}
+        {/* ── SECRETARÍA ─────────────────────────────────────── */}
+        <Route element={<ProtectedRoute rolesPermitidos={['SECRETARIA', 'ADMIN']} />}>
+          <Route path="/secretaria" element={<SecretariaLayout />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard"  element={<SecretariaDashboard />}  />
+            <Route path="alumnos"    element={<SecretariaAlumnos />}    />
+            <Route path="tutores"    element={<SecretariaTutores />}    />
+            <Route path="grupos"     element={<SecretariaGrupos />}     />
+            <Route path="documentos" element={<SecretariaDocumentos />} />
+            <Route path="avisos"     element={<SecretariaAvisos />}     />
+            <Route path="reportes"   element={<SecretariaReportes />}   />
+          </Route>
+        </Route>
+
+        {/* ── TUTOR ──────────────────────────────────────────── */}
+        <Route element={<ProtectedRoute rolesPermitidos={['TUTOR']} />}>
+          <Route path="/tutor" element={<TutorLayout />}>
+            <Route index element={<Navigate to="inicio" replace />} />
+            <Route path="inicio"   element={<TutorInicio />}   />
+            <Route path="horario"  element={<TutorHorario />}  />
+            <Route path="boleta"   element={<TutorBoleta />}   />
+            <Route path="reportes" element={<TutorReportes />} />
+            <Route path="contacto" element={<TutorContacto />} />
+          </Route>
+        </Route>
+
+        {/* ── DIRECTIVO ──────────────────────────────────────── */}
         <Route element={<ProtectedRoute rolesPermitidos={['DIRECTIVO']} />}>
           <Route path="/directivo/*" element={<EnConstruccion />} />
         </Route>
 
-
-        <Route element={<ProtectedRoute rolesPermitidos={['SECRETARIA']} />}>
-         <Route element={<ProtectedRoute rolesPermitidos={['SECRETARIA', 'ADMIN']} />}>
-  <Route path="/secretaria" element={<SecretariaLayout />}>
-    <Route index element={<Navigate to="dashboard" replace />} />
-    <Route path="dashboard"  element={<SecretariaDashboard />}  />
-    <Route path="alumnos"    element={<SecretariaAlumnos />}    />
-    <Route path="tutores"    element={<SecretariaTutores />}    />
-    <Route path="grupos"     element={<SecretariaGrupos />}     />
-    <Route path="documentos" element={<SecretariaDocumentos />} />
-    <Route path="avisos"     element={<SecretariaAvisos />}     />
-    <Route path="reportes"   element={<SecretariaReportes />}   />
-  </Route>
-</Route>
-        </Route>
-
-        <Route element={<ProtectedRoute rolesPermitidos={['TUTOR']} />}>
-          <Route path="/tutor/*" element={<EnConstruccion />} />
-        </Route>
+        {/* ── PÁGINAS DE ERROR ───────────────────────────────── */}
         <Route element={<ProtectedRoute />}>
           <Route path="/no-autorizado" element={<EnConstruccion title="Sin autorización" message="No tienes permisos para acceder a esta sección." />} />
         </Route>
