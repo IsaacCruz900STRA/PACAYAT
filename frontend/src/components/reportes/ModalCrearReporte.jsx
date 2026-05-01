@@ -159,7 +159,7 @@ export default function ModalCrearReporte({ open, onClose, alumnoPreset = null, 
         <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 5 }}>Tipo de Reporte</label>
         <div style={{ position: 'relative' }}>
           <select value={tipo} onChange={e => handleTipoChange(e.target.value)}
-            style={{ ...inputBase, appearance: 'none', cursor: 'pointer', paddingRight: 36 }}
+            style={{ ...inputBase, appearance: 'none', cursor: 'pointer', padding: '10px 36px 10px 38px' }}
             onFocus={e => e.target.style.borderColor = 'var(--green-600)'}
             onBlur={e => e.target.style.borderColor = 'var(--border)'}>
             <option>Negativo</option>
@@ -167,11 +167,10 @@ export default function ModalCrearReporte({ open, onClose, alumnoPreset = null, 
           </select>
           <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', fontSize: 12, color: 'var(--text-muted)' }}>▾</span>
           <span style={{
-            position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
+            position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)',
             width: 10, height: 10, borderRadius: '50%', pointerEvents: 'none',
             background: tipo === 'Negativo' ? 'var(--red-500)' : 'var(--green-500)',
           }} />
-          {/* Ocultar el texto del select detrás del dot — ajustamos padding */}
         </div>
       </div>
 

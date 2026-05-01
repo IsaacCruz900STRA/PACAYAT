@@ -24,7 +24,9 @@ export default function ListadoAlumnos() {
   const [estado,  setEstado]  = useState('');
   const [modalAlumnoOpen, setModalAlumnoOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [inactiveModalOpen, setInactiveModalOpen] = useState(false);
   const [alumnoEliminar, setAlumnoEliminar] = useState(null);
+  const [alumnoInactivar, setAlumnoInactivar] = useState(null);
   const [countdown, setCountdown] = useState(10);
   const [grupos, setGrupos] = useState([]);
   const navigate = useNavigate();
@@ -38,12 +40,12 @@ export default function ListadoAlumnos() {
   const alumnos = data?.alumnos || [];
 
   useEffect(() => {
-    if (!deleteModalOpen) return;
+    if (!deleteModalOpen && !inactiveModalOpen) return;
     if (countdown <= 0) return;
 
     const timer = setTimeout(() => setCountdown(prev => prev - 1), 1000);
     return () => clearTimeout(timer);
-  }, [deleteModalOpen, countdown]);
+  }, [deleteModalOpen, inactiveModalOpen, countdown]);
 
   const openDeleteModal = (alumno) => {
     setAlumnoEliminar(alumno);
@@ -55,6 +57,18 @@ export default function ListadoAlumnos() {
     setDeleteModalOpen(false);
     setAlumnoEliminar(null);
     setCountdown(5);
+  };
+
+  const openInactiveModal = (alumno) => {
+    setAlumnoInactivar(alumno);
+    setCountdown(10);
+    setInactiveModalOpen(true);
+  };
+
+  const closeInactiveModal = () => {
+    setInactiveModalOpen(false);
+    setAlumnoInactivar(null);
+    setCountdown(10);
   };
 
   const confirmarEliminarAlumno = async () => {
@@ -71,12 +85,32 @@ export default function ListadoAlumnos() {
   };
 
   const cambiarEstado = async (alumno, active) => {
+    // Si es para desactivar, pedir confirmación
+    if (!active) {
+      openInactiveModal(alumno);
+      return;
+    }
+
+    // Si es para activar, hacer directamente
     try {
       await updateAlumno(alumno.id, { activo: active });
-      showToast(`Alumno ${active ? 'activado' : 'desactivado'}`);
+      showToast('Alumno activado');
       refetch();
     } catch (err) {
       showToast(err.response?.data?.message || 'Error al actualizar estado', 'error');
+    }
+  };
+
+  const confirmarInactivarAlumno = async () => {
+    if (!alumnoInactivar) return;
+
+    try {
+      await updateAlumno(alumnoInactivar.id, { activo: false });
+      showToast('Alumno desactivado');
+      refetch();
+      closeInactiveModal();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error al desactivar alumno', 'error');
     }
   };
 
@@ -155,7 +189,34 @@ export default function ListadoAlumnos() {
         </div>
       </Modal>
 
-      {/* Filtros */}
+      <Modal open={inactiveModalOpen} onClose={closeInactiveModal} title="Desactivar alumno" width={520}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ color: 'var(--yellow-700)', fontWeight: 700 }}>⚠ Advertencia</div>
+          <div style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+            Estás a punto de desactivar a este alumno. Una vez desactivado, el alumno no tendrá acceso al sistema pero sus datos se conservarán.
+          </div>
+          {alumnoInactivar && (
+            <div style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius)', background: '#fffbeb' }}>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>Alumno</div>
+              <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{alumnoInactivar.nombreCompleto}</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 14 }}>
+                <div><strong>Matrícula:</strong> {alumnoInactivar.matricula}</div>
+                <div><strong>Grupo:</strong> {alumnoInactivar.grupo}</div>
+                <div><strong>Puntos:</strong> {alumnoInactivar.puntosConducta}</div>
+              </div>
+            </div>
+          )}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <Button variant="outline" onClick={closeInactiveModal}>Cancelar</Button>
+            <Button variant="warning" onClick={confirmarInactivarAlumno} disabled={countdown > 0}>
+              {countdown > 0 ? `Confirmar en ${countdown}s` : 'Confirmar desactivación'}
+            </Button>
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+            Debes esperar {countdown} segundos antes de confirmar para asegurarte de que leíste el aviso.
+          </div>
+        </div>
+      </Modal>
       <div style={{ display: 'flex', gap: 10, marginBottom: '1.25rem', flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
           <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 14 }}>🔍</span>
@@ -198,8 +259,8 @@ function ActionBtn({ children, title, color, onClick }) {
   return (
     <button title={title} onClick={onClick} style={{
       background: 'none', border: 'none', cursor: 'pointer',
-      padding: '4px 6px', borderRadius: 6,
-      color, fontSize: 15, transition: 'background var(--transition)',
+      padding: '6px 10px', borderRadius: 6,
+      color, fontSize: 22, transition: 'background var(--transition)',
     }}
       onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
       onMouseLeave={e => e.currentTarget.style.background = ''}

@@ -89,16 +89,16 @@ export default function LoginPage() {
     width: 420, boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
     position: 'relative', zIndex: 1,
   };
-  const labelStyle = { fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', display: 'block', marginBottom: 5 };
+  const labelStyle = { fontSize: 17, fontWeight: 600, color: 'var(--text-primary)', display: 'block', marginBottom: 8 };
   const selectStyle = {
-    width: '100%', padding: '10px 36px 10px 14px', appearance: 'none',
+    width: '100%', padding: '14px 43px 14px 16px', appearance: 'none',
     border: '1.5px solid var(--border)', borderRadius: 'var(--radius)',
-    fontSize: 14, outline: 'none', cursor: 'pointer', background: '#fff',
+    fontSize: 17, outline: 'none', cursor: 'pointer', background: '#fff',
   };
   const inputWrap = { position: 'relative' };
   const inputStyle = {
-    width: '100%', padding: '10px 36px', border: '1.5px solid var(--border)',
-    borderRadius: 'var(--radius)', fontSize: 14, outline: 'none',
+    width: '100%', padding: '14px 43px 14px 17px', border: '1.5px solid var(--border)',
+    borderRadius: 'var(--radius)', fontSize: 16, outline: 'none',
   };
 
   return (
@@ -116,16 +116,16 @@ export default function LoginPage() {
           background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
           marginBottom: '1rem', fontSize: 22, fontWeight: 700, color: 'var(--green-800)',
         }}>ST</div>
-        <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--green-800)', marginBottom: 2 }}>
+        <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--green-800)', marginBottom: 2 }}>
           Secundaria Técnica 177
         </div>
-        <div style={{ fontSize: 13, color: 'var(--green-700)', fontWeight: 500, marginBottom: '1.75rem' }}>
+        <div style={{ fontSize: 16, color: 'var(--green-700)', fontWeight: 500, marginBottom: '1.75rem' }}>
           Sistema PACAYAT
         </div>
 
         {/* Card */}
         <div style={cardStyle}>
-          <h2 style={{ textAlign: 'center', fontSize: 18, fontWeight: 700, marginBottom: '1.5rem' }}>
+          <h2 style={{ textAlign: 'center', fontSize: 23, fontWeight: 700, marginBottom: '1.5rem' }}>
             Iniciar Sesión
           </h2>
 
@@ -134,7 +134,7 @@ export default function LoginPage() {
             <div style={{
               background: 'var(--red-50)', border: '1px solid var(--red-100)',
               borderRadius: 8, padding: '10px 14px', color: 'var(--red-600)',
-              fontSize: 13, marginBottom: '1rem',
+              fontSize: 15, marginBottom: '1rem',
             }}>
               ⚠ {error}
             </div>
@@ -184,7 +184,6 @@ export default function LoginPage() {
                 Contraseña <span style={{ color: 'var(--red-500)' }}>*</span>
               </label>
               <div style={inputWrap}>
-                <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 15, color: 'var(--text-muted)' }}>🔒</span>
                 <input
                   type={showPass ? 'text' : 'password'}
                   value={password}
@@ -196,8 +195,8 @@ export default function LoginPage() {
                   onBlur={e => e.target.style.borderColor = 'var(--border)'}
                 />
                 <button type="button" onClick={() => setShowPass(s => !s)}
-                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 15, color: 'var(--text-muted)' }}>
-                  {showPass ? '🙈' : '👁'}
+                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'var(--text-muted)' }}>
+                  {showPass ? '👁' : '👁'}
                 </button>
               </div>
             </div>
@@ -208,7 +207,7 @@ export default function LoginPage() {
             <button onClick={handleSubmit} disabled={submitting} style={{
               width: '100%', padding: 12, borderRadius: 'var(--radius)', border: 'none',
               background: submitting ? 'var(--green-600)' : 'var(--green-700)',
-              color: '#fff', fontSize: 15, fontWeight: 600,
+              color: '#fff', fontSize: 18, fontWeight: 600,
               cursor: submitting ? 'wait' : 'pointer', transition: 'background var(--transition)',
               fontFamily: 'inherit',
             }}>
