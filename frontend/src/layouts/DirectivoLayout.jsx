@@ -5,7 +5,7 @@ import Navbar    from '../components/layout/Navbar';
 import { Toast } from '../components/ui/Toast';
 
 const NAV_ITEMS = [
-  { to: '/directivo/dashboard',    icon: '⊞', label: 'Dashboard'    },
+  { to: '/directivo/dashboard',    icon: '⊞', label: 'Inicio'    },
   { to: '/directivo/alumnos',      icon: '👥', label: 'Alumnos'      },
   { to: '/directivo/personal',     icon: '👤', label: 'Personal'     },
   { to: '/directivo/horarios',     icon: '📅', label: 'Horarios'     },
@@ -15,7 +15,7 @@ const NAV_ITEMS = [
 ];
 
 const BREADCRUMBS = {
-  '/directivo/dashboard':    'Dashboard',
+  '/directivo/dashboard':    'Inicio',
   '/directivo/alumnos':      'Alumnos',
   '/directivo/personal':     'Personal',
   '/directivo/horarios':     'Horarios',
