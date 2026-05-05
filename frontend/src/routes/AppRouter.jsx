@@ -57,6 +57,16 @@ import TutorBoleta   from '../pages/tutor/Boleta';
 import TutorReportes from '../pages/tutor/Reportes';
 import TutorContacto from '../pages/tutor/Contacto';
 
+//Directivo
+import DirectivoLayout       from '../layouts/DirectivoLayout';
+import DirectivoDashboard    from '../pages/directivo/Dashboard';
+import DirectivoAlumnos      from '../pages/directivo/Alumnos';
+import DirectivoPersonal     from '../pages/directivo/Personal';
+import DirectivoHorarios     from '../pages/directivo/Horarios';
+import DirectivoReportes     from '../pages/directivo/Reportes';
+import DirectivoEstadisticas from '../pages/directivo/Estadisticas';
+import DirectivoAvisos       from '../pages/directivo/Avisos';
+
 // ── Placeholder con logout ────────────────────────────────────
 function EnConstruccion({ title = 'En construcción', message = 'Esta sección estará disponible próximamente.' }) {
   const { user, logout } = useAuth();
@@ -192,7 +202,18 @@ export default function AppRouter() {
 
         {/* ── DIRECTIVO ──────────────────────────────────────── */}
         <Route element={<ProtectedRoute rolesPermitidos={['DIRECTIVO']} />}>
-          <Route path="/directivo/*" element={<EnConstruccion />} />
+          <Route element={<ProtectedRoute rolesPermitidos={['DIRECTIVO', 'ADMIN']} />}>
+  <Route path="/directivo" element={<DirectivoLayout />}>
+    <Route index element={<Navigate to="dashboard" replace />} />
+    <Route path="dashboard"    element={<DirectivoDashboard />}    />
+    <Route path="alumnos"      element={<DirectivoAlumnos />}      />
+    <Route path="personal"     element={<DirectivoPersonal />}     />
+    <Route path="horarios"     element={<DirectivoHorarios />}     />
+    <Route path="reportes"     element={<DirectivoReportes />}     />
+    <Route path="estadisticas" element={<DirectivoEstadisticas />} />
+    <Route path="avisos"       element={<DirectivoAvisos />}       />
+  </Route>
+</Route>
         </Route>
 
         {/* ── PÁGINAS DE ERROR ───────────────────────────────── */}
