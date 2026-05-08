@@ -1,6 +1,9 @@
 const prisma  = require('../config/db');
 const jwt     = require('jsonwebtoken');
 const bcrypt  = require('bcryptjs');
+const {
+  enviarCodigoRecuperacion
+} = require('../services/mailService');
 
 /**
  * GET /api/auth/usuarios-por-rol/:rol
@@ -68,4 +71,107 @@ async function login(req, res) {
   }
 }
 
-module.exports = { getUsuariosPorRol, login };
+/**
+ * POST /api/auth/forgot-password
+ * Body: { email }
+ * Respuesta: { message: 'Código enviado a tu correo' }
+ */
+
+
+async function forgotPassword(req, res) {
+
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      message: 'El correo electrónico es requerido'
+    });
+  }
+
+  try {
+
+    // Buscar en personal
+    let usuario = await prisma.personal.findFirst({
+      where: {
+        correo: email,
+        activo: true
+      },
+      include: {
+        usuario: true
+      }
+    });
+
+    // Si no existe, buscar en tutores
+    if (!usuario) {
+
+      usuario = await prisma.tutor.findFirst({
+        where: {
+          correo: email
+        },
+        include: {
+          usuario: true
+        }
+      });
+
+    }
+
+    if (usuario) {
+
+      console.log('Usuario encontrado');
+
+      // aquí luego:
+      // generar token
+      // enviar correo
+      const codigo =
+      Math.floor(
+      100000 + Math.random() * 900000
+      ).toString();
+
+      const expiracion = new Date(
+  Date.now() + 15 * 60 * 1000
+);
+await prisma.usuario.update({
+  where: {
+    id: usuario.usuario.id
+  },
+  data: {
+    resetCode: codigo,
+    resetCodeExp: expiracion
+  }
+});
+await enviarCodigoRecuperacion(
+  email,
+  codigo
+);
+
+  console.log('Código:', codigo);
+
+    }   else {
+
+      console.log('Usuario no encontrado');
+
+    }
+
+    return res.json({
+      ok: true,
+      message:
+        'Si el correo está registrado, recibirás instrucciones.'
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    return res.status(500).json({
+      ok: false,
+      message: 'Error al procesar la solicitud'
+    });
+  }
+}
+// controllers/auth.controller.js
+
+module.exports = {
+  getUsuariosPorRol,
+  login,
+  forgotPassword,
+};

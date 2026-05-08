@@ -65,6 +65,10 @@ model Usuario {
   username      String   @unique
   nombre        String   @map("nombre_completo")
   password      String   @map("password_hash")
+
+  resetCode     String?
+resetCodeExp  DateTime?
+
   rol           Rol
   activo        Boolean  @default(true)
   creadoEn      DateTime @default(now()) @map("created_at")
@@ -75,6 +79,7 @@ model Usuario {
   reportes        Reporte[]
   avisosEnviados  AvisoEnviado[]
   archivosSubidos ArchivoAlumno[]
+  
 
   @@map("usuarios")
 }

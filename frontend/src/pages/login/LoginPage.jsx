@@ -4,13 +4,13 @@ import { useAuth } from '../../context/AuthContext';
 import { getUsuariosPorRol } from '../../api/auth.api';
 
 const ROLES = [
-  { value: 'ADMIN',           label: 'Administrador' },
-  { value: 'DIRECTIVO',       label: 'Directivo' },
-  { value: 'DOCENTE',         label: 'Docente' },
-  { value: 'PREFECTO',        label: 'Prefecto' },
-  { value: 'SECRETARIA',      label: 'Secretaría' },
-  { value: 'CONTROL_ESCOLAR', label: 'Control Escolar' },
-  { value: 'TUTOR',           label: 'Tutor' },
+  { value: 'ADMIN',           label: 'Administrador'  },
+  { value: 'DIRECTIVO',       label: 'Directivo'      },
+  { value: 'DOCENTE',         label: 'Docente'        },
+  { value: 'PREFECTO',        label: 'Prefecto'       },
+  { value: 'SECRETARIA',      label: 'Secretaría'     },
+  { value: 'CONTROL_ESCOLAR', label: 'Control Escolar'},
+  { value: 'TUTOR',           label: 'Tutor'          },
 ];
 
 const ROLE_ROUTES = {
@@ -20,26 +20,21 @@ const ROLE_ROUTES = {
   PREFECTO:        '/prefecto/dashboard',
   SECRETARIA:      '/secretaria/dashboard',
   CONTROL_ESCOLAR: '/control-escolar/dashboard',
-  TUTOR:           '/tutor/dashboard',
+  TUTOR:           '/tutor/inicio',
 };
 
 export default function LoginPage() {
   const { login, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
-  const [rol,       setRol]       = useState('');
-  const [usuarios,  setUsuarios]  = useState([]);
-  const [username,  setUsername]  = useState('');
-  const [password,  setPassword]  = useState('');
-  const [showPass,  setShowPass]  = useState(false);
-  const [error,     setError]     = useState('');
+  const [rol,          setRol]          = useState('');
+  const [usuarios,     setUsuarios]     = useState([]);
+  const [username,     setUsername]     = useState('');
+  const [password,     setPassword]     = useState('');
+  const [showPass,     setShowPass]     = useState(false);
+  const [error,        setError]        = useState('');
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [submitting,   setSubmitting]   = useState(false);
-  const [forgotMessage, setForgotMessage] = useState('');
-
-  const handleForgotPassword = () => {
-    setForgotMessage('Para recuperar tu acceso, ponte en contacto con el administrador de tu escuela.');
-  };
 
   // Redirigir si ya hay sesión
   useEffect(() => {
@@ -67,8 +62,8 @@ export default function LoginPage() {
   };
 
   const handleSubmit = async () => {
-    if (!rol)      { setError('Selecciona tu rol.'); return; }
-    if (!username) { setError('Selecciona tu usuario.'); return; }
+    if (!rol)      { setError('Selecciona tu rol.');      return; }
+    if (!username) { setError('Selecciona tu usuario.');  return; }
     if (!password) { setError('Ingresa tu contraseña.'); return; }
 
     setSubmitting(true);
@@ -83,7 +78,7 @@ export default function LoginPage() {
     }
   };
 
-  // ── Estilos ──────────────────────────────────────────────────────────────
+  // ── Estilos ───────────────────────────────────────────────
   const bgStyle = {
     minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
     background: 'linear-gradient(160deg, #c8e6c9 0%, #a5d6a7 40%, #81c784 100%)',
@@ -94,43 +89,47 @@ export default function LoginPage() {
     width: 420, boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
     position: 'relative', zIndex: 1,
   };
-  const labelStyle = { fontSize: 17, fontWeight: 600, color: 'var(--text-primary)', display: 'block', marginBottom: 8 };
-  const selectStyle = {
-    width: '100%', padding: '14px 43px 14px 16px', appearance: 'none',
-    border: '1.5px solid var(--border)', borderRadius: 'var(--radius)',
-    fontSize: 17, outline: 'none', cursor: 'pointer', background: '#fff',
+  const labelStyle = {
+    fontSize: 14, fontWeight: 600, color: 'var(--text-primary)',
+    display: 'block', marginBottom: 6,
   };
-  const inputWrap = { position: 'relative' };
+  const selectStyle = {
+    width: '100%', padding: '12px 36px 12px 14px', appearance: 'none',
+    border: '1.5px solid var(--border)', borderRadius: 'var(--radius)',
+    fontSize: 14, outline: 'none', cursor: 'pointer', background: '#fff',
+  };
   const inputStyle = {
-    width: '100%', padding: '14px 43px 14px 17px', border: '1.5px solid var(--border)',
-    borderRadius: 'var(--radius)', fontSize: 16, outline: 'none',
+    width: '100%', padding: '12px 40px 12px 14px',
+    border: '1.5px solid var(--border)', borderRadius: 'var(--radius)',
+    fontSize: 14, outline: 'none',
   };
 
   return (
     <div style={bgStyle}>
-      {/* Decoración de fondo */}
+      {/* Fondo decorativo */}
       <div style={{
         position: 'absolute', inset: 0, pointerEvents: 'none',
         background: 'radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.3) 0%, transparent 60%)',
       }} />
 
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+
         {/* Logo */}
         <div style={{
           width: 72, height: 72, borderRadius: '50%', border: '3px solid var(--green-700)',
           background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
           marginBottom: '1rem', fontSize: 22, fontWeight: 700, color: 'var(--green-800)',
         }}>ST</div>
-        <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--green-800)', marginBottom: 2 }}>
+        <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--green-800)', marginBottom: 2 }}>
           Secundaria Técnica 177
         </div>
-        <div style={{ fontSize: 16, color: 'var(--green-700)', fontWeight: 500, marginBottom: '1.75rem' }}>
+        <div style={{ fontSize: 14, color: 'var(--green-700)', fontWeight: 500, marginBottom: '1.75rem' }}>
           Sistema PACAYAT
         </div>
 
         {/* Card */}
         <div style={cardStyle}>
-          <h2 style={{ textAlign: 'center', fontSize: 23, fontWeight: 700, marginBottom: '1.5rem' }}>
+          <h2 style={{ textAlign: 'center', fontSize: 20, fontWeight: 700, marginBottom: '1.5rem' }}>
             Iniciar Sesión
           </h2>
 
@@ -139,7 +138,7 @@ export default function LoginPage() {
             <div style={{
               background: 'var(--red-50)', border: '1px solid var(--red-100)',
               borderRadius: 8, padding: '10px 14px', color: 'var(--red-600)',
-              fontSize: 15, marginBottom: '1rem',
+              fontSize: 13, marginBottom: '1rem',
             }}>
               ⚠ {error}
             </div>
@@ -161,14 +160,15 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Usuario — aparece cuando hay rol */}
+          {/* Usuario */}
           {rol && (
             <div style={{ marginBottom: '1rem' }}>
               <label style={labelStyle}>
                 Selecciona tu usuario <span style={{ color: 'var(--red-500)' }}>*</span>
               </label>
               <div style={{ position: 'relative' }}>
-                <select value={username} onChange={e => { setUsername(e.target.value); setError(''); }}
+                <select value={username}
+                  onChange={e => { setUsername(e.target.value); setError(''); }}
                   style={selectStyle} disabled={loadingUsers}
                   onFocus={e => e.target.style.borderColor = 'var(--green-600)'}
                   onBlur={e => e.target.style.borderColor = 'var(--border)'}>
@@ -182,13 +182,13 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Contraseña — aparece cuando hay usuario */}
+          {/* Contraseña */}
           {username && (
             <div style={{ marginBottom: '1.25rem' }}>
               <label style={labelStyle}>
                 Contraseña <span style={{ color: 'var(--red-500)' }}>*</span>
               </label>
-              <div style={inputWrap}>
+              <div style={{ position: 'relative' }}>
                 <input
                   type={showPass ? 'text' : 'password'}
                   value={password}
@@ -199,48 +199,45 @@ export default function LoginPage() {
                   onFocus={e => e.target.style.borderColor = 'var(--green-600)'}
                   onBlur={e => e.target.style.borderColor = 'var(--border)'}
                 />
-                <button type="button" onClick={() => setShowPass(s => !s)}
-                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'var(--text-muted)' }}>
-                  {showPass ? '👁' : '👁'}
+                <button type="button" onClick={() => setShowPass(s => !s)} style={{
+                  position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  fontSize: 15, color: 'var(--text-muted)',
+                }}>
+                  {showPass ? '🙈' : '👁'}
                 </button>
               </div>
             </div>
           )}
 
-          {/* Botón ingresar */}
+          {/* ¿Olvidaste tu contraseña? + Botón ingresar */}
           {username && (
             <>
+              {/* Enlace recuperar contraseña */}
+              <div style={{ textAlign: 'right', marginBottom: 12 }}>
+                <button
+                  type="button"
+                  onClick={() => navigate('/recuperar-password')}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    color: 'var(--green-700)', fontSize: 13, fontWeight: 500,
+                    fontFamily: 'inherit', padding: 0,
+                  }}
+                >
+                  ¿Olvidaste tu contraseña?
+                </button>
+              </div>
+
+              {/* Botón ingresar */}
               <button onClick={handleSubmit} disabled={submitting} style={{
                 width: '100%', padding: 12, borderRadius: 'var(--radius)', border: 'none',
                 background: submitting ? 'var(--green-600)' : 'var(--green-700)',
-                color: '#fff', fontSize: 18, fontWeight: 600,
-                cursor: submitting ? 'wait' : 'pointer', transition: 'background var(--transition)',
+                color: '#fff', fontSize: 15, fontWeight: 600,
+                cursor: submitting ? 'wait' : 'pointer',
                 fontFamily: 'inherit',
               }}>
                 {submitting ? 'Verificando...' : 'Ingresar'}
               </button>
-              <div style={{ marginTop: 14, textAlign: 'center' }}>
-                <button type="button" onClick={handleForgotPassword} style={{
-                  background: 'transparent', border: 'none', color: 'var(--green-700)',
-                  fontSize: 14, cursor: 'pointer', textDecoration: 'underline', padding: 0,
-                }}>
-                  ¿Olvidaste tu contraseña?
-                </button>
-              </div>
-              {forgotMessage && (
-                <div style={{
-                  marginTop: 12,
-                  padding: '12px 14px',
-                  borderRadius: '16px',
-                  background: '#ecfdf5',
-                  border: '1px solid #bbf7d0',
-                  color: '#166534',
-                  fontSize: 14,
-                  textAlign: 'center',
-                }}>
-                  {forgotMessage}
-                </div>
-              )}
             </>
           )}
         </div>

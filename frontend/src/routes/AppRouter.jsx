@@ -67,6 +67,11 @@ import DirectivoReportes     from '../pages/directivo/Reportes';
 import DirectivoEstadisticas from '../pages/directivo/Estadisticas';
 import DirectivoAvisos       from '../pages/directivo/Avisos';
 
+//
+import RecuperarPassword from '../pages/login/RecuperarPassword';
+
+
+
 // ── Placeholder con logout ────────────────────────────────────
 function EnConstruccion({ title = 'En construcción', message = 'Esta sección estará disponible próximamente.' }) {
   const { user, logout } = useAuth();
@@ -123,6 +128,7 @@ export default function AppRouter() {
       <Routes>
         <Route path="/"      element={<RootRedirect />} />
         <Route path="/login" element={<LoginPage />} />
+<Route path="/recuperar-password" element={<RecuperarPassword />} />
 
         {/* ── ADMIN ──────────────────────────────────────────── */}
         <Route element={<ProtectedRoute rolesPermitidos={['ADMIN']} />}>
