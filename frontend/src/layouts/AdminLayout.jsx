@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { to: '/admin/periodos',   icon: '📅', label: 'Configurar Periodos' },
   { to: '/admin/avisos',    icon: '🔔', label: 'Avisos' },
   { to: '/admin/horarios',  icon: '📅', label: 'Horarios' },
+  { to: '/admin/recuperacion-contraseñas', icon: '🔑', label: 'Recuperación de contraseñas' },
   { to: '/admin/config',     icon: '⚙️', label: 'Configuración' },
 ];
 
@@ -23,6 +24,7 @@ const BREADCRUMBS = {
   '/admin/periodos':   'Configurar Periodos',
   '/admin/avisos':    'Avisos',
   '/admin/horarios':  'Horarios',
+  '/admin/recuperacion-contraseñas': 'Recuperación de contraseñas',
   '/admin/config':     'Configuración',
 };
 

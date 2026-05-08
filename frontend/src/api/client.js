@@ -17,9 +17,15 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      const requestUrl = error.config?.url || '';
+      const isLoginRequest = requestUrl.includes('/auth/login');
+
       localStorage.removeItem('pacayat_token');
       localStorage.removeItem('pacayat_user');
-      window.location.href = '/login';
+
+      if (!isLoginRequest) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

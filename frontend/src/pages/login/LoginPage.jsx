@@ -35,6 +35,11 @@ export default function LoginPage() {
   const [error,     setError]     = useState('');
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [submitting,   setSubmitting]   = useState(false);
+  const [forgotMessage, setForgotMessage] = useState('');
+
+  const handleForgotPassword = () => {
+    setForgotMessage('Para recuperar tu acceso, ponte en contacto con el administrador de tu escuela.');
+  };
 
   // Redirigir si ya hay sesión
   useEffect(() => {
@@ -204,15 +209,39 @@ export default function LoginPage() {
 
           {/* Botón ingresar */}
           {username && (
-            <button onClick={handleSubmit} disabled={submitting} style={{
-              width: '100%', padding: 12, borderRadius: 'var(--radius)', border: 'none',
-              background: submitting ? 'var(--green-600)' : 'var(--green-700)',
-              color: '#fff', fontSize: 18, fontWeight: 600,
-              cursor: submitting ? 'wait' : 'pointer', transition: 'background var(--transition)',
-              fontFamily: 'inherit',
-            }}>
-              {submitting ? 'Verificando...' : 'Ingresar'}
-            </button>
+            <>
+              <button onClick={handleSubmit} disabled={submitting} style={{
+                width: '100%', padding: 12, borderRadius: 'var(--radius)', border: 'none',
+                background: submitting ? 'var(--green-600)' : 'var(--green-700)',
+                color: '#fff', fontSize: 18, fontWeight: 600,
+                cursor: submitting ? 'wait' : 'pointer', transition: 'background var(--transition)',
+                fontFamily: 'inherit',
+              }}>
+                {submitting ? 'Verificando...' : 'Ingresar'}
+              </button>
+              <div style={{ marginTop: 14, textAlign: 'center' }}>
+                <button type="button" onClick={handleForgotPassword} style={{
+                  background: 'transparent', border: 'none', color: 'var(--green-700)',
+                  fontSize: 14, cursor: 'pointer', textDecoration: 'underline', padding: 0,
+                }}>
+                  ¿Olvidaste tu contraseña?
+                </button>
+              </div>
+              {forgotMessage && (
+                <div style={{
+                  marginTop: 12,
+                  padding: '12px 14px',
+                  borderRadius: '16px',
+                  background: '#ecfdf5',
+                  border: '1px solid #bbf7d0',
+                  color: '#166534',
+                  fontSize: 14,
+                  textAlign: 'center',
+                }}>
+                  {forgotMessage}
+                </div>
+              )}
+            </>
           )}
         </div>
 

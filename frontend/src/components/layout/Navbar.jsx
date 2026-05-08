@@ -1,6 +1,6 @@
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { initials } from '../../utils/formatters';
+import { initials, rolLabel } from '../../utils/formatters';
 
 export default function Navbar({ breadcrumb }) {
   const { user, logout } = useAuth();
@@ -31,7 +31,7 @@ export default function Navbar({ breadcrumb }) {
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: 14, fontWeight: 600 }}>{user?.nombre}</div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Admin del sistema</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{rolLabel(user?.rol)}</div>
           </div>
         </div>
         <button type="button" onClick={handleLogout} style={{

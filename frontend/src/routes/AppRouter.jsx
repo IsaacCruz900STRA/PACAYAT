@@ -135,6 +135,7 @@ export default function AppRouter() {
             <Route path="periodos"    element={<AdminPeriodos />} />
             <Route path="avisos"      element={<AdminAvisos />} />
             <Route path="horarios"    element={<AdminHorarios />} />
+            <Route path="recuperacion-contraseñas" element={<EnConstruccion title="Recuperación de contraseñas" message="Aquí podrás gestionar las solicitudes de recuperación de contraseña de los usuarios." />} />
             <Route path="config"      element={<AdminConfig />} />
           </Route>
         </Route>
