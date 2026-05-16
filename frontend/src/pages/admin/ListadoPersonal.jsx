@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PageHeader from '../../components/layout/PageHeader';
 import Card       from '../../components/ui/Card';
 import Badge      from '../../components/ui/Badge';
 import Button     from '../../components/ui/Button';
 import Table      from '../../components/ui/Table';
+import Modal      from '../../components/ui/Modal';
 import StatusToggle from '../../components/ui/StatusToggle';
 import ModalPersonal from '../../components/personal/ModalPersonal';
 import { useFetch }      from '../../hooks/useFetch';
@@ -31,28 +32,89 @@ export default function ListadoPersonal() {
   const [estadoFiltro, setEstadoFiltro] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [personalEdit, setPersonalEdit] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [inactiveModalOpen, setInactiveModalOpen] = useState(false);
+  const [personalEliminar, setPersonalEliminar] = useState(null);
+  const [personalInactivar, setPersonalInactivar] = useState(null);
+  const [countdown, setCountdown] = useState(10);
+
+  useEffect(() => {
+    if (!deleteModalOpen && !inactiveModalOpen) return;
+    if (countdown <= 0) return;
+
+    const timer = setTimeout(() => setCountdown(prev => prev - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [deleteModalOpen, inactiveModalOpen, countdown]);
 
   const { data, loading, refetch } = useFetch(() => getPersonal({ q: query, rol: rolFiltro, estado: estadoFiltro }), [query, rolFiltro, estadoFiltro]);
   const personal = data?.personal || [];
 
   const cambiarEstado = async (row, active) => {
+    if (row.rol === 'ADMIN') {
+      showToast('El administrador no puede ser desactivado', 'error');
+      return;
+    }
+
+    if (!active) {
+      setPersonalInactivar(row);
+      setCountdown(10);
+      setInactiveModalOpen(true);
+      return;
+    }
+
     try {
       await updatePersonal(row.id, { activo: active });
-      showToast(`Personal ${active ? 'activado' : 'desactivado'}`);
+      showToast('Personal activado');
       refetch();
     } catch (err) {
       showToast(err.response?.data?.message || 'Error al actualizar estado', 'error');
     }
   };
 
-  const eliminar = async (row) => {
-    if (!window.confirm(`¿Estás seguro de eliminar a ${row.nombre}?`)) return;
+  const eliminar = (row) => {
+    if (row.rol === 'ADMIN') {
+      showToast('El administrador no puede ser eliminado', 'error');
+      return;
+    }
+
+    setPersonalEliminar(row);
+    setCountdown(10);
+    setDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModalOpen(false);
+    setPersonalEliminar(null);
+    setCountdown(10);
+  };
+
+  const closeInactiveModal = () => {
+    setInactiveModalOpen(false);
+    setPersonalInactivar(null);
+    setCountdown(10);
+  };
+
+  const confirmarEliminarPersonal = async () => {
+    if (!personalEliminar) return;
     try {
-      await deletePersonal(row.id);
+      await deletePersonal(personalEliminar.id);
       showToast('Personal eliminado');
       refetch();
+      closeDeleteModal();
     } catch (err) {
       showToast(err.response?.data?.message || 'Error al eliminar personal', 'error');
+    }
+  };
+
+  const confirmarInactivarPersonal = async () => {
+    if (!personalInactivar) return;
+    try {
+      await updatePersonal(personalInactivar.id, { activo: false });
+      showToast('Personal desactivado');
+      refetch();
+      closeInactiveModal();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error al desactivar personal', 'error');
     }
   };
 
@@ -70,12 +132,12 @@ export default function ListadoPersonal() {
     { key: 'telefono', label: 'Teléfono',
       render: v => <span style={{ color: 'var(--text-secondary)' }}>{v}</span> },
     { key: 'estado', label: 'Estado', width: 120,
-      render: (_, row) => <StatusToggle active={row.activo} onChange={(active) => cambiarEstado(row, active)} /> },
+      render: (_, row) => <StatusToggle active={row.activo} disabled={row.rol === 'ADMIN'} onChange={(active) => cambiarEstado(row, active)} /> },
     { key: 'id', label: 'Acciones', width: 110,
       render: (_, row) => (
         <div style={{ display: 'flex', gap: 4 }}>
           <ActionBtn title="Editar" color="var(--blue-600)" onClick={() => { setPersonalEdit(row); setModalOpen(true); }}>✏️</ActionBtn>
-          <ActionBtn title="Eliminar" color="var(--red-500)" onClick={() => eliminar(row)}>✕</ActionBtn>
+          <ActionBtn title="Eliminar" color="var(--red-500)" onClick={() => eliminar(row)} disabled={row.rol === 'ADMIN'}>✕</ActionBtn>
         </div>
       ),
     },
@@ -96,6 +158,64 @@ export default function ListadoPersonal() {
           refetch();
         }}
       />
+
+      <Modal open={deleteModalOpen} onClose={closeDeleteModal} title="Eliminar personal" width={520}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ color: 'var(--red-700)', fontWeight: 700 }}>Advertencia</div>
+          <div style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+            Estás a punto de quitar a este/a este personal del sistema. Confirma que deseas continuar con la eliminación.
+          </div>
+          {personalEliminar && (
+            <div style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius)', background: '#fef2f2' }}>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>Personal</div>
+              <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{personalEliminar.nombre}</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 14 }}>
+                <div><strong>Rol:</strong> {ROL_LABEL[personalEliminar.rol] || personalEliminar.rol}</div>
+                <div><strong>Teléfono:</strong> {personalEliminar.telefono || '—'}</div>
+                <div><strong>Estado:</strong> {personalEliminar.activo ? 'Activo' : 'Inactivo'}</div>
+              </div>
+            </div>
+          )}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <Button variant="outline" onClick={closeDeleteModal}>Cancelar</Button>
+            <Button variant="danger" onClick={confirmarEliminarPersonal} disabled={countdown > 0}>
+              {countdown > 0 ? `Aceptar en ${countdown}s` : 'Aceptar y eliminar'}
+            </Button>
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+            Debes esperar {countdown} segundos antes de confirmar para asegurarte de que leíste el aviso.
+          </div>
+        </div>
+      </Modal>
+
+      <Modal open={inactiveModalOpen} onClose={closeInactiveModal} title="Desactivar personal" width={520}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ color: 'var(--yellow-700)', fontWeight: 700 }}>⚠ Advertencia</div>
+          <div style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+            Estás a punto de desactivar a este/a este personal. Una vez desactivado, no tendrá acceso al sistema pero sus datos se conservarán.
+          </div>
+          {personalInactivar && (
+            <div style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--radius)', background: '#fffbeb' }}>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>Personal</div>
+              <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{personalInactivar.nombre}</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 14 }}>
+                <div><strong>Rol:</strong> {ROL_LABEL[personalInactivar.rol] || personalInactivar.rol}</div>
+                <div><strong>Teléfono:</strong> {personalInactivar.telefono || '—'}</div>
+                <div><strong>Estado:</strong> {personalInactivar.activo ? 'Activo' : 'Inactivo'}</div>
+              </div>
+            </div>
+          )}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <Button variant="outline" onClick={closeInactiveModal}>Cancelar</Button>
+            <Button variant="warning" onClick={confirmarInactivarPersonal} disabled={countdown > 0}>
+              {countdown > 0 ? `Confirmar en ${countdown}s` : 'Confirmar desactivación'}
+            </Button>
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+            Debes esperar {countdown} segundos antes de confirmar para asegurarte de que leíste el aviso.
+          </div>
+        </div>
+      </Modal>
 
       <div style={{ display: 'flex', gap: 10, marginBottom: '1.25rem', flexWrap: 'wrap' }}>
         <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
@@ -127,14 +247,14 @@ export default function ListadoPersonal() {
   );
 }
 
-function ActionBtn({ children, title, color, onClick }) {
+function ActionBtn({ children, title, color, onClick, disabled = false }) {
   return (
-    <button title={title} onClick={onClick} style={{
-      background: 'none', border: 'none', cursor: 'pointer',
-      padding: '4px 6px', borderRadius: 6, color, fontSize: 15,
+    <button title={title} onClick={disabled ? undefined : onClick} disabled={disabled} style={{
+      background: 'none', border: 'none', cursor: disabled ? 'not-allowed' : 'pointer',
+      padding: '4px 6px', borderRadius: 6, color, fontSize: 15, opacity: disabled ? 0.5 : 1,
     }}
-      onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
-      onMouseLeave={e => e.currentTarget.style.background = ''}>
+      onMouseEnter={e => { if (!disabled) e.currentTarget.style.background = 'var(--bg-hover)'; }}
+      onMouseLeave={e => { if (!disabled) e.currentTarget.style.background = ''; }}>
       {children}
     </button>
   );

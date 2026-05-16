@@ -62,12 +62,50 @@ function splitNombreCompleto(value) {
   };
 }
 
+function sanitizeNameInput(value) {
+  return value
+    .toUpperCase()
+    .replace(/[^A-ZÁÉÍÓÚÜÑ\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trimStart();
+}
+
+function formatDisplayName(value) {
+  return value
+    .trim()
+    .replace(/\s+/g, ' ')
+    .split(' ')
+    .filter(Boolean)
+    .map(normalizeWord)
+    .join(' ');
+}
+
 function getFirstInternalVowel(value) {
   return value.slice(1).split('').find(ch => /[AEIOU]/i.test(ch)) || 'X';
 }
 
 function getFirstInternalConsonant(value) {
   return value.slice(1).split('').find(ch => /[BCDFGHJKLMNPQRSTVWXYZ]/i.test(ch)) || 'X';
+}
+
+function generateRandomMatricula() {
+  const year = String(new Date().getFullYear()).slice(-2);
+  const random = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
+  return `${year}177${random}`;
+}
+
+async function generateUniqueMatricula() {
+  let candidate = generateRandomMatricula();
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try {
+      const { data } = await validarMatricula(candidate);
+      if (data.disponible) return candidate;
+    } catch {
+      // ignore and retry with a new candidate
+    }
+    candidate = generateRandomMatricula();
+  }
+  return candidate;
 }
 
 function calculateCurpPrefix({ nombres, apellidoPaterno, apellidoMaterno, fechaNacimiento }) {
@@ -105,23 +143,32 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
 
   useEffect(() => {
     if (!open) return;
-    setForm(alumno ? {
-      ...splitNombreCompleto(alumno.nombreCompleto || ''),
-      matricula: alumno.matricula || '',
-      curpSuffix: alumno.curp?.slice(16) || '',
-      fechaNacimiento: alumno.fechaNacimiento ? alumno.fechaNacimiento.slice(0, 10) : '',
-      domicilio: alumno.domicilio || '',
-      grado: alumno.inscripciones?.[0]?.grupo?.grado ? String(alumno.inscripciones[0].grupo.grado) : '',
-      grupo: alumno.inscripciones?.[0]?.grupo?.seccion || '',
-      puntosConducta: alumno.puntosConducta ?? 100,
-      activo: alumno.activo ?? true,
-      tutorNombre: alumno.tutor?.nombreCompleto || '',
-      tutorTelefono: alumno.tutor?.telefono || '',
-      tutorCorreo: alumno.tutor?.correo || '',
-      tutorCurp: alumno.tutor?.curp || '',
-      tutorPassword: '',
-      tutorConfirmarPassword: '',
-    } : initialForm);
+
+    if (alumno) {
+      setForm({
+        ...splitNombreCompleto(alumno.nombreCompleto || ''),
+        matricula: alumno.matricula || '',
+        curpSuffix: alumno.curp?.slice(16) || '',
+        fechaNacimiento: alumno.fechaNacimiento ? alumno.fechaNacimiento.slice(0, 10) : '',
+        domicilio: alumno.domicilio || '',
+        grado: alumno.inscripciones?.[0]?.grupo?.grado ? String(alumno.inscripciones[0].grupo.grado) : '',
+        grupo: alumno.inscripciones?.[0]?.grupo?.seccion || '',
+        puntosConducta: alumno.puntosConducta ?? 100,
+        activo: alumno.activo ?? true,
+        tutorNombre: alumno.tutor?.nombreCompleto || '',
+        tutorTelefono: alumno.tutor?.telefono || '',
+        tutorCorreo: alumno.tutor?.correo || '',
+        tutorCurp: alumno.tutor?.curp || '',
+        tutorPassword: '',
+        tutorConfirmarPassword: '',
+      });
+    } else {
+      setForm({ ...initialForm, matricula: '' });
+      generateUniqueMatricula().then(matricula => setForm(prev => ({ ...prev, matricula }))).catch(() => {
+        setForm(prev => ({ ...prev, matricula: generateRandomMatricula() }));
+      });
+    }
+
     setMatriculaDisponible(true);
     setShowPass(false);
     setTutorExistente(false);
@@ -184,6 +231,28 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
     return '';
   }, [tutorExistente, form.tutorPassword, form.tutorConfirmarPassword]);
 
+  const validationError = useMemo(() => {
+    if (!form.nombres.trim()) return 'Ingresa los nombres del alumno.';
+    if (!form.apellidoPaterno.trim()) return 'Ingresa el apellido paterno del alumno.';
+    if (!form.apellidoMaterno.trim()) return 'Ingresa el apellido materno del alumno.';
+    if (!form.matricula.trim()) return 'La matrícula no puede estar vacía.';
+    if (!form.curpSuffix.trim() || form.curpSuffix.trim().length !== 2 || !/^[A-Z0-9]{2}$/.test(form.curpSuffix.trim())) {
+      return 'La parte final de la CURP debe tener 2 caracteres válidos.';
+    }
+    if (!form.fechaNacimiento) return 'Selecciona la fecha de nacimiento.';
+    if (!fechaNacimientoValida) return 'La fecha de nacimiento debe ser anterior a 2015.';
+    if (!form.grado) return 'Selecciona un grado.';
+    if (!form.grupo) return 'Selecciona un grupo.';
+    if (!puntosConductaValida) return 'Los puntos de conducta deben ser un número entre 0 y 100.';
+    if (!form.tutorNombre.trim()) return 'Ingresa el nombre del tutor.';
+    if (!form.tutorTelefono.trim()) return 'Ingresa el teléfono del tutor.';
+    if (!form.tutorCorreo.trim()) return 'Ingresa el correo del tutor.';
+    if (!form.tutorCurp.trim() || form.tutorCurp.trim().length !== 18) return 'La CURP del tutor debe tener 18 caracteres.';
+    if (!matriculaDisponible) return 'La matrícula ya existe.';
+    if (tutorPasswordError) return tutorPasswordError;
+    return '';
+  }, [form, fechaNacimientoValida, puntosConductaValida, matriculaDisponible, tutorPasswordError]);
+
   const requiredComplete = useMemo(() => (
     form.nombres.trim()
     && form.apellidoPaterno.trim()
@@ -230,7 +299,7 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
     const payload = {
       nombreCompleto: [form.nombres, form.apellidoPaterno, form.apellidoMaterno]
         .filter(Boolean)
-        .map(part => normalizeWord(part))
+        .map(formatDisplayName)
         .join(' '),
       matricula: form.matricula,
       curp: `${curpBase}${form.curpSuffix.trim().toUpperCase()}`,
@@ -240,7 +309,7 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
       puntosConducta: Number(form.puntosConducta),
       activo: form.activo,
       tutor: {
-        nombreCompleto: form.tutorNombre,
+        nombreCompleto: formatDisplayName(form.tutorNombre),
         telefono: form.tutorTelefono,
         correo: form.tutorCorreo,
         curp: form.tutorCurp.trim().toUpperCase(),
@@ -276,18 +345,18 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-          <Field label="Nombres" value={form.nombres} onChange={v => setValue('nombres', v)} required />
+          <Field label="Nombres" value={form.nombres} onChange={v => setValue('nombres', sanitizeNameInput(v))} required />
           <Field
             label="Matrícula"
             value={form.matricula}
             onChange={v => setValue('matricula', v)}
             required
-            readOnly={isEdit}
+            readOnly={!isEdit}
             error={!matriculaDisponible ? 'La matrícula ya existe' : ''}
-            hint={checkingMatricula ? 'Validando matrícula...' : isEdit ? 'No editable en modo edición' : ''}
+            hint={checkingMatricula ? 'Validando matrícula...' : isEdit ? 'No editable en modo edición' : 'Se generará automáticamente'}
           />
-          <Field label="Apellido paterno" value={form.apellidoPaterno} onChange={v => setValue('apellidoPaterno', v)} required />
-          <Field label="Apellido materno" value={form.apellidoMaterno} onChange={v => setValue('apellidoMaterno', v)} required />
+          <Field label="Apellido paterno" value={form.apellidoPaterno} onChange={v => setValue('apellidoPaterno', sanitizeNameInput(v))} required />
+          <Field label="Apellido materno" value={form.apellidoMaterno} onChange={v => setValue('apellidoMaterno', sanitizeNameInput(v))} required />
           <div style={{ gridColumn: 'span 2' }}>
             <label style={{ display: 'grid', gap: 6, fontSize: 13, fontWeight: 600 }}>
               <span>CURP <span style={{ color: '#dc2626' }}>*</span></span>
@@ -365,7 +434,7 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
 
         <h4 style={{ margin: '22px 0 12px' }}>Tutor</h4>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-          <Field label="Nombre del tutor" value={form.tutorNombre} onChange={v => setValue('tutorNombre', v)} required />
+          <Field label="Nombre del tutor" value={form.tutorNombre} onChange={v => setValue('tutorNombre', sanitizeNameInput(v))} required />
           <Field
             label="CURP del tutor"
             value={form.tutorCurp}
@@ -420,7 +489,12 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
           </div>
         )}
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 24 }}>
+        {validationError && (
+          <div style={{ marginTop: 16, padding: '12px 14px', borderRadius: 'var(--radius)', background: '#fee2e2', color: 'var(--red-700)', fontSize: 13, fontWeight: 600 }}>
+            {validationError}
+          </div>
+        )}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 16 }}>
           <Button variant="outline" onClick={onClose}>Cancelar</Button>
           <Button type="submit" disabled={saving || checkingMatricula || !requiredComplete || !matriculaDisponible}>
             {saving ? 'Guardando...' : 'Guardar'}

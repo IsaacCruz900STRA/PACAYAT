@@ -3,6 +3,8 @@ node_modules/
 npm-debug.log*
 
 # Env files
+pacayat/backend/.env
+pacayat/frontend/.env
 .env
 .env.local
 .env.*.local

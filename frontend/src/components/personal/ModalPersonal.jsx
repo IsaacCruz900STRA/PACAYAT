@@ -29,6 +29,30 @@ const initialForm = {
   confirmarPassword: '',
 };
 
+function sanitizeNameInput(value) {
+  return value
+    .toUpperCase()
+    .replace(/[^A-ZÁÉÍÓÚÜÑ\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trimStart();
+}
+
+function formatPersonName(value) {
+  return value
+    .trim()
+    .replace(/\s+/g, ' ')
+    .split(' ')
+    .filter(Boolean)
+    .map(word => word[0].toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
+function isValidEmail(value) {
+  const email = value.trim();
+  const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return validEmail.test(email);
+}
+
 export default function ModalPersonal({ open, personal = null, onClose, onSaved }) {
   const [form, setForm] = useState(initialForm);
   const [materias, setMaterias] = useState([]);
@@ -39,7 +63,7 @@ export default function ModalPersonal({ open, personal = null, onClose, onSaved 
   useEffect(() => {
     if (!open) return;
     setForm(personal ? {
-      nombre: personal.nombre || '',
+      nombre: sanitizeNameInput(personal.nombre || ''),
       rol: personal.rol || '',
       contacto: personal.contacto || personal.telefono || '',
       correo: personal.correo || '',
@@ -72,12 +96,24 @@ export default function ModalPersonal({ open, personal = null, onClose, onSaved 
     return '';
   }, [isEdit, form.password, form.confirmarPassword]);
 
+  const nombreError = useMemo(() => {
+    if (!form.nombre.trim()) return 'El nombre es obligatorio';
+    if (!/^[A-ZÁÉÍÓÚÜÑ]+(?: [A-ZÁÉÍÓÚÜÑ]+)*$/.test(form.nombre.trim())) return 'Solo se permiten letras y espacios';
+    return '';
+  }, [form.nombre]);
+
+  const correoError = useMemo(() => {
+    if (!form.correo.trim()) return 'El correo es obligatorio';
+    if (!isValidEmail(form.correo)) return 'Correo inválido';
+    return '';
+  }, [form.correo]);
+
   const requiredComplete = useMemo(() => {
-    const base = form.nombre.trim() && form.rol && form.contacto.trim() && form.estado;
+    const base = form.nombre.trim() && form.rol && form.contacto.trim() && form.estado && !nombreError && !correoError;
     const passOk = !passwordError;
     if (form.rol !== 'DOCENTE') return base && passOk;
     return base && passOk && form.especialidad && form.materiaIds.length > 0;
-  }, [form, passwordError]);
+  }, [form, passwordError, nombreError, correoError]);
 
   if (!open) return null;
 
@@ -105,10 +141,10 @@ export default function ModalPersonal({ open, personal = null, onClose, onSaved 
     setSaving(true);
     try {
       const payload = {
-        nombre: form.nombre,
+        nombre: formatPersonName(form.nombre),
         rol: form.rol,
         contacto: form.contacto,
-        correo: form.correo,
+        correo: form.correo.trim(),
         estado: form.estado,
         especialidad: form.especialidad,
         materiaIds: form.rol === 'DOCENTE' ? form.materiaIds : [],
@@ -142,11 +178,10 @@ export default function ModalPersonal({ open, personal = null, onClose, onSaved 
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-          <Field label="Nombre" value={form.nombre} onChange={v => setValue('nombre', v)} required />
+          <Field label="Nombre" value={form.nombre} onChange={v => setValue('nombre', sanitizeNameInput(v))} required error={nombreError} style={{ textTransform: 'uppercase' }} />
           <SelectField label="Rol" value={form.rol} onChange={v => setValue('rol', v)} options={ROL_OPTIONS} required />
           <Field label="Contacto" value={form.contacto} onChange={v => setValue('contacto', v)} required />
-          <Field label="Correo" type="email" value={form.correo} onChange={v => setValue('correo', v)} />
-          <SelectField label="Estado" value={form.estado} onChange={v => setValue('estado', v)} options={[['Activo', 'Activo'], ['Inactivo', 'Inactivo']]} required />
+          <Field label="Correo" type="email" value={form.correo} onChange={v => setValue('correo', v)} required error={correoError} />
         </div>
 
         <div style={{ marginTop: 18, padding: 16, border: '1px solid var(--border)', borderRadius: 10, background: 'var(--bg-hover)' }}>
@@ -206,7 +241,7 @@ export default function ModalPersonal({ open, personal = null, onClose, onSaved 
   );
 }
 
-function Field({ label, value, onChange, type = 'text', required = false }) {
+function Field({ label, value, onChange, type = 'text', required = false, error = '', style = {} }) {
   return (
     <label style={{ display: 'grid', gap: 6, fontSize: 13, fontWeight: 600 }}>
       {label}
@@ -215,8 +250,9 @@ function Field({ label, value, onChange, type = 'text', required = false }) {
         value={value}
         required={required}
         onChange={event => onChange(event.target.value)}
-        style={{ padding: '9px 11px', border: '1.5px solid var(--border)', borderRadius: 'var(--radius)', fontSize: 14, outline: 'none' }}
+        style={{ padding: '9px 11px', border: `1.5px solid ${error ? 'var(--red-500)' : 'var(--border)'}`, borderRadius: 'var(--radius)', fontSize: 14, outline: 'none', textTransform: style.textTransform || 'none' }}
       />
+      {error && <span style={{ fontSize: 12, color: 'var(--red-600)' }}>{error}</span>}
     </label>
   );
 }

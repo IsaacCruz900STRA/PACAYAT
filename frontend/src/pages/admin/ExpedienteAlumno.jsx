@@ -86,7 +86,7 @@ export default function ExpedienteAlumno() {
         type="button"
         onClick={volver}
         style={{
-          display: 'inline-block', marginBottom: 14, fontSize: 13,
+          display: 'inline-block', marginBottom: 10, fontSize: 23,
           color: 'var(--green-700)', fontWeight: 600,
           border: 'none', background: 'transparent', padding: 0,
         }}

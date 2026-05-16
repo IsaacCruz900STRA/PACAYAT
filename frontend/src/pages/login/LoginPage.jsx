@@ -204,7 +204,7 @@ export default function LoginPage() {
                   background: 'none', border: 'none', cursor: 'pointer',
                   fontSize: 15, color: 'var(--text-muted)',
                 }}>
-                  {showPass ? '🙈' : '👁'}
+                  {showPass ? '👁' : '👁'}
                 </button>
               </div>
             </div>

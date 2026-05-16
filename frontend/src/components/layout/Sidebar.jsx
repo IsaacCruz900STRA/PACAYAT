@@ -56,7 +56,8 @@ export default function Sidebar({ navItems }) {
             })}
             onMouseEnter={e => e.currentTarget.style.background = 'var(--sidebar-hover)'}
             onMouseLeave={e => {
-              // NavLink maneja el isActive via className, re-aplicamos
+              const isActive = e.currentTarget.classList.contains('active');
+              e.currentTarget.style.background = isActive ? 'var(--sidebar-active)' : 'transparent';
             }}
           >
             <span style={{ fontSize: 18, width: 24, textAlign: 'center' }}>{item.icon}</span>
