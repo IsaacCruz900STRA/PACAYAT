@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx prisma *)",
+      "Bash(node -e ' *)",
+      "Bash(node *)",
+      "Bash(cat .gitignore)",
+      "Bash(cat backend/.gitignore)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(Get-Process -Name \"node\" -ErrorAction SilentlyContinue)",
+      "Bash(Stop-Process -Force)",
+      "Bash(taskkill /F /IM node.exe)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(Set-Location \"C:\\\\Users\\\\PC\\\\OneDrive\\\\Escritorio\\\\PACAYAT\\\\backend\"; Start-Process \"node\" -ArgumentList \"src/app.js\" -NoNewWindow; Start-Sleep -Seconds 3; \\(Invoke-WebRequest -Uri \"http://localhost:3001/api/health\" -UseBasicParsing\\).Content)",
+      "mcp__ide__getDiagnostics",
+      "PowerShell(Start-Process \"http://localhost:5173\")",
+      "Bash(xargs -I {} basename {})",
+      "Bash(npm install *)",
+      "Bash(npm uninstall *)",
+      "Bash(npx vite *)",
+      "Bash(curl -s http://localhost:3001/api/health)",
+      "Bash(curl -s 'http://localhost:3001/api/auth/usuarios-por-rol?rol=DOCENTE' -H 'Authorization: Bearer __TRACKED_VAR__')"
+    ]
+  }
+}

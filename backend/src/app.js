@@ -23,8 +23,8 @@ const app = express();
 
 // ── Middlewares globales ─────────────────────────────────
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Archivos estáticos (uploads)
 app.use('/uploads', express.static('uploads'));

@@ -93,6 +93,7 @@ model PeriodoEscolar {
   creadoEn    DateTime @default(now()) @map("created_at")
 
   inscripciones Inscripcion[]
+  horarios      Horario[]
 
   @@map("periodos_escolares")
 }
@@ -252,13 +253,15 @@ model Asignacion {
 }
 
 model Horario {
-  id           Int       @id @default(autoincrement())
-  idAsignacion Int       @map("id_asignacion")
-  dia          DiaSemana
-  numeroClase  Int       @map("numero_clase") // 1-9 (receso se maneja en frontend)
-  salon        String?
+  id               Int        @id @default(autoincrement())
+  idAsignacion     Int        @map("id_asignacion")
+  idPeriodoEscolar Int?       @map("id_periodo_escolar")
+  dia              DiaSemana
+  numeroClase      Int        @map("numero_clase") // 1-6 (bloques de 50 min; receso entre 3 y 4)
+  salon            String?
 
-  asignacion Asignacion @relation(fields: [idAsignacion], references: [id])
+  asignacion     Asignacion      @relation(fields: [idAsignacion], references: [id])
+  periodoEscolar PeriodoEscolar? @relation(fields: [idPeriodoEscolar], references: [id])
 
   @@unique([idAsignacion, dia, numeroClase])
   @@map("horarios")
