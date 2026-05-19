@@ -85,11 +85,7 @@ export default function ModalPersonal({ open, personal = null, onClose, onSaved 
   }, [open]);
 
   const passwordError = useMemo(() => {
-    if (!isEdit) {
-      if (!form.password.trim()) return 'La contraseña es obligatoria';
-      if (form.password.trim().length < 6) return 'Mínimo 6 caracteres';
-      if (form.password !== form.confirmarPassword) return 'Las contraseñas no coinciden';
-    } else if (form.password.trim()) {
+    if (isEdit && form.password.trim()) {
       if (form.password.trim().length < 6) return 'Mínimo 6 caracteres';
       if (form.password !== form.confirmarPassword) return 'Las contraseñas no coinciden';
     }
@@ -110,10 +106,10 @@ export default function ModalPersonal({ open, personal = null, onClose, onSaved 
 
   const requiredComplete = useMemo(() => {
     const base = form.nombre.trim() && form.rol && form.contacto.trim() && form.estado && !nombreError && !correoError;
-    const passOk = !passwordError;
+    const passOk = isEdit ? !passwordError : true;
     if (form.rol !== 'DOCENTE') return base && passOk;
     return base && passOk && form.especialidad && form.materiaIds.length > 0;
-  }, [form, passwordError, nombreError, correoError]);
+  }, [isEdit, form, passwordError, nombreError, correoError]);
 
   if (!open) return null;
 
@@ -150,7 +146,7 @@ export default function ModalPersonal({ open, personal = null, onClose, onSaved 
         materiaIds: form.rol === 'DOCENTE' ? form.materiaIds : [],
       };
 
-      if (form.password.trim()) payload.password = form.password.trim();
+      if (isEdit && form.password.trim()) payload.password = form.password.trim();
 
       if (isEdit) await updatePersonal(personal.id, payload);
       else await createPersonal(payload);
@@ -184,32 +180,42 @@ export default function ModalPersonal({ open, personal = null, onClose, onSaved 
           <Field label="Correo" type="email" value={form.correo} onChange={v => setValue('correo', v)} required error={correoError} />
         </div>
 
-        <div style={{ marginTop: 18, padding: 16, border: '1px solid var(--border)', borderRadius: 10, background: 'var(--bg-hover)' }}>
-          <h4 style={{ marginBottom: 12, fontSize: 14 }}>
-            {isEdit ? 'Cambiar contraseña (opcional)' : 'Contraseña de acceso'}
-          </h4>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-            <PasswordField
-              label={isEdit ? 'Nueva contraseña' : 'Contraseña'}
-              value={form.password}
-              onChange={v => setValue('password', v)}
-              show={showPass}
-              onToggle={() => setShowPass(p => !p)}
-              required={!isEdit}
-            />
-            <PasswordField
-              label="Confirmar contraseña"
-              value={form.confirmarPassword}
-              onChange={v => setValue('confirmarPassword', v)}
-              show={showPass}
-              onToggle={() => setShowPass(p => !p)}
-              required={!isEdit}
-            />
+        {!isEdit && (
+          <div style={{ marginTop: 18, padding: 14, border: '1px solid #bbf7d0', borderRadius: 10, background: '#f0fdf4', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+            <span style={{ fontSize: 18, lineHeight: 1.4 }}>📧</span>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#166534', marginBottom: 2 }}>Contraseña temporal automática</div>
+              <div style={{ fontSize: 12, color: '#166534', lineHeight: 1.5 }}>
+                El sistema generará una contraseña temporal y la enviará al correo registrado. Al iniciar sesión por primera vez se le pedirá cambiarla.
+              </div>
+            </div>
           </div>
-          {passwordError && (form.password || !isEdit) && (
-            <p style={{ marginTop: 6, fontSize: 12, color: 'var(--color-error, #dc2626)' }}>{passwordError}</p>
-          )}
-        </div>
+        )}
+
+        {isEdit && (
+          <div style={{ marginTop: 18, padding: 16, border: '1px solid var(--border)', borderRadius: 10, background: 'var(--bg-hover)' }}>
+            <h4 style={{ marginBottom: 12, fontSize: 14 }}>Cambiar contraseña (opcional)</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <PasswordField
+                label="Nueva contraseña"
+                value={form.password}
+                onChange={v => setValue('password', v)}
+                show={showPass}
+                onToggle={() => setShowPass(p => !p)}
+              />
+              <PasswordField
+                label="Confirmar contraseña"
+                value={form.confirmarPassword}
+                onChange={v => setValue('confirmarPassword', v)}
+                show={showPass}
+                onToggle={() => setShowPass(p => !p)}
+              />
+            </div>
+            {passwordError && form.password && (
+              <p style={{ marginTop: 6, fontSize: 12, color: 'var(--color-error, #dc2626)' }}>{passwordError}</p>
+            )}
+          </div>
+        )}
 
         {form.rol === 'DOCENTE' && (
           <div style={{ marginTop: 22, padding: 16, border: '1px solid var(--border)', borderRadius: 10, background: 'var(--bg-hover)' }}>

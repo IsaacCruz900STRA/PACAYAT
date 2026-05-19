@@ -1,5 +1,6 @@
 const prisma = require('../config/db');
-const { hashPassword } = require('../services/passwordService');
+const { generarPasswordTutor, hashPassword } = require('../services/passwordService');
+const { sendTemporaryPassword } = require('../services/sendTemporaryPassword');
 
 function usernameFromNombre(nombre) {
   return nombre
@@ -11,7 +12,7 @@ function usernameFromNombre(nombre) {
     .slice(0, 40);
 }
 
-const REQUIRED_MESSAGE = 'Todos los campos son obligatorios excepto domicilio';
+const REQUIRED_MESSAGE = 'Todos los campos son obligatorios';
 
 function hasValue(value) {
   return value !== undefined && value !== null && String(value).trim() !== '';
@@ -23,6 +24,7 @@ function validateAlumnoPayload(body) {
     body.matricula,
     body.curp,
     body.fechaNacimiento,
+    body.domicilio,
     body.grupo,
     body.tutor?.nombreCompleto,
     body.tutor?.telefono,
@@ -59,21 +61,37 @@ async function findOrCreateTutor(tx, tutorData) {
     });
   }
 
-  // Tutor nuevo: requiere contraseña
-  const passwordPlain = tutorData.password?.trim();
-  if (!passwordPlain) throw new Error('La contraseña del tutor es obligatoria');
-  if (passwordPlain.length < 6) throw new Error('La contraseña del tutor debe tener al menos 6 caracteres');
-
+  // Tutor nuevo: generar contraseña temporal automáticamente
   const username = usernameFromNombre(tutor.nombreCompleto);
-  const password = await hashPassword(passwordPlain);
+  const plainPassword = generarPasswordTutor();
+  const password = await hashPassword(plainPassword);
 
-  const usuario = await tx.usuario.create({
-    data: { username, nombre: tutor.nombreCompleto, password, rol: 'TUTOR' },
+  const usuarioData = { username, nombre: tutor.nombreCompleto, password, rol: 'TUTOR' };
+  // Si la columna `changePassword` existe en el esquema, marcar para forzar cambio al primer login
+  usuarioData.changePassword = true;
+  
+let usuario;
+try {
+  usuario = await tx.usuario.create({ 
+    data: {
+      ...usuarioData,
+      changePassword: true,  // ✅ Agregar aquí
+    }
   });
+} catch (createErr) {
+  console.error('Error al crear usuario:', createErr);
+  throw createErr;
+}
+  const nuevoTutor = await tx.tutor.create({ data: { ...tutor, idUsuario: usuario.id } });
 
-  return tx.tutor.create({
-    data: { ...tutor, idUsuario: usuario.id },
-  });
+  // Enviar correo con la contraseña temporal (no bloquear la transacción si falla el envío)
+  try {
+    await sendTemporaryPassword(nuevoTutor.correo, plainPassword, nuevoTutor.nombreCompleto);
+  } catch (mailErr) {
+    console.error('Error enviando contraseña temporal:', mailErr);
+  }
+
+  return nuevoTutor;
 }
 
 async function findOrCreateGrupo(tx, nombre) {
@@ -229,7 +247,8 @@ async function getAlumno(req, res) {
 }
 
 async function createAlumno(req, res) {
-  const { matricula, nombreCompleto, fechaNacimiento, curp, domicilio = '', grupo, puntosConducta = 100, tutor } = req.body;
+  const { matricula, nombreCompleto, fechaNacimiento, curp, domicilio = '', grupo, tutor } = req.body;
+  const puntosConducta = 100;
 
   if (!validateAlumnoPayload(req.body)) {
     return res.status(400).json({ message: REQUIRED_MESSAGE });
@@ -249,7 +268,7 @@ async function createAlumno(req, res) {
           fechaNacimiento: new Date(fechaNacimiento),
           curp: curp.trim(),
           domicilio,
-          puntosConducta: parseInt(puntosConducta),
+          puntosConducta,
           grado: grupoDb.grado,
           idGrupo: grupoDb.id,
           idTutor: tutorDb.id,

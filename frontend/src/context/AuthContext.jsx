@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { login as apiLogin } from '../api/auth.api';
+import ForcedChangePassword from '../components/auth/ForcedChangePassword';
 
 const AuthContext = createContext(null);
 
@@ -17,8 +18,10 @@ export function AuthProvider({ children }) {
     const { data } = await apiLogin(username, password, rol);
     const { token: jwt, usuario } = data;
     localStorage.setItem('pacayat_token', jwt);
-    localStorage.setItem('pacayat_user', JSON.stringify(usuario));
-    setUser(usuario);
+    // almacenar indicador de cambio de contraseña si viene desde el backend
+    const userToStore = { ...usuario, changePassword: Boolean(usuario.changePassword) };
+    localStorage.setItem('pacayat_user', JSON.stringify(userToStore));
+    setUser(userToStore);
     return usuario;
   }, []);
 
@@ -31,6 +34,20 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={{ user, loading, login, logout, isAuthenticated: !!user }}>
       {children}
+      <ForcedChangePassword
+        open={!!user?.changePassword}
+        onDone={(usuarioActualizado) => {
+          if (usuarioActualizado) {
+            const userToStore = { ...usuarioActualizado, changePassword: Boolean(usuarioActualizado.changePassword) };
+            localStorage.setItem('pacayat_user', JSON.stringify(userToStore));
+            setUser(userToStore);
+          } else {
+            const updated = { ...user, changePassword: false };
+            setUser(updated);
+            localStorage.setItem('pacayat_user', JSON.stringify(updated));
+          }
+        }}
+      />
     </AuthContext.Provider>
   );
 }

@@ -6,6 +6,45 @@ import { getTutores } from '../../api/tutores.api';
 
 const GRADOS = ['1', '2', '3'];
 const SECCIONES = ['A', 'B', 'C', 'D', 'E', 'F'];
+const SEXOS = [
+  { value: 'H', label: 'Hombre' },
+  { value: 'M', label: 'Mujer' },
+];
+const ESTADOS = [
+  { value: 'AS', label: 'Aguascalientes' },
+  { value: 'BC', label: 'Baja California' },
+  { value: 'BS', label: 'Baja California Sur' },
+  { value: 'CC', label: 'Campeche' },
+  { value: 'CS', label: 'Chiapas' },
+  { value: 'CH', label: 'Chihuahua' },
+  { value: 'CL', label: 'Coahuila' },
+  { value: 'CM', label: 'Colima' },
+  { value: 'DF', label: 'Ciudad de México' },
+  { value: 'DG', label: 'Durango' },
+  { value: 'GT', label: 'Guanajuato' },
+  { value: 'GR', label: 'Guerrero' },
+  { value: 'HG', label: 'Hidalgo' },
+  { value: 'JC', label: 'Jalisco' },
+  { value: 'MC', label: 'México' },
+  { value: 'MN', label: 'Michoacán' },
+  { value: 'MS', label: 'Morelos' },
+  { value: 'NT', label: 'Nayarit' },
+  { value: 'NL', label: 'Nuevo León' },
+  { value: 'OC', label: 'Oaxaca' },
+  { value: 'PL', label: 'Puebla' },
+  { value: 'QT', label: 'Querétaro' },
+  { value: 'QR', label: 'Quintana Roo' },
+  { value: 'SP', label: 'San Luis Potosí' },
+  { value: 'SL', label: 'Sinaloa' },
+  { value: 'SR', label: 'Sonora' },
+  { value: 'TC', label: 'Tabasco' },
+  { value: 'TS', label: 'Tamaulipas' },
+  { value: 'TL', label: 'Tlaxcala' },
+  { value: 'VZ', label: 'Veracruz' },
+  { value: 'YN', label: 'Yucatán' },
+  { value: 'ZS', label: 'Zacatecas' },
+  { value: 'NE', label: 'Nacido en el extranjero' },
+];
 
 const initialForm = {
   nombres: '',
@@ -14,6 +53,8 @@ const initialForm = {
   matricula: '',
   curpSuffix: '',
   fechaNacimiento: '',
+  sexo: '',
+  estadoNacimiento: '',
   domicilio: '',
   grado: '',
   grupo: '',
@@ -108,18 +149,31 @@ async function generateUniqueMatricula() {
   return candidate;
 }
 
-function calculateCurpPrefix({ nombres, apellidoPaterno, apellidoMaterno, fechaNacimiento }) {
-  const clean = (text) => text.trim().replace(/\s+/g, ' ').toUpperCase();
-  const paterno = clean(apellidoPaterno);
-  const materno = clean(apellidoMaterno);
-  const nombresNorm = clean(nombres);
+function parseLocalDate(value) {
+  if (!value) return null;
+  const [year, month, day] = value.split('-').map(Number);
+  if (!year || !month || !day) return null;
+  return new Date(year, month - 1, day);
+}
+
+function calculateCurpPrefix({ nombres, apellidoPaterno, apellidoMaterno, fechaNacimiento, sexo, estadoNacimiento }) {
+  const normalize = (text) => text
+    .trim()
+    .replace(/\s+/g, ' ')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase();
+
+  const paterno = normalize(apellidoPaterno);
+  const materno = normalize(apellidoMaterno);
+  const nombresNorm = normalize(nombres);
 
   const letra1 = paterno[0] || 'X';
   const letra2 = getFirstInternalVowel(paterno);
   const letra3 = materno[0] || 'X';
   const letra4 = nombresNorm[0] || 'X';
 
-  const fecha = fechaNacimiento ? new Date(fechaNacimiento) : null;
+  const fecha = fechaNacimiento ? parseLocalDate(fechaNacimiento) : null;
   const yy = fecha ? String(fecha.getFullYear()).slice(-2) : '00';
   const mm = fecha ? String(fecha.getMonth() + 1).padStart(2, '0') : '00';
   const dd = fecha ? String(fecha.getDate()).padStart(2, '0') : '00';
@@ -127,9 +181,27 @@ function calculateCurpPrefix({ nombres, apellidoPaterno, apellidoMaterno, fechaN
   const consonantePaterno = getFirstInternalConsonant(paterno);
   const consonanteMaterno = getFirstInternalConsonant(materno);
   const consonanteNombre = getFirstInternalConsonant(nombresNorm);
+  const sexoChar = (sexo === 'H' || sexo === 'M') ? sexo : 'X';
+  const entidad = estadoNacimiento && /^[A-Z]{2}$/.test(estadoNacimiento) ? estadoNacimiento : 'XX';
 
-  return [letra1, letra2, letra3, letra4, yy, mm, dd, 'X', 'X', consonantePaterno, consonanteMaterno, consonanteNombre, '0', '0', '0', '0']
-    .join('');
+  return [
+    letra1,
+    letra2,
+    letra3,
+    letra4,
+    yy,
+    mm,
+    dd,
+    sexoChar,
+    entidad,
+    consonantePaterno,
+    consonanteMaterno,
+    consonanteNombre,
+  ].join('');
+}
+
+function isValidCurp(curp) {
+  return /^[A-ZÑ]{4}\d{6}[HM][A-Z]{2}[B-DF-HJ-NP-TV-ZÑ]{3}[A-Z0-9]{2}$/.test(curp.trim().toUpperCase());
 }
 
 export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
@@ -150,6 +222,8 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
         matricula: alumno.matricula || '',
         curpSuffix: alumno.curp?.slice(16) || '',
         fechaNacimiento: alumno.fechaNacimiento ? alumno.fechaNacimiento.slice(0, 10) : '',
+        sexo: alumno.curp?.[10] || '',
+        estadoNacimiento: alumno.curp?.slice(11, 13) || '',
         domicilio: alumno.domicilio || '',
         grado: alumno.inscripciones?.[0]?.grupo?.grado ? String(alumno.inscripciones[0].grupo.grado) : '',
         grupo: alumno.inscripciones?.[0]?.grupo?.seccion || '',
@@ -208,7 +282,8 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
 
   const fechaNacimientoValida = useMemo(() => {
     if (!form.fechaNacimiento) return false;
-    return new Date(form.fechaNacimiento) < new Date('2015-01-01');
+    const fecha = parseLocalDate(form.fechaNacimiento);
+    return fecha ? fecha < new Date(2015, 0, 1) : false;
   }, [form.fechaNacimiento]);
 
   const puntosConductaValida = useMemo(() => {
@@ -221,15 +296,19 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
     apellidoPaterno: form.apellidoPaterno,
     apellidoMaterno: form.apellidoMaterno,
     fechaNacimiento: form.fechaNacimiento,
-  }), [form.nombres, form.apellidoPaterno, form.apellidoMaterno, form.fechaNacimiento]);
+    sexo: form.sexo,
+    estadoNacimiento: form.estadoNacimiento,
+  }), [form.nombres, form.apellidoPaterno, form.apellidoMaterno, form.fechaNacimiento, form.sexo, form.estadoNacimiento]);
+
+  const tutorPasswordVisible = !tutorExistente && isEdit; // only editable when editing an existing alumno
 
   const tutorPasswordError = useMemo(() => {
-    if (tutorExistente) return '';
+    if (!tutorPasswordVisible) return '';
     if (!form.tutorPassword.trim()) return 'La contraseña del tutor es obligatoria';
     if (form.tutorPassword.trim().length < 6) return 'Mínimo 6 caracteres';
     if (form.tutorPassword !== form.tutorConfirmarPassword) return 'Las contraseñas no coinciden';
     return '';
-  }, [tutorExistente, form.tutorPassword, form.tutorConfirmarPassword]);
+  }, [tutorPasswordVisible, form.tutorPassword, form.tutorConfirmarPassword]);
 
   const validationError = useMemo(() => {
     if (!form.nombres.trim()) return 'Ingresa los nombres del alumno.';
@@ -241,13 +320,17 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
     }
     if (!form.fechaNacimiento) return 'Selecciona la fecha de nacimiento.';
     if (!fechaNacimientoValida) return 'La fecha de nacimiento debe ser anterior a 2015.';
+    if (!form.sexo) return 'Selecciona el sexo del alumno.';
+    if (!form.estadoNacimiento) return 'Selecciona el estado de nacimiento.';
     if (!form.grado) return 'Selecciona un grado.';
     if (!form.grupo) return 'Selecciona un grupo.';
+    if (!form.domicilio.trim()) return 'Ingresa el domicilio del alumno.';
     if (!puntosConductaValida) return 'Los puntos de conducta deben ser un número entre 0 y 100.';
     if (!form.tutorNombre.trim()) return 'Ingresa el nombre del tutor.';
     if (!form.tutorTelefono.trim()) return 'Ingresa el teléfono del tutor.';
     if (!form.tutorCorreo.trim()) return 'Ingresa el correo del tutor.';
     if (!form.tutorCurp.trim() || form.tutorCurp.trim().length !== 18) return 'La CURP del tutor debe tener 18 caracteres.';
+    if (!isValidCurp(form.tutorCurp)) return 'La CURP del tutor no tiene un formato válido.';
     if (!matriculaDisponible) return 'La matrícula ya existe.';
     if (tutorPasswordError) return tutorPasswordError;
     return '';
@@ -262,6 +345,8 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
     && form.curpSuffix.trim().toUpperCase() === form.curpSuffix.trim()
     && form.curpSuffix.trim().match(/^[A-Z0-9]{2}$/)
     && form.fechaNacimiento
+    && form.sexo
+    && form.estadoNacimiento
     && form.grado
     && form.grupo
     && puntosConductaValida
@@ -269,6 +354,7 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
     && form.tutorTelefono.trim()
     && form.tutorCorreo.trim()
     && form.tutorCurp.trim().length === 18
+    && isValidCurp(form.tutorCurp)
     && !tutorPasswordError
   ), [form, puntosConductaValida, tutorPasswordError]);
 
@@ -346,17 +432,32 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
           <Field label="Nombres" value={form.nombres} onChange={v => setValue('nombres', sanitizeNameInput(v))} required />
-          <Field
-            label="Matrícula"
-            value={form.matricula}
-            onChange={v => setValue('matricula', v)}
-            required
-            readOnly={!isEdit}
-            error={!matriculaDisponible ? 'La matrícula ya existe' : ''}
-            hint={checkingMatricula ? 'Validando matrícula...' : isEdit ? 'No editable en modo edición' : 'Se generará automáticamente'}
-          />
           <Field label="Apellido paterno" value={form.apellidoPaterno} onChange={v => setValue('apellidoPaterno', sanitizeNameInput(v))} required />
           <Field label="Apellido materno" value={form.apellidoMaterno} onChange={v => setValue('apellidoMaterno', sanitizeNameInput(v))} required />
+          <SelectField
+            label="Sexo"
+            value={form.sexo}
+            onChange={v => setValue('sexo', v)}
+            options={SEXOS}
+            required
+            placeholder="Selecciona sexo"
+          />
+          <Field
+            label="Fecha de nacimiento"
+            type="date"
+            value={form.fechaNacimiento}
+            onChange={v => setValue('fechaNacimiento', v)}
+            required
+            error={form.fechaNacimiento && !fechaNacimientoValida ? 'Debe ser anterior a 2015' : ''}
+          />
+          <SelectField
+            label="Estado de nacimiento"
+            value={form.estadoNacimiento}
+            onChange={v => setValue('estadoNacimiento', v)}
+            options={ESTADOS}
+            required
+            placeholder="Selecciona el estado"
+          />
           <div style={{ gridColumn: 'span 2' }}>
             <label style={{ display: 'grid', gap: 6, fontSize: 13, fontWeight: 600 }}>
               <span>CURP <span style={{ color: '#dc2626' }}>*</span></span>
@@ -406,12 +507,13 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
             </label>
           </div>
           <Field
-            label="Fecha de nacimiento"
-            type="date"
-            value={form.fechaNacimiento}
-            onChange={v => setValue('fechaNacimiento', v)}
+            label="Matrícula"
+            value={form.matricula}
+            onChange={v => setValue('matricula', v)}
             required
-            error={form.fechaNacimiento && !fechaNacimientoValida ? 'Debe ser anterior a 2015' : ''}
+            readOnly={!isEdit}
+            error={!matriculaDisponible ? 'La matrícula ya existe' : ''}
+            hint={checkingMatricula ? 'Validando matrícula...' : isEdit ? 'No editable en modo edición' : 'Se generará automáticamente'}
           />
           <SelectField label="Grado" value={form.grado} onChange={v => setValue('grado', v)} options={GRADOS} required />
           <SelectField label="Grupo" value={form.grupo} onChange={v => setValue('grupo', v)} options={SECCIONES} required />
@@ -419,17 +521,21 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
             label="Puntos de conducta"
             type="number"
             value={form.puntosConducta}
-            onChange={v => setValue('puntosConducta', v)}
+            onChange={v => isEdit && setValue('puntosConducta', v)}
             required
             min={0}
             max={100}
+            readOnly={!isEdit}
             error={!puntosConductaValida ? 'Debe ser un número entre 0 y 100' : ''}
+            hint={!isEdit ? 'Valor inicial fijo de 100 puntos se asigna al crear' : ''}
           />
-          <Field label="Domicilio" value={form.domicilio} onChange={v => setValue('domicilio', v)} />
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 600, alignSelf: 'end', paddingBottom: 10 }}>
-            <input type="checkbox" checked={form.activo} onChange={e => setValue('activo', e.target.checked)} />
-            Alumno activo
-          </label>
+          <Field label="Domicilio" value={form.domicilio} onChange={v => setValue('domicilio', v)} required />
+          {isEdit && (
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 600, alignSelf: 'end', paddingBottom: 10 }}>
+              <input type="checkbox" checked={form.activo} onChange={e => setValue('activo', e.target.checked)} />
+              Alumno activo
+            </label>
+          )}
         </div>
 
         <h4 style={{ margin: '22px 0 12px' }}>Tutor</h4>
@@ -438,23 +544,31 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
           <Field
             label="CURP del tutor"
             value={form.tutorCurp}
-            onChange={v => setValue('tutorCurp', v.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 18))}
+            onChange={v => setValue('tutorCurp', v.toUpperCase().replace(/[^A-ZÑ0-9]/g, '').slice(0, 18))}
             required
             maxLength={18}
             hint={
               form.tutorCurp.length === 18
-                ? tutorExistente
-                  ? '✓ Tutor registrado — se vinculará a su cuenta existente'
-                  : 'Tutor nuevo — se creará una cuenta'
+                ? isValidCurp(form.tutorCurp)
+                  ? tutorExistente
+                    ? '✓ Tutor registrado — se vinculará a su cuenta existente'
+                    : 'Tutor nuevo — se creará una cuenta'
+                  : 'Formato de CURP inválido'
                 : 'Escribe los 18 caracteres de la CURP'
             }
-            error={form.tutorCurp.length > 0 && form.tutorCurp.length < 18 ? 'La CURP debe tener 18 caracteres' : ''}
+            error={
+              form.tutorCurp.length > 0 && form.tutorCurp.length < 18
+                ? 'La CURP debe tener 18 caracteres'
+                : form.tutorCurp.length === 18 && !isValidCurp(form.tutorCurp)
+                  ? 'CURP con formato incorrecto'
+                  : ''
+            }
           />
           <Field label="Teléfono" value={form.tutorTelefono} onChange={v => setValue('tutorTelefono', v)} required />
           <Field label="Correo" type="email" value={form.tutorCorreo} onChange={v => setValue('tutorCorreo', v)} required />
         </div>
 
-        {!tutorExistente && (
+        {tutorPasswordVisible && (
           <div style={{ marginTop: 14, padding: 14, border: '1px solid var(--border)', borderRadius: 10, background: 'var(--bg-hover)' }}>
             <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12 }}>
               Contraseña de acceso del tutor (usuario: nombre completo normalizado)
@@ -507,7 +621,7 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
 
 function Field({ label, value, onChange, type = 'text', required = false, error = '', hint = '', readOnly = false, ...inputProps }) {
   return (
-    <label style={{ display: 'grid', gap: 6, fontSize: 13, fontWeight: 600 }}>
+    <label style={{ display: 'grid', gap: 6, fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
       <span>{label}{required && <span style={{ color: '#dc2626', marginLeft: 2 }}>*</span>}</span>
       <input
         type={type}
@@ -558,9 +672,9 @@ function PasswordField({ label, value, onChange, show, onToggle, required = fals
   );
 }
 
-function SelectField({ label, value, onChange, options, required = false }) {
+function SelectField({ label, value, onChange, options, required = false, placeholder = 'Selecciona una opción' }) {
   return (
-    <label style={{ display: 'grid', gap: 6, fontSize: 13, fontWeight: 600 }}>
+    <label style={{ display: 'grid', gap: 6, fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
       <span>{label}{required && <span style={{ color: '#dc2626', marginLeft: 2 }}>*</span>}</span>
       <select
         value={value}
@@ -575,8 +689,12 @@ function SelectField({ label, value, onChange, options, required = false }) {
           background: '#fff',
         }}
       >
-        <option value="">Selecciona un grupo</option>
-        {options.map(option => <option key={option} value={option}>{option}</option>)}
+        <option value="">{placeholder}</option>
+        {options.map(option => (
+          <option key={option.value ?? option} value={option.value ?? option}>
+            {option.label ?? option}
+          </option>
+        ))}
       </select>
     </label>
   );

@@ -66,6 +66,8 @@ model Usuario {
   nombre        String   @map("nombre_completo")
   password      String   @map("password_hash")
 
+  changePassword Boolean  @default(false) @map("change_password")
+
   resetCode     String?
 resetCodeExp  DateTime?
 

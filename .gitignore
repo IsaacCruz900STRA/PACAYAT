@@ -1,15 +1,15 @@
 # Node
-node_modules/ 
+node_modules/
 npm-debug.log*
 
 # Env files
-pacayat/backend/.env
-pacayat/frontend/.env
+backend/.env
+frontend/.env
 .env
 .env.local
 .env.*.local
 
-# 
+# Build
 dist/
 build/
 
@@ -21,4 +21,4 @@ logs/
 *.log
 
 # Vite
-.vite 
+.vite

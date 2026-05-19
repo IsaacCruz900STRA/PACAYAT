@@ -9,3 +9,6 @@ export const login = (username, password, rol) =>
 
 export const sendRecoveryCode = (email) =>
   api.post('/auth/forgot-password', { email });
+
+export const changePassword = (nuevaPassword) =>
+  api.post('/auth/change-password', { nuevaPassword });

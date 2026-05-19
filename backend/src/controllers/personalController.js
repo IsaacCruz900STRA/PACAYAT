@@ -1,5 +1,6 @@
 const prisma = require('../config/db');
 const { generarPasswordPersonal, hashPassword } = require('../services/passwordService');
+const { sendTemporaryPassword } = require('../services/sendTemporaryPassword');
 
 const REQUIRED_MESSAGE = 'Todos los campos son obligatorios';
 
@@ -95,22 +96,24 @@ async function createPersonal(req, res) {
     estado,
     especialidad = 'ninguno',
     materiaIds = [],
-    password: passwordPlain,
   } = req.body;
 
   if (!validatePersonalPayload(req.body)) {
     return res.status(400).json({ message: REQUIRED_MESSAGE });
   }
-  if (!passwordPlain || !passwordPlain.trim()) {
-    return res.status(400).json({ message: 'La contraseña es obligatoria' });
+  if (!correo || !correo.trim()) {
+    return res.status(400).json({ message: 'El correo es obligatorio para enviar la contraseña temporal' });
   }
-  if (passwordPlain.trim().length < 6) {
-    return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres' });
-  }
+
+  // Extraer el último apellido del nombre para generar la contraseña
+  const apellido = nombre.trim()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .split(/\s+/).pop() || nombre;
+  const plainPassword = generarPasswordPersonal(apellido);
 
   try {
     const personal = await prisma.$transaction(async (tx) => {
-      const password = await hashPassword(passwordPlain.trim());
+      const password = await hashPassword(plainPassword);
       const usuario = await tx.usuario.create({
         data: {
           username: usernameFromNombre(nombre),
@@ -118,6 +121,7 @@ async function createPersonal(req, res) {
           password,
           rol,
           activo: estado === 'Activo',
+          changePassword: true,
         },
       });
 
@@ -140,6 +144,12 @@ async function createPersonal(req, res) {
 
       return nuevo;
     });
+
+    try {
+      await sendTemporaryPassword(correo.trim(), plainPassword, nombre.trim(), 'PERSONAL');
+    } catch (mailErr) {
+      console.error('Error enviando contraseña temporal a personal:', mailErr);
+    }
 
     res.status(201).json(personal);
   } catch (err) {

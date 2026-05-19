@@ -4,14 +4,10 @@
 //  Paso 1 — Ingresa tu correo institucional
 //  Paso 2 — Ingresa el código de 6 dígitos enviado al correo
 //  Paso 3 — Crea tu nueva contraseña
-//
-// TODO: reemplazar las funciones simuladas por llamadas reales a la API:
-//   POST /api/auth/recuperar        { correo }
-//   POST /api/auth/verificar-codigo { correo, codigo }
-//   POST /api/auth/nueva-password   { correo, codigo, nuevaPassword }
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../../api/client';
 
 // ── Helpers visuales ─────────────────────────────────────────
 const bgStyle = {
@@ -122,11 +118,14 @@ function Paso1({ onNext }) {
 
     setLoading(true);
     try {
-      // TODO: await api.post('/auth/recuperar', { correo });
-      await new Promise(r => setTimeout(r, 800)); // simular petición
-      onNext(correo);
-    } catch {
-      setError('No encontramos una cuenta con ese correo.');
+      const res = await api.post('/auth/forgot-password', { email: correo });
+      if (res.data.ok) {
+        onNext(correo);
+      } else {
+        setError(res.data.message || 'Error al enviar el código.');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'No encontramos una cuenta con ese correo.');
     } finally {
       setLoading(false);
     }
@@ -213,22 +212,30 @@ function Paso2({ correo, onNext, onBack }) {
 
     setLoading(true);
     try {
-      // TODO: await api.post('/auth/verificar-codigo', { correo, codigo: codigoStr });
-      await new Promise(r => setTimeout(r, 700));
-      onNext(codigoStr);
-    } catch {
-      setError('Código incorrecto o expirado. Inténtalo de nuevo.');
+      const res = await api.post('/auth/verificar-codigo', { correo, codigo: codigoStr });
+      if (res.data.ok) {
+        onNext(codigoStr);
+      } else {
+        setError(res.data.message || 'Código incorrecto o expirado.');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Código incorrecto o expirado. Inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }
   };
 
   const reenviar = async () => {
-    // TODO: await api.post('/auth/recuperar', { correo });
-    await new Promise(r => setTimeout(r, 500));
-    setCodigo(['', '', '', '', '', '']);
-    setReenviado(true);
-    setTimeout(() => setReenviado(false), 4000);
+    try {
+      const res = await api.post('/auth/forgot-password', { email: correo });
+      if (res.data.ok) {
+        setCodigo(['', '', '', '', '', '']);
+        setReenviado(true);
+        setTimeout(() => setReenviado(false), 4000);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Error al reenviar el código.');
+    }
   };
 
   return (
@@ -309,11 +316,14 @@ function Paso3({ correo, codigo, onExito }) {
     if (!todoOk) { setError('Revisa los requisitos de la contraseña.'); return; }
     setLoading(true);
     try {
-      // TODO: await api.post('/auth/nueva-password', { correo, codigo, nuevaPassword: nueva });
-      await new Promise(r => setTimeout(r, 800));
-      onExito();
-    } catch {
-      setError('Error al cambiar la contraseña. Inténtalo de nuevo.');
+      const res = await api.post('/auth/nueva-password', { correo, codigo, nuevaPassword: nueva });
+      if (res.data.ok) {
+        onExito();
+      } else {
+        setError(res.data.message || 'Error al cambiar la contraseña.');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Error al cambiar la contraseña. Inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }
