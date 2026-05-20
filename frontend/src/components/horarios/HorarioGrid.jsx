@@ -240,7 +240,7 @@ export default function HorarioGrid({
                               background:    esArrastrando ? '#e5e7eb' : col.bg,
                               border:        `1.5px solid ${col.border}`,
                               borderRadius:  'var(--radius)',
-                              padding,
+                              padding: pad,
                               height:        '100%',
                               cursor:        editMode ? 'grab' : 'default',
                               opacity:       esArrastrando ? .4 : 1,

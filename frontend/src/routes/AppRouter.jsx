@@ -38,6 +38,7 @@ import ControlEscolarGrupos         from '../pages/control-escolar/Grupos';
 import ControlEscolarAsignaciones   from '../pages/control-escolar/Asignaciones';
 import ControlEscolarReportes       from '../pages/control-escolar/Reportes';
 import ControlEscolarPeriodos       from '../pages/control-escolar/Periodos';
+import ControlEscolarAvisos         from '../pages/control-escolar/Avisos';
 
 // Secretaría
 import SecretariaLayout     from '../layouts/SecretariaLayout';
@@ -178,6 +179,7 @@ export default function AppRouter() {
             <Route path="asignaciones"   element={<ControlEscolarAsignaciones />} />
             <Route path="reportes"       element={<ControlEscolarReportes />} />
             <Route path="periodos"       element={<ControlEscolarPeriodos />} />
+            <Route path="avisos"         element={<ControlEscolarAvisos />}   />
           </Route>
         </Route>
 

@@ -1,5 +1,6 @@
-const express = require('express');
-const cors    = require('cors');
+const express      = require('express');
+const cors         = require('cors');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 // Rutas
@@ -22,7 +23,11 @@ const archivoRoutes      = require('./routes/archivoRoutes');
 const app = express();
 
 // ── Middlewares globales ─────────────────────────────────
-app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' }));
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true, // necesario para que el navegador envíe cookies
+}));
+app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 

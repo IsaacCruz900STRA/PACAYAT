@@ -7,6 +7,9 @@ export const getUsuariosPorRol = (rol) =>
 export const login = (username, password, rol) =>
   api.post('/auth/login', { username, password, rol });
 
+export const logout = () =>
+  api.post('/auth/logout');
+
 export const sendRecoveryCode = (email) =>
   api.post('/auth/forgot-password', { email });
 

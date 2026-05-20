@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { login as apiLogin } from '../api/auth.api';
+import { login as apiLogin, logout as apiLogout } from '../api/auth.api';
 import ForcedChangePassword from '../components/auth/ForcedChangePassword';
 
 const AuthContext = createContext(null);
@@ -9,6 +9,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // El token vive en cookie httpOnly — solo guardamos info del usuario para la UI
     const savedUser = localStorage.getItem('pacayat_user');
     if (savedUser) setUser(JSON.parse(savedUser));
     setLoading(false);
@@ -16,17 +17,19 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async (username, password, rol) => {
     const { data } = await apiLogin(username, password, rol);
-    const { token: jwt, usuario } = data;
-    localStorage.setItem('pacayat_token', jwt);
-    // almacenar indicador de cambio de contraseña si viene desde el backend
+    const { usuario } = data; // el token lo maneja el backend vía cookie httpOnly
     const userToStore = { ...usuario, changePassword: Boolean(usuario.changePassword) };
     localStorage.setItem('pacayat_user', JSON.stringify(userToStore));
     setUser(userToStore);
     return usuario;
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('pacayat_token');
+  const logout = useCallback(async () => {
+    try {
+      await apiLogout(); // invalida el token en el servidor y limpia la cookie
+    } catch {
+      // continuar aunque falle la llamada al servidor
+    }
     localStorage.removeItem('pacayat_user');
     setUser(null);
   }, []);
