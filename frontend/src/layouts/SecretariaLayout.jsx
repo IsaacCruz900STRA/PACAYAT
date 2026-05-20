@@ -6,9 +6,8 @@ import { Toast } from '../components/ui/Toast';
 import HelpFAB   from '../components/ui/HelpFAB';
 
 const NAV_ITEMS = [
-  { to: '/secretaria/dashboard',  icon: '⊞', label: 'Dashboard'   },
+  { to: '/secretaria/dashboard',  icon: '⊞', label: 'Inicio'      },
   { to: '/secretaria/alumnos',    icon: '👥', label: 'Alumnos'     },
-  { to: '/secretaria/tutores',    icon: '👨‍👩‍👧', label: 'Tutores'     },
   { to: '/secretaria/grupos',     icon: '🏫', label: 'Grupos'      },
   { to: '/secretaria/documentos', icon: '📄', label: 'Documentos'  },
   { to: '/secretaria/avisos',     icon: '🔔', label: 'Avisos'      },
@@ -16,9 +15,8 @@ const NAV_ITEMS = [
 ];
 
 const BREADCRUMBS = {
-  '/secretaria/dashboard':  'Dashboard',
+  '/secretaria/dashboard':  'Inicio',
   '/secretaria/alumnos':    'Alumnos',
-  '/secretaria/tutores':    'Tutores',
   '/secretaria/grupos':     'Grupos',
   '/secretaria/documentos': 'Documentos',
   '/secretaria/avisos':     'Avisos',

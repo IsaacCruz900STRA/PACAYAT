@@ -1,113 +1,154 @@
-// src/pages/secretaria/Dashboard.jsx
-import { useNavigate } from 'react-router-dom';
-import { useAuth }     from '../../context/AuthContext';
-import Card            from '../../components/ui/Card';
-import Button          from '../../components/ui/Button';
-import PageHeader      from '../../components/layout/PageHeader';
-import { ALUMNOS_MOCK, TUTORES_MOCK } from './_mockData';
-
-const ACTIVIDADES = [
-  { desc:'Nuevo alumno inscrito: Elena Torres Vargas', tag:'inscripcion', tagColor:'#dcfce7', tagText:'#14532d', grupo:'1° A',  hora:'Hoy, 11:30 AM'  },
-  { desc:'Constancia de estudios generada para Juan Pérez', tag:'documento', tagColor:'#ede9fe', tagText:'#6b21a8', grupo:'1° A', hora:'Hoy, 10:15 AM' },
-  { desc:'Nuevo tutor registrado: Rosa María Torres', tag:'tutor', tagColor:'#dbeafe', tagText:'#1e40af', grupo:'—', hora:'Ayer, 3:45 PM'    },
-  { desc:'Acta de nacimiento subida para María López', tag:'archivo', tagColor:'#ffedd5', tagText:'#c2410c', grupo:'2° B', hora:'Ayer, 2:20 PM' },
-  { desc:'Alumno actualizado: Carlos Martínez Díaz', tag:'inscripcion', tagColor:'#dcfce7', tagText:'#14532d', grupo:'3° A',  hora:'Ayer, 11:00 AM' },
-];
-
-const DOCS_PENDIENTES = [
-  { nombre:'Juan Pérez García',      grupo:'1° A', doc:'CURP',                vence:'Vence en 3 días',  urgente:true  },
-  { nombre:'María López Ruiz',       grupo:'2° B', doc:'Acta de nacimiento',  vence:'Vence en 5 días',  urgente:true  },
-  { nombre:'Carlos Martínez',        grupo:'1° A', doc:'Comprobante domicilio',vence:'Vence en 7 días',  urgente:false },
-  { nombre:'Ana Hernández',          grupo:'3° A', doc:'Certificado médico',   vence:'Vence en 10 días', urgente:false },
-  { nombre:'Roberto Sánchez',        grupo:'2° A', doc:'Fotografías',          vence:'Vence en 12 días', urgente:false },
-  { nombre:'Laura Ramírez',          grupo:'3° B', doc:'Boleta anterior',      vence:'Vence en 15 días', urgente:false },
-  { nombre:'Jorge Flores',           grupo:'1° C', doc:'CURP',                 vence:'Vence en 18 días', urgente:false },
-];
+// src/pages/secretaria/Dashboard.jsx — Inicio con estadísticas reales
+import { useState, useEffect } from 'react';
+import { useNavigate }  from 'react-router-dom';
+import { useAuth }      from '../../context/AuthContext';
+import Card             from '../../components/ui/Card';
+import PageHeader       from '../../components/layout/PageHeader';
+import { getAlumnos }   from '../../api/alumnos.api';
+import { getGrupos }    from '../../api/grupos.api';
+import api              from '../../api/client';
 
 const ACCESOS = [
-  { icon:'👤', iconBg:'#dcfce7', label:'Nuevo Alumno',      desc:'Registrar un nuevo alumno',   action:'/secretaria/alumnos'  },
-  { icon:'👨‍👩‍👧', iconBg:'#dbeafe', label:'Nuevo Tutor',       desc:'Agregar tutor al sistema',    action:'/secretaria/tutores'  },
-  { icon:'📄', iconBg:'#ede9fe', label:'Generar Constancia', desc:'Crear constancia de estudios', action:'/secretaria/documentos'},
-  { icon:'⬆',  iconBg:'#fef3c7', label:'Subir Archivos',    desc:'Cargar documentos de alumnos', action:'/secretaria/documentos'},
+  { icon: '👤', iconBg: '#dcfce7', label: 'Nuevo Alumno',      desc: 'Registrar un nuevo alumno',    action: '/secretaria/alumnos'   },
+  { icon: '🏫', iconBg: '#ede9fe', label: 'Ver Grupos',        desc: 'Consultar alumnos por grupo',  action: '/secretaria/grupos'    },
+  { icon: '🔔', iconBg: '#fef3c7', label: 'Crear Aviso',       desc: 'Publicar un aviso general',    action: '/secretaria/avisos'    },
+  { icon: '📋', iconBg: '#fce7f3', label: 'Nuevo Reporte',     desc: 'Registrar reporte de conducta', action: '/secretaria/reportes' },
 ];
 
+function StatCard({ label, value, icon, iconBg, color }) {
+  return (
+    <Card style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem' }}>
+      <div>
+        <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 4 }}>{label}</div>
+        <div style={{ fontSize: 32, fontWeight: 700, color: color || 'var(--text-primary)' }}>{value}</div>
+      </div>
+      <div style={{ width: 48, height: 48, borderRadius: '50%', background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>
+        {icon}
+      </div>
+    </Card>
+  );
+}
+
 export default function SecretariaDashboard() {
-  const { user }   = useAuth();
-  const navigate   = useNavigate();
+  const { user }     = useAuth();
+  const navigate     = useNavigate();
+  const [stats, setStats] = useState({ alumnos: 0, activos: 0, inactivos: 0, grupos: 0, personal: 0 });
+  const [distribucion, setDistribucion] = useState([]); // grupos con conteo
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      getAlumnos({ limit: 1 }),
+      getAlumnos({ estado: 'Activo',   limit: 1 }),
+      getAlumnos({ estado: 'Inactivo', limit: 1 }),
+      getGrupos(),
+      api.get('/personal', { params: { limit: 1 } }),
+    ]).then(([todos, activos, inactivos, grps, pers]) => {
+      const grupos = grps.data?.grupos || [];
+      setStats({
+        alumnos:   todos.data?.total    || 0,
+        activos:   activos.data?.total  || 0,
+        inactivos: inactivos.data?.total|| 0,
+        grupos:    grupos.length,
+        personal:  pers.data?.total || (pers.data?.personal?.length) || 0,
+      });
+
+      // Distribución por grado
+      const porGrado = {};
+      grupos.forEach(g => {
+        const k = `${g.grado}° Grado`;
+        porGrado[k] = (porGrado[k] || 0) + 1;
+      });
+      setDistribucion(Object.entries(porGrado).sort());
+    }).catch(() => {})
+    .finally(() => setLoading(false));
+  }, []);
 
   return (
-    <div style={{ padding:'0 2rem 2rem' }}>
-      <PageHeader title="Panel de Secretaría" subtitle={user?.nombre} />
+    <div style={{ padding: '0 2rem 2rem' }}>
+      <PageHeader
+        title="Inicio"
+        subtitle={`Bienvenida, ${user?.nombre || 'Secretaría'}`}
+      />
 
       {/* Stats */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'1rem', marginBottom:'1.5rem' }}>
-        {[
-          { label:'Alumnos Inscritos',    value:ALUMNOS_MOCK.length, icon:'👥', iconBg:'#dcfce7' },
-          { label:'Tutores Registrados',  value:TUTORES_MOCK.length, icon:'👨‍👩‍👧', iconBg:'#dbeafe' },
-          { label:'Documentos Pendientes',value:DOCS_PENDIENTES.length, icon:'📄', iconBg:'#fef3c7' },
-        ].map(s => (
-          <Card key={s.label} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'1.25rem' }}>
-            <div>
-              <div style={{ fontSize:13, color:'var(--text-secondary)', marginBottom:4 }}>{s.label}</div>
-              <div style={{ fontSize:32, fontWeight:700 }}>{s.value}</div>
-            </div>
-            <div style={{ width:48, height:48, borderRadius:'50%', background:s.iconBg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, flexShrink:0 }}>
-              {s.icon}
-            </div>
-          </Card>
-        ))}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+        <StatCard label="Alumnos inscritos"  value={loading ? '…' : stats.alumnos}   icon="👥" iconBg="#dcfce7" />
+        <StatCard label="Alumnos activos"    value={loading ? '…' : stats.activos}   icon="✅" iconBg="#d1fae5" color="#16a34a" />
+        <StatCard label="Alumnos inactivos"  value={loading ? '…' : stats.inactivos} icon="⛔" iconBg="#fee2e2" color="#dc2626" />
+        <StatCard label="Grupos registrados" value={loading ? '…' : stats.grupos}    icon="🏫" iconBg="#ede9fe" />
       </div>
 
       {/* Accesos rápidos */}
-      <h2 style={{ fontSize:16, fontWeight:700, marginBottom:'1rem' }}>Accesos Rápidos</h2>
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'1rem', marginBottom:'1.5rem' }}>
+      <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: '1rem' }}>Accesos Rápidos</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
         {ACCESOS.map(a => (
-          <Card key={a.label} style={{ padding:'1.25rem', cursor:'pointer', transition:'box-shadow var(--transition)' }}
+          <Card key={a.label}
+            style={{ padding: '1.25rem', cursor: 'pointer', transition: 'box-shadow var(--transition)' }}
             onClick={() => navigate(a.action)}
-            onMouseEnter={e=>e.currentTarget.style.boxShadow='var(--shadow-md)'}
-            onMouseLeave={e=>e.currentTarget.style.boxShadow='var(--shadow)'}>
-            <div style={{ width:44, height:44, borderRadius:'var(--radius)', background:a.iconBg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, marginBottom:'0.75rem' }}>
+            onMouseEnter={e => e.currentTarget.style.boxShadow = 'var(--shadow-md)'}
+            onMouseLeave={e => e.currentTarget.style.boxShadow = 'var(--shadow)'}>
+            <div style={{ width: 44, height: 44, borderRadius: 'var(--radius)', background: a.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, marginBottom: '0.75rem' }}>
               {a.icon}
             </div>
-            <div style={{ fontWeight:700, fontSize:15, marginBottom:4 }}>{a.label}</div>
-            <div style={{ fontSize:13, color:'var(--text-secondary)' }}>{a.desc}</div>
+            <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>{a.label}</div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{a.desc}</div>
           </Card>
         ))}
       </div>
 
-      {/* Dos columnas */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1.25rem' }}>
-        {/* Actividades */}
-        <Card style={{ padding:0 }}>
-          <div style={{ padding:'1rem 1.25rem', background:'#eff6ff', borderRadius:'var(--radius-lg) var(--radius-lg) 0 0' }}>
-            <h3 style={{ fontSize:15, fontWeight:700, color:'#1e40af' }}>Últimas Actividades</h3>
-          </div>
-          {ACTIVIDADES.map((a,i) => (
-            <div key={i} style={{ padding:'12px 16px', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:8 }}>
-              <div style={{ flex:1 }}>
-                <div style={{ fontSize:14, fontWeight:500, marginBottom:6, lineHeight:1.4 }}>{a.desc}</div>
-                <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                  <span style={{ background:a.tagColor, color:a.tagText, fontSize:11, fontWeight:600, padding:'2px 8px', borderRadius:20 }}>{a.tag}</span>
-                  {a.grupo !== '—' && <span style={{ fontSize:12, color:'var(--text-secondary)' }}>{a.grupo}</span>}
-                </div>
-              </div>
-              <div style={{ fontSize:12, color:'var(--text-muted)', whiteSpace:'nowrap', flexShrink:0 }}>{a.hora}</div>
+      {/* Gráfica de distribución por grado */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+        <Card style={{ padding: '1.25rem' }}>
+          <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: '1rem', color: 'var(--green-800)' }}>
+            📊 Distribución por Grado
+          </h3>
+          {loading ? (
+            <div style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Cargando...</div>
+          ) : distribucion.length === 0 ? (
+            <div style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Sin grupos registrados</div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {distribucion.map(([grado, count]) => {
+                const pct = stats.grupos > 0 ? Math.round((count / stats.grupos) * 100) : 0;
+                return (
+                  <div key={grado}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
+                      <span style={{ fontWeight: 600 }}>{grado}</span>
+                      <span style={{ color: 'var(--text-secondary)' }}>{count} grupo{count > 1 ? 's' : ''}</span>
+                    </div>
+                    <div style={{ height: 8, background: '#f3f4f6', borderRadius: 99, overflow: 'hidden' }}>
+                      <div style={{ width: `${pct}%`, height: '100%', background: 'var(--green-600)', borderRadius: 99, transition: 'width .5s ease' }} />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          ))}
+          )}
         </Card>
 
-        {/* Documentos pendientes */}
-        <Card style={{ padding:0 }}>
-          <div style={{ padding:'1rem 1.25rem', background:'#fff7ed', borderRadius:'var(--radius-lg) var(--radius-lg) 0 0' }}>
-            <h3 style={{ fontSize:15, fontWeight:700, color:'#92400e' }}>Documentos Pendientes</h3>
+        <Card style={{ padding: '1.25rem' }}>
+          <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: '1rem', color: 'var(--green-800)' }}>
+            📈 Resumen del Ciclo
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {[
+              { label: 'Total de alumnos inscritos', value: stats.alumnos,   icon: '👥', color: 'var(--text-primary)' },
+              { label: 'Alumnos activos',            value: stats.activos,   icon: '✅', color: '#16a34a' },
+              { label: 'Alumnos inactivos',          value: stats.inactivos, icon: '⛔', color: '#dc2626' },
+              { label: 'Grupos en el ciclo',         value: stats.grupos,    icon: '🏫', color: '#7c3aed' },
+            ].map(item => (
+              <div key={item.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 16 }}>{item.icon}</span>
+                  <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{item.label}</span>
+                </div>
+                <span style={{ fontSize: 18, fontWeight: 700, color: item.color }}>
+                  {loading ? '…' : item.value}
+                </span>
+              </div>
+            ))}
           </div>
-          {DOCS_PENDIENTES.map((d,i) => (
-            <div key={i} style={{ padding:'12px 16px', borderBottom:'1px solid var(--border)' }}>
-              <div style={{ fontWeight:600, fontSize:14 }}>{d.nombre}</div>
-              <div style={{ fontSize:12, color:'var(--text-secondary)', marginTop:2 }}>{d.grupo} • {d.doc}</div>
-              <div style={{ fontSize:12, color: d.urgente ? '#dc2626' : '#d97706', fontWeight:500, marginTop:2 }}>{d.vence}</div>
-            </div>
-          ))}
         </Card>
       </div>
     </div>

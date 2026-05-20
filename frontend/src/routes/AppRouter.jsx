@@ -189,7 +189,6 @@ export default function AppRouter() {
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard"  element={<SecretariaDashboard />}  />
             <Route path="alumnos"    element={<SecretariaAlumnos />}    />
-            <Route path="tutores"    element={<SecretariaTutores />}    />
             <Route path="grupos"     element={<SecretariaGrupos />}     />
             <Route path="documentos" element={<SecretariaDocumentos />} />
             <Route path="avisos"     element={<SecretariaAvisos />}     />
