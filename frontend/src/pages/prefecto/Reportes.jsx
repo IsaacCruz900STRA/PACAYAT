@@ -108,7 +108,11 @@ export default function PrefectoReportes() {
 
   return (
     <div style={{ padding: '0 2rem 2rem' }}>
-      <PageHeader title="Reportes" subtitle="Historial de conducta por alumno" />
+      <PageHeader
+        title="Reportes"
+        subtitle="Historial de conducta por alumno"
+        action={<Button onClick={() => setModal(true)}>+ Crear Reporte</Button>}
+      />
 
       {/* Buscador */}
       <Card style={{ padding: '1.25rem', marginBottom: '1.5rem' }}>
@@ -260,7 +264,7 @@ export default function PrefectoReportes() {
             open={modal}
             onClose={() => setModal(false)}
             alumnoPreset={alumno ? { id: alumno.id, nombre: alumno.nombreCompleto || alumno.nombre, matricula: alumno.matricula, puntosConducta: alumno.puntosConducta } : null}
-            onSuccess={() => { setModal(false); cargarReportes(alumno.id); showToast('Reporte guardado'); }}
+            onSuccess={() => { setModal(false); if (alumno) cargarReportes(alumno.id); showToast('Reporte guardado'); }}
           />
         </>
       )}
