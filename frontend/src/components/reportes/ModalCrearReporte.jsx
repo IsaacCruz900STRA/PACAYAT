@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Search, ArrowRight } from 'lucide-react';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import { buscarAlumnos } from '../../api/alumnos.api';
@@ -111,7 +112,7 @@ export default function ModalCrearReporte({ open, onClose, alumnoPreset = null, 
             Buscar Alumno
           </label>
           <div style={{ position: 'relative' }}>
-            <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: 'var(--text-muted)' }}>🔍</span>
+            <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}><Search size={14} /></span>
             <input
               value={query}
               onChange={e => { setQuery(e.target.value); setAlumno(null); }}
@@ -195,7 +196,7 @@ export default function ModalCrearReporte({ open, onClose, alumnoPreset = null, 
             borderRadius: 'var(--radius)', border: '1px solid var(--border)', fontSize: 14,
           }}>
             <span style={{ fontWeight: 600 }}>{ptsActuales} pts</span>
-            <span style={{ color: 'var(--text-muted)' }}>→</span>
+            <span style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}><ArrowRight size={14} /></span>
             <span style={{ fontWeight: 700, color: gravedadObj.delta < 0 ? 'var(--red-600)' : 'var(--green-700)' }}>
               {ptsDespues} pts
             </span>

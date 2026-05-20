@@ -1,6 +1,7 @@
 // src/pages/tutor/Inicio.jsx
 import { useState }       from 'react';
 import { useNavigate }    from 'react-router-dom';
+import { Users, User, AlertTriangle, BookOpen, ClipboardList, Info, ArrowRight, Download } from 'lucide-react';
 import { useAuth }        from '../../context/AuthContext';
 import { useTutor }       from '../../context/TutorContext';
 import Card               from '../../components/ui/Card';
@@ -61,7 +62,7 @@ export default function TutorInicio() {
       {/* Sin hijos registrados */}
       {!loading && hijos.length === 0 && (
         <Card style={{ padding: '3rem', textAlign: 'center' }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>👨‍👩‍👧</div>
+          <div style={{ fontSize: 48, marginBottom: 16, display: 'flex', justifyContent: 'center' }}><Users size={48} /></div>
           <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Sin alumnos registrados</h3>
           <p style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
             No hay alumnos vinculados a tu cuenta. Contacta a la secretaría escolar para registrar a tus hijos.
@@ -85,7 +86,7 @@ export default function TutorInicio() {
               width: 56, height: 56, borderRadius: '50%', background: 'var(--green-700)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 24, color: '#fff', flexShrink: 0,
-            }}>👤</div>
+            }}><User size={24} /></div>
             <div>
               <div style={{ fontSize: 20, fontWeight: 700 }}>{hijoActual.nombre}</div>
               <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginTop: 2 }}>
@@ -104,7 +105,7 @@ export default function TutorInicio() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
             <Card style={{ border: '1px solid #fed7aa', background: '#fff7ed', padding: '1.25rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#ffedd5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>⚠️</div>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#ffedd5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><AlertTriangle size={18} /></div>
                 <span style={{ fontWeight: 600, fontSize: 15 }}>Faltas Acumuladas</span>
               </div>
               <div style={{
@@ -119,7 +120,7 @@ export default function TutorInicio() {
             </Card>
             <Card style={{ border: '1px solid #bfdbfe', background: '#eff6ff', padding: '1.25rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>📖</div>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><BookOpen size={18} /></div>
                 <span style={{ fontWeight: 600, fontSize: 15 }}>Promedio General</span>
               </div>
               <div style={{
@@ -136,10 +137,10 @@ export default function TutorInicio() {
 
           {/* Acciones */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
-            <Button variant="outline" fullWidth icon="📋" onClick={() => navigate('/tutor/reportes')}>
+            <Button variant="outline" fullWidth icon={<ClipboardList size={14} />} onClick={() => navigate('/tutor/reportes')}>
               Ver Todos los Reportes
             </Button>
-            <Button variant="outline" fullWidth icon="⬇" onClick={() => alert('Descarga de archivos — próximamente')}>
+            <Button variant="outline" fullWidth icon={<Download size={14} />} onClick={() => alert('Descarga de archivos — próximamente')}>
               Descargar Archivos
             </Button>
           </div>
@@ -147,13 +148,13 @@ export default function TutorInicio() {
           {/* Info contacto */}
           <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 'var(--radius)', padding: '1rem 1.25rem' }}>
             <div style={{ fontSize: 14, fontWeight: 600, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-              ℹ️ ¿Necesitas ayuda?
+              <Info size={14} /> ¿Necesitas ayuda?
             </div>
             <p style={{ fontSize: 13, color: '#1e40af', lineHeight: 1.6 }}>
               Si tienes dudas sobre el desempeño de tu hijo o quieres agendar una cita con algún maestro, puedes acudir a la dirección de la escuela o llamar al teléfono de contacto.
             </p>
             <button onClick={() => navigate('/tutor/contacto')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2563eb', fontSize: 13, fontWeight: 600, padding: '4px 0', fontFamily: 'inherit' }}>
-              Ver datos de Contacto →
+              Ver datos de Contacto <ArrowRight size={13} style={{ display:'inline', verticalAlign:'middle' }} />
             </button>
           </div>
         </Card>

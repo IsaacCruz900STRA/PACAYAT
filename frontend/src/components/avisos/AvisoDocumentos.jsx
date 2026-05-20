@@ -6,15 +6,16 @@
  * Modo lectura (editable=false): muestra links de descarga.
  */
 import { useRef, useState } from 'react';
+import { FileText, Image, FileEdit, BarChart2, Paperclip, X, Download } from 'lucide-react';
 import { uploadAvisoDoc, getAvisoDocUrl } from '../../api/avisos.api';
 import { showToast } from '../ui/Toast';
 
 function fileIcon(mimetype = '') {
-  if (mimetype.includes('pdf'))   return '📄';
-  if (mimetype.includes('image')) return '🖼️';
-  if (mimetype.includes('word') || mimetype.includes('document')) return '📝';
-  if (mimetype.includes('sheet') || mimetype.includes('excel'))   return '📊';
-  return '📎';
+  if (mimetype.includes('pdf'))   return <FileText size={16} />;
+  if (mimetype.includes('image')) return <Image size={16} />;
+  if (mimetype.includes('word') || mimetype.includes('document')) return <FileEdit size={16} />;
+  if (mimetype.includes('sheet') || mimetype.includes('excel'))   return <BarChart2 size={16} />;
+  return <Paperclip size={16} />;
 }
 
 function fmtSize(bytes) {
@@ -55,8 +56,8 @@ export default function AvisoDocumentos({ documentos = [], onChange, editable = 
     if (!documentos.length) return null;
     return (
       <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--border)' }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>
-          📎 Documentos adjuntos
+        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <Paperclip size={12} /> Documentos adjuntos
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {documentos.map((doc, i) => (
@@ -68,10 +69,10 @@ export default function AvisoDocumentos({ documentos = [], onChange, editable = 
               download={doc.nombre}
               style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--blue-600)', textDecoration: 'none' }}
             >
-              <span>{fileIcon(doc.mimetype)}</span>
+              <span style={{ display: 'flex', alignItems: 'center' }}>{fileIcon(doc.mimetype)}</span>
               <span style={{ textDecoration: 'underline' }}>{doc.nombre}</span>
               {doc.tamanio && <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>({fmtSize(doc.tamanio)})</span>}
-              <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>⬇</span>
+              <Download size={11} style={{ color: 'var(--text-muted)' }} />
             </a>
           ))}
         </div>
@@ -87,14 +88,14 @@ export default function AvisoDocumentos({ documentos = [], onChange, editable = 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 8 }}>
           {documentos.map((doc, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#f9fafb', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '6px 10px' }}>
-              <span style={{ fontSize: 16 }}>{fileIcon(doc.mimetype)}</span>
+              <span style={{ fontSize: 16, display: 'flex', alignItems: 'center' }}>{fileIcon(doc.mimetype)}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{doc.nombre}</div>
                 {doc.tamanio && <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{fmtSize(doc.tamanio)}</div>}
               </div>
               <button onClick={() => eliminar(i)} type="button" title="Quitar"
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--red-500)', fontSize: 14, padding: '2px 4px', flexShrink: 0 }}>
-                ✕
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--red-500)', fontSize: 14, padding: '2px 4px', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                <X size={14} />
               </button>
             </div>
           ))}
@@ -111,7 +112,7 @@ export default function AvisoDocumentos({ documentos = [], onChange, editable = 
           fontSize: 13, color: 'var(--text-secondary)', fontFamily: 'inherit',
           width: '100%', justifyContent: 'center',
         }}>
-        <span style={{ fontSize: 16 }}>📎</span>
+        <span style={{ fontSize: 16, display: 'flex', alignItems: 'center' }}><Paperclip size={16} /></span>
         {uploading ? 'Subiendo...' : 'Adjuntar documentos (PDF, imágenes, Word, Excel)'}
       </button>
     </div>

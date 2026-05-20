@@ -1,5 +1,6 @@
 // src/pages/control-escolar/Dashboard.jsx
 import { useNavigate } from 'react-router-dom';
+import { Calendar, BookOpen, BarChart2 } from 'lucide-react';
 import { useAuth }     from '../../context/AuthContext';
 import Card            from '../../components/ui/Card';
 import Button          from '../../components/ui/Button';
@@ -18,7 +19,7 @@ function StatCard({ label, value, icon, iconBg, sub }) {
         <div style={{ fontSize:13, color:'var(--text-secondary)', marginBottom:4 }}>{label}</div>
         <div style={{ fontSize: sub ? 28 : 32, fontWeight:700, lineHeight:1.2, whiteSpace:'pre-line' }}>{value}</div>
       </div>
-      <div style={{ width:48, height:48, borderRadius:'50%', background:iconBg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, flexShrink:0 }}>
+      <div style={{ width:48, height:48, borderRadius:'50%', background:iconBg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
         {icon}
       </div>
     </Card>
@@ -39,9 +40,9 @@ export default function ControlEscolarDashboard() {
 
       {/* Stats */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'1rem', marginBottom:'1.5rem' }}>
-        <StatCard label="Periodo Actual" value={'Marzo-\nAbril'} icon="📅" iconBg="#dbeafe" sub />
-        <StatCard label="Materias Sin Captura" value={SIN_CAPTURA.length} icon="📖" iconBg="#fee2e2" />
-        <StatCard label="Promedio General" value={promedioGral} icon="📊" iconBg="#dbeafe" />
+        <StatCard label="Periodo Actual" value={'Marzo-\nAbril'} icon={<Calendar size={22} />} iconBg="#dbeafe" sub />
+        <StatCard label="Materias Sin Captura" value={SIN_CAPTURA.length} icon={<BookOpen size={22} />} iconBg="#fee2e2" />
+        <StatCard label="Promedio General" value={promedioGral} icon={<BarChart2 size={22} />} iconBg="#dbeafe" />
       </div>
 
       {/* Promedio por grado */}

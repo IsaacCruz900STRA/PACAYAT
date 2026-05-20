@@ -1,5 +1,6 @@
 // src/pages/directivo/Dashboard.jsx
 import { useNavigate } from 'react-router-dom';
+import { AlertTriangle, Users, User, BarChart2 } from 'lucide-react';
 import { useAuth }     from '../../context/AuthContext';
 import Card            from '../../components/ui/Card';
 import Button          from '../../components/ui/Button';
@@ -25,7 +26,7 @@ export default function DirectivoDashboard() {
         borderRadius: 'var(--radius)', padding: '12px 16px',
         display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: '1.5rem',
       }}>
-        <span style={{ fontSize: 18 }}>⚠️</span>
+        <span style={{ fontSize: 18, display: 'flex', alignItems: 'center' }}><AlertTriangle size={18} /></span>
         <div>
           <div style={{ fontSize: 14, fontWeight: 600, color: '#92400e' }}>Periodo de Reinscripción Activo</div>
           <div style={{ fontSize: 13, color: '#78350f', marginTop: 1 }}>Del 1 al 15 de Mayo, 2026. Recordatorio enviado a tutores.</div>
@@ -35,16 +36,16 @@ export default function DirectivoDashboard() {
       {/* Stats — sin "Reportes del Mes", promedio de conducta → promedio de escuela */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
         {[
-          { label: 'Alumnos Activos',   value: ALUMNOS_MOCK.length, icon: '👥', iconBg: '#dcfce7' },
-          { label: 'Personal Activo',   value: 9,                   icon: '👤', iconBg: '#dbeafe' },
-          { label: 'Promedio Escuela',  value: promedioEscuela,     icon: '📊', iconBg: '#ccfbf1' },
+          { label: 'Alumnos Activos',   value: ALUMNOS_MOCK.length, icon: <Users size={22} />,    iconBg: '#dcfce7' },
+          { label: 'Personal Activo',   value: 9,                   icon: <User size={22} />,     iconBg: '#dbeafe' },
+          { label: 'Promedio Escuela',  value: promedioEscuela,     icon: <BarChart2 size={22} />, iconBg: '#ccfbf1' },
         ].map(s => (
           <Card key={s.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem' }}>
             <div>
               <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 4 }}>{s.label}</div>
               <div style={{ fontSize: 32, fontWeight: 700 }}>{s.value}</div>
             </div>
-            <div style={{ width: 48, height: 48, borderRadius: '50%', background: s.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>
+            <div style={{ width: 48, height: 48, borderRadius: '50%', background: s.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               {s.icon}
             </div>
           </Card>

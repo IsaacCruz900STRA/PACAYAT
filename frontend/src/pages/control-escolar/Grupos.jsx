@@ -1,5 +1,6 @@
 // src/pages/control-escolar/Grupos.jsx
 import { useState } from 'react';
+import { Search, User, DoorOpen, Users, Pencil, Inbox } from 'lucide-react';
 import PageHeader   from '../../components/layout/PageHeader';
 import Card         from '../../components/ui/Card';
 import Badge        from '../../components/ui/Badge';
@@ -40,7 +41,7 @@ export default function ControlEscolarGrupos() {
       {/* Filtros */}
       <Card style={{ padding:'1rem 1.25rem', marginBottom:'1.25rem', display:'flex', gap:10, flexWrap:'wrap', alignItems:'center' }}>
         <div style={{ position:'relative', flex:1, minWidth:240 }}>
-          <span style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', fontSize:14 }}>🔍</span>
+          <span style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', fontSize:14, display:'flex', alignItems:'center' }}><Search size={14} /></span>
           <input value={q} onChange={e=>setQ(e.target.value)}
             placeholder="Buscar por grupo, tutor o aula..."
             style={{ ...fs, width:'100%', paddingLeft:36 }} />
@@ -76,8 +77,8 @@ export default function ControlEscolarGrupos() {
                 </div>
                 <div>
                   <div style={{ fontSize:16, fontWeight:700, color:'var(--green-800)' }}>{grupo.nombre}</div>
-                  <div style={{ fontSize:13, color:'var(--text-secondary)' }}>
-                    👤 Tutor: {grupo.tutor} &nbsp;·&nbsp; 🚪 Aula: {grupo.aula} &nbsp;·&nbsp; 👥 {grupo.alumnos} alumnos
+                  <div style={{ fontSize:13, color:'var(--text-secondary)', display:'flex', alignItems:'center', gap:4, flexWrap:'wrap' }}>
+                    <User size={13} /> Tutor: {grupo.tutor} &nbsp;·&nbsp; <DoorOpen size={13} /> Aula: {grupo.aula} &nbsp;·&nbsp; <Users size={13} /> {grupo.alumnos} alumnos
                   </div>
                 </div>
               </div>
@@ -86,7 +87,7 @@ export default function ControlEscolarGrupos() {
                   <div style={{ fontSize:12, color:'var(--text-secondary)' }}>Promedio grupal</div>
                   <div style={{ fontSize:22, fontWeight:700, color:calColor(grupo.promedio) }}>{grupo.promedio.toFixed(1)}</div>
                 </div>
-                <Button variant="outline" icon="✏️">Editar</Button>
+                <Button variant="outline" icon={<Pencil size={13} />}>Editar</Button>
               </div>
             </div>
 
@@ -131,7 +132,7 @@ export default function ControlEscolarGrupos() {
 
       {gruposFiltrados.length === 0 && (
         <Card style={{ padding:'3rem', textAlign:'center', color:'var(--text-secondary)' }}>
-          <div style={{ fontSize:40, marginBottom:12 }}>📭</div>
+          <div style={{ fontSize:40, marginBottom:12, display:'flex', justifyContent:'center' }}><Inbox size={40} /></div>
           <p>No se encontraron grupos con esos filtros.</p>
         </Card>
       )}

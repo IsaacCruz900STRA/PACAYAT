@@ -1,5 +1,6 @@
 // src/pages/control-escolar/Asignaciones.jsx
 import { useState, useEffect, useCallback } from 'react';
+import { Calendar, ClipboardList, Search } from 'lucide-react';
 import PageHeader from '../../components/layout/PageHeader';
 import Card       from '../../components/ui/Card';
 import Badge      from '../../components/ui/Badge';
@@ -99,7 +100,7 @@ export default function ControlEscolarAsignaciones() {
 
       {/* Tabs vista */}
       <div style={{ display: 'flex', gap: 8, marginBottom: '1.25rem' }}>
-        {[['horario', '📅 Horario por grupo'], ['lista', '📋 Lista de clases']].map(([v, l]) => (
+        {[['horario', <><Calendar size={14} style={{ display:'inline', verticalAlign:'middle', marginRight:4 }} />Horario por grupo</>], ['lista', <><ClipboardList size={14} style={{ display:'inline', verticalAlign:'middle', marginRight:4 }} />Lista de clases</>]].map(([v, l]) => (
           <button key={v} onClick={() => setVista(v)} style={{
             padding: '8px 18px', borderRadius: 'var(--radius)', fontSize: 14, fontWeight: vista === v ? 600 : 500,
             border: '1.5px solid', cursor: 'pointer', fontFamily: 'inherit',
@@ -129,7 +130,7 @@ export default function ControlEscolarAsignaciones() {
 
         {vista === 'lista' && (
           <div style={{ position: 'relative', flex: 1, minWidth: 240 }}>
-            <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 14 }}>🔍</span>
+            <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 14, display: 'flex', alignItems: 'center' }}><Search size={14} /></span>
             <input value={qFiltro} onChange={e => setQFiltro(e.target.value)}
               placeholder="Buscar por materia, docente o salón..."
               style={{ ...fs, width: '100%', paddingLeft: 36 }} />
@@ -150,7 +151,7 @@ export default function ControlEscolarAsignaciones() {
 
           {horarios.length === 0 ? (
             <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>📅</div>
+              <div style={{ fontSize: 32, marginBottom: 8, display: 'flex', justifyContent: 'center' }}><Calendar size={32} /></div>
               <div style={{ fontWeight: 600 }}>Sin horario para este grupo</div>
               <div style={{ fontSize: 13, marginTop: 4 }}>El administrador aún no ha importado o generado el horario.</div>
             </div>
@@ -211,7 +212,7 @@ export default function ControlEscolarAsignaciones() {
         <Card style={{ padding: 0 }}>
           {listaFiltrada.length === 0 ? (
             <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>📋</div>
+              <div style={{ fontSize: 32, marginBottom: 8, display: 'flex', justifyContent: 'center' }}><ClipboardList size={32} /></div>
               <div style={{ fontWeight: 600 }}>{qFiltro ? 'Sin resultados para la búsqueda' : 'Sin clases registradas para este grupo'}</div>
             </div>
           ) : (

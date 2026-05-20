@@ -1,5 +1,6 @@
 // src/pages/prefecto/Dashboard.jsx
 import { useNavigate } from 'react-router-dom';
+import { FileText, TrendingDown, AlertTriangle } from 'lucide-react';
 import { useAuth }     from '../../context/AuthContext';
 import Card            from '../../components/ui/Card';
 import Button          from '../../components/ui/Button';
@@ -24,9 +25,9 @@ function tipoStyle(tipo) {
 
 // ── Mock data ───────────────────────────────────────────────────
 const STATS = [
-  { label: 'Reportes Hoy',        value: 12, icon: '📄', iconBg: '#dbeafe' },
-  { label: 'Reportes Esta Semana',value: 47, icon: '📉', iconBg: '#fef3c7' },
-  { label: 'Alumnos en Riesgo',   value: 23, icon: '⚠️', iconBg: '#fee2e2' },
+  { label: 'Reportes Hoy',        value: 12, icon: <FileText size={22} />,    iconBg: '#dbeafe' },
+  { label: 'Reportes Esta Semana',value: 47, icon: <TrendingDown size={22} />, iconBg: '#fef3c7' },
+  { label: 'Alumnos en Riesgo',   value: 23, icon: <AlertTriangle size={22} />, iconBg: '#fee2e2' },
 ];
 
 const REPORTES_RECIENTES = [
@@ -75,7 +76,7 @@ export default function PrefectoDashboard() {
               <div style={{ fontSize:13, color:'var(--text-secondary)', marginBottom:4 }}>{s.label}</div>
               <div style={{ fontSize:32, fontWeight:700 }}>{s.value}</div>
             </div>
-            <div style={{ width:48, height:48, borderRadius:'50%', background:s.iconBg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:22 }}>
+            <div style={{ width:48, height:48, borderRadius:'50%', background:s.iconBg, display:'flex', alignItems:'center', justifyContent:'center' }}>
               {s.icon}
             </div>
           </Card>

@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Construction, LogOut as LogOutIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ProtectedRoute from './ProtectedRoute';
 
@@ -92,11 +93,11 @@ function EnConstruccion({ title = 'En construcción', message = 'Esta sección e
           color: 'var(--red-600)', fontSize: 14, fontWeight: 600,
           boxShadow: 'var(--shadow-sm)', zIndex: 20, cursor: 'pointer',
         }}>
-          <span aria-hidden="true">→</span> Cerrar sesión
+          <LogOutIcon size={14} /> Cerrar sesión
         </button>
       )}
       <div style={{ paddingTop: '6rem', textAlign: 'center' }}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>🚧</div>
+        <div style={{ fontSize: 48, marginBottom: 16, display: 'flex', justifyContent: 'center' }}><Construction size={48} /></div>
         <h2 style={{ marginBottom: 8 }}>{title}</h2>
         <p>{message}</p>
         {user && (

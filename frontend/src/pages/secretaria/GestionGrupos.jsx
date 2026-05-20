@@ -1,5 +1,6 @@
 // src/pages/secretaria/GestionGrupos.jsx
 import { useState, useEffect, useCallback } from 'react';
+import { Search } from 'lucide-react';
 import PageHeader from '../../components/layout/PageHeader';
 import Card       from '../../components/ui/Card';
 import Badge      from '../../components/ui/Badge';
@@ -145,7 +146,7 @@ export default function SecretariaGrupos() {
       {/* Buscador */}
       <Card style={{ padding: '1rem 1.25rem', marginBottom: '1.25rem' }}>
         <div style={{ position: 'relative' }}>
-          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 14 }}>🔍</span>
+          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 14, display: 'flex', alignItems: 'center' }}><Search size={14} /></span>
           <input value={q} onChange={e => setQ(e.target.value)}
             placeholder={`Buscar en ${grupoSel?.nombre || '...'} por nombre o matrícula...`}
             style={{ ...fs, width: '100%', paddingLeft: 36 }} />

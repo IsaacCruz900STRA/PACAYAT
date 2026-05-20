@@ -1,4 +1,5 @@
 // src/pages/directivo/Estadisticas.jsx
+import { BarChart2, TrendingDown, AlertTriangle, ClipboardList } from 'lucide-react';
 import PageHeader from '../../components/layout/PageHeader';
 import Card       from '../../components/ui/Card';
 import {
@@ -75,13 +76,13 @@ export default function DirectivoEstadisticas() {
       {/* KPIs rápidos */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'1rem', marginBottom:'1.5rem' }}>
         {[
-          { label:'Promedio General',    value:`${promedioEscuela}`,          color:'var(--green-700)', icon:'📊' },
-          { label:'Índice de Reprobados',value:`${((totalReprobados/totalAlumnos)*100).toFixed(1)}%`, color:'#dc2626', icon:'📉' },
-          { label:'Alumnos en Riesgo',   value:ALUMNOS_MOCK.filter(a=>a.puntos<60).length, color:'#ea580c', icon:'⚠️' },
-          { label:'Total Reportes (Abr)',value:REPORTES_MOCK.length, color:'#2563eb', icon:'📋' },
+          { label:'Promedio General',    value:`${promedioEscuela}`,          color:'var(--green-700)', icon:<BarChart2 size={22} /> },
+          { label:'Índice de Reprobados',value:`${((totalReprobados/totalAlumnos)*100).toFixed(1)}%`, color:'#dc2626', icon:<TrendingDown size={22} /> },
+          { label:'Alumnos en Riesgo',   value:ALUMNOS_MOCK.filter(a=>a.puntos<60).length, color:'#ea580c', icon:<AlertTriangle size={22} /> },
+          { label:'Total Reportes (Abr)',value:REPORTES_MOCK.length, color:'#2563eb', icon:<ClipboardList size={22} /> },
         ].map(k => (
           <Card key={k.label} style={{ padding:'1.25rem', textAlign:'center' }}>
-            <div style={{ fontSize:22, marginBottom:6 }}>{k.icon}</div>
+            <div style={{ fontSize:22, marginBottom:6, display:'flex', justifyContent:'center' }}>{k.icon}</div>
             <div style={{ fontSize:26, fontWeight:700, color:k.color }}>{k.value}</div>
             <div style={{ fontSize:12, color:'var(--text-secondary)', marginTop:3 }}>{k.label}</div>
           </Card>

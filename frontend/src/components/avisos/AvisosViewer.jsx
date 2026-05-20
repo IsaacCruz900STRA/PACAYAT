@@ -14,6 +14,7 @@ const TIPO_STYLE = {
   PERIODO_EVALUACION: { border: '#3b82f6', bg: '#eff6ff', badgeBg: '#dbeafe', badgeColor: '#1e40af', label: 'Evaluación'    },
   REINSCRIPCION:      { border: '#f59e0b', bg: '#fffbeb', badgeBg: '#fef3c7', badgeColor: '#92400e', label: 'Reinscripción' },
   GENERAL:            { border: '#22c55e', bg: '#f0fdf4', badgeBg: '#dcfce7', badgeColor: '#166534', label: 'General'       },
+  COLABORADORES:      { border: '#8b5cf6', bg: '#f5f3ff', badgeBg: '#ede9fe', badgeColor: '#5b21b6', label: 'Colaboradores' },
 };
 
 const DESTINATARIO_LABEL = {
@@ -21,6 +22,7 @@ const DESTINATARIO_LABEL = {
   REINSCRIPCION:      'Tutores',
   GENERAL:            'Todos',
   PERIODO_EVALUACION: 'Tutores y Docentes',
+  COLABORADORES:      'Solo personal',
 };
 
 // ── Reglas de visibilidad ─────────────────────────────────────────

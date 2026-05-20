@@ -1,6 +1,7 @@
 // src/pages/docente/Horario.jsx
 // Muestra la agenda semanal del docente autenticado, filtrada por su Personal.id.
 import { useState, useEffect } from 'react';
+import { Users, ClipboardList, Calendar, Lightbulb } from 'lucide-react';
 import PageHeader        from '../../components/layout/PageHeader';
 import Card              from '../../components/ui/Card';
 import ModalCrearReporte from '../../components/reportes/ModalCrearReporte';
@@ -97,7 +98,7 @@ function PanelClase({ celda, dia, bloque, onClose }) {
             </div>
             <div style={{ display:'flex', gap:8, flexShrink:0 }}>
               <button onClick={() => setReporteOpen(true)} style={{ padding:'7px 14px', borderRadius:'var(--radius)', background:'var(--green-700)', color:'#fff', border:'none', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit' }}>
-                📋 Reporte
+                <ClipboardList size={13} style={{ display:'inline', verticalAlign:'middle', marginRight:4 }} /> Reporte
               </button>
               <button onClick={onClose} style={{ width:30, height:30, borderRadius:'50%', border:'1.5px solid var(--border)', background:'#fff', cursor:'pointer', fontSize:16, display:'flex', alignItems:'center', justifyContent:'center' }}>×</button>
             </div>
@@ -105,7 +106,7 @@ function PanelClase({ celda, dia, bloque, onClose }) {
         </div>
         {/* Cuerpo */}
         <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:8, color:'var(--text-muted)', padding:'2rem' }}>
-          <div style={{ fontSize:40 }}>👥</div>
+          <div style={{ fontSize:40, display:'flex', justifyContent:'center' }}><Users size={40} /></div>
           <div style={{ fontWeight:600, color:'var(--text-primary)' }}>Grupo {celda.grupo}</div>
           <div style={{ fontSize:12, textAlign:'center' }}>Lista de alumnos disponible en el módulo de Control Escolar</div>
         </div>
@@ -241,7 +242,7 @@ export default function DocenteHorario() {
       <div style={{ padding:'0 2rem 2rem' }}>
         <PageHeader title="Mi Horario" subtitle="Ciclo 2025-2026" />
         <Card style={{ padding:'4rem', textAlign:'center' }}>
-          <div style={{ fontSize:52, marginBottom:16 }}>📅</div>
+          <div style={{ fontSize:52, marginBottom:16, display:'flex', justifyContent:'center' }}><Calendar size={52} /></div>
           <div style={{ fontSize:17, fontWeight:700, marginBottom:8 }}>Aún no tienes horario asignado</div>
           <div style={{ fontSize:13, color:'var(--text-secondary)', maxWidth:420, margin:'0 auto', lineHeight:1.6 }}>
             El administrador importará el PDF de aSc Horarios. Una vez guardado, tu carga semanal aparecerá aquí automáticamente.
@@ -271,7 +272,7 @@ export default function DocenteHorario() {
       </div>
 
       <p style={{ fontSize:13, color:'var(--text-secondary)', marginBottom:'0.75rem' }}>
-        💡 Haz clic en cualquier clase para ver el grupo y crear reportes.
+        <Lightbulb size={13} style={{ display:'inline', verticalAlign:'middle', marginRight:4 }} /> Haz clic en cualquier clase para ver el grupo y crear reportes.
       </p>
 
       <Card style={{ padding:0, overflow:'hidden' }}>

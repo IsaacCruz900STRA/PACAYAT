@@ -1,5 +1,6 @@
 // src/pages/tutor/Horario.jsx
 import { useState, useEffect } from 'react';
+import { User, Calendar, ClipboardList } from 'lucide-react';
 import { useTutor }    from '../../context/TutorContext';
 import Card            from '../../components/ui/Card';
 import SelectorHijo    from '../../components/tutor/SelectorHijo';
@@ -33,7 +34,7 @@ export default function TutorHorario() {
 
       {!loadingTutor && hijos.length === 0 && (
         <Card style={{ padding:'3rem', textAlign:'center', color:'var(--text-secondary)' }}>
-          <div style={{ fontSize:40, marginBottom:12 }}>📅</div>
+          <div style={{ fontSize:40, marginBottom:12, display:'flex', justifyContent:'center' }}><Calendar size={40} /></div>
           <p style={{ fontWeight:600 }}>Sin alumnos registrados</p>
           <p style={{ fontSize:14, marginTop:6 }}>Contacta a la secretaría para vincular a tus hijos.</p>
         </Card>
@@ -46,7 +47,7 @@ export default function TutorHorario() {
             borderRadius:'var(--radius-lg)', padding:'1rem 1.5rem', color:'#fff',
             marginBottom:'1.25rem', display:'flex', alignItems:'center', gap:12,
           }}>
-            <span style={{ fontSize:22 }}>👤</span>
+            <span style={{ fontSize:22, display:'flex', alignItems:'center' }}><User size={22} /></span>
             <div style={{ flex:1 }}>
               <div style={{ fontWeight:700, fontSize:16 }}>{hijoActual.nombre}</div>
               <div style={{ fontSize:13, opacity:.85 }}>
@@ -66,13 +67,13 @@ export default function TutorHorario() {
             <Card style={{ padding:'2rem', textAlign:'center', color:'var(--text-secondary)' }}>Cargando horario…</Card>
           ) : error ? (
             <Card style={{ padding:'2rem', textAlign:'center' }}>
-              <div style={{ fontSize:36, marginBottom:10 }}>📋</div>
+              <div style={{ fontSize:36, marginBottom:10, display:'flex', justifyContent:'center' }}><ClipboardList size={36} /></div>
               <div style={{ fontWeight:600 }}>Sin horario disponible</div>
               <div style={{ fontSize:13, color:'var(--text-secondary)', marginTop:6 }}>{error}</div>
             </Card>
           ) : !data || !data.totalClases ? (
             <Card style={{ padding:'2rem', textAlign:'center', color:'var(--text-secondary)' }}>
-              <div style={{ fontSize:36, marginBottom:10 }}>📅</div>
+              <div style={{ fontSize:36, marginBottom:10, display:'flex', justifyContent:'center' }}><Calendar size={36} /></div>
               <div style={{ fontWeight:600 }}>Horario no generado aún</div>
               <div style={{ fontSize:13, marginTop:6 }}>El administrador generará el horario próximamente.</div>
             </Card>

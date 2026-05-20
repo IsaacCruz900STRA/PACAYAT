@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Lock } from 'lucide-react';
 
 const HELP_TEXT = 'Esta página está regulada por normas que indican la protección de datos personales.';
 
@@ -22,7 +23,7 @@ export default function HelpFAB() {
           pointerEvents: 'none',
         }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-            <span style={{ fontSize: 16, flexShrink: 0 }}>🔒</span>
+            <span style={{ fontSize: 16, flexShrink: 0, display: 'flex', alignItems: 'center' }}><Lock size={16} /></span>
             <p style={{ margin: 0 }}>{HELP_TEXT}</p>
           </div>
           {/* Flecha apuntando al botón */}

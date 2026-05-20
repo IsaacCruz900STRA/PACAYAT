@@ -15,6 +15,8 @@
  *   onCeldaClick  function(celda, dia, bloque) — opcional
  */
 
+import { User, GraduationCap } from 'lucide-react';
+
 const COLORES = [
   { bg: '#dbeafe', border: '#93c5fd', text: '#1e40af' },
   { bg: '#dcfce7', border: '#86efac', text: '#14532d' },
@@ -86,8 +88,8 @@ export default function HorarioGrid5x6({
         }}>
           <div>
             {titulo && (
-              <div style={{ fontSize: compact ? 14 : 17, fontWeight: 700 }}>
-                {modo === 'alumno' ? '👤' : '🧑‍🏫'} {titulo}
+              <div style={{ fontSize: compact ? 14 : 17, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                {modo === 'alumno' ? <User size={compact ? 14 : 17} /> : <GraduationCap size={compact ? 14 : 17} />} {titulo}
               </div>
             )}
             {subtitulo && (

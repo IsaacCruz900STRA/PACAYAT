@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import Button from '../ui/Button';
 import { showToast } from '../ui/Toast';
 import { createAlumno, updateAlumno, validarMatricula } from '../../api/alumnos.api';
@@ -551,8 +552,8 @@ export default function ModalAlumno({ open, alumno = null, onClose, onSaved }) {
               form.tutorCurp.length === 18
                 ? isValidCurp(form.tutorCurp)
                   ? tutorExistente
-                    ? '✓ Tutor registrado — se vinculará a su cuenta existente'
-                    : 'Tutor nuevo — se creará una cuenta'
+                    ? 'Tutor registrado — se vinculará a su cuenta existente'
+                    : 'Tutor nuevo - se creara una cuenta'
                   : 'Formato de CURP inválido'
                 : 'Escribe los 18 caracteres de la CURP'
             }
@@ -663,9 +664,9 @@ function PasswordField({ label, value, onChange, show, onToggle, required = fals
           type="button"
           onClick={onToggle}
           tabIndex={-1}
-          style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 16, color: 'var(--text-secondary, #6b7280)', padding: 0, lineHeight: 1 }}
+          style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 16, color: 'var(--text-secondary, #6b7280)', padding: 0, lineHeight: 1, display: 'flex', alignItems: 'center' }}
         >
-          {show ? '🙈' : '👁'}
+          {show ? <EyeOff size={16} /> : <Eye size={16} />}
         </button>
       </div>
     </label>

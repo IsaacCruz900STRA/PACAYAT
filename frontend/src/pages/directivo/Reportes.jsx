@@ -1,5 +1,6 @@
 // src/pages/directivo/Reportes.jsx — API real + ModalCrearReporte
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { Search, X, ClipboardList, Calendar, ChevronDown, User } from 'lucide-react';
 import PageHeader        from '../../components/layout/PageHeader';
 import Card              from '../../components/ui/Card';
 import Button            from '../../components/ui/Button';
@@ -97,7 +98,7 @@ export default function DirectivoReportes() {
       {/* Buscador */}
       <Card style={{ padding: '1.25rem', marginBottom: '1.5rem' }}>
         <div ref={ref} style={{ position: 'relative' }}>
-          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 15 }}>🔍</span>
+          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 15, display: 'flex', alignItems: 'center' }}><Search size={15} /></span>
           <input
             value={query}
             onChange={e => { setQuery(e.target.value); setAlumno(null); }}
@@ -107,7 +108,7 @@ export default function DirectivoReportes() {
             onBlur={e => e.target.style.borderColor = 'var(--border)'}
           />
           {query && (
-            <button onClick={limpiar} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 16 }}>✕</button>
+            <button onClick={limpiar} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 16, display: 'flex', alignItems: 'center' }}><X size={16} /></button>
           )}
           {showDrop && (
             <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: '#fff', border: '1.5px solid var(--border)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-lg)', zIndex: 100 }}>
@@ -119,7 +120,7 @@ export default function DirectivoReportes() {
                     style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 10 }}
                     onMouseEnter={e => e.currentTarget.style.background = 'var(--green-50)'}
                     onMouseLeave={e => e.currentTarget.style.background = ''}>
-                    <span style={{ fontSize: 16 }}>👤</span>
+                    <span style={{ fontSize: 16, display: 'flex', alignItems: 'center' }}><User size={16} /></span>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 14, fontWeight: 500 }}>{a.nombre}</div>
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{a.matricula} · {a.grupo}</div>
@@ -139,7 +140,7 @@ export default function DirectivoReportes() {
       {/* Sin alumno */}
       {!alumno && (
         <Card style={{ padding: '3rem', textAlign: 'center' }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>📋</div>
+          <div style={{ fontSize: 48, marginBottom: 16, display: 'flex', justifyContent: 'center' }}><ClipboardList size={48} /></div>
           <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>Busca un alumno</h3>
           <p style={{ fontSize: 14, color: 'var(--text-secondary)' }}>Ingresa el nombre o matrícula para ver su historial de reportes.</p>
         </Card>
@@ -163,7 +164,7 @@ export default function DirectivoReportes() {
           </div>
 
           <Card style={{ padding: '1rem 1.25rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>🔽 Filtrar:</span>
+            <span style={{ fontSize: 14, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 4 }}><ChevronDown size={14} /> Filtrar:</span>
             {[
               { label: `Todos (${reportes.length})`, val: 'Todos',    bg: 'var(--green-700)' },
               { label: `Positivos (${countPos})`,    val: 'Positivo', bg: '#16a34a' },
@@ -197,7 +198,7 @@ export default function DirectivoReportes() {
                             {GRAVEDAD_LABEL[r.gravedad] || r.gravedad}
                           </span>
                         </div>
-                        <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>📅 {formatDateTime(r.creadoEn)}</div>
+                        <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}><Calendar size={13} /> {formatDateTime(r.creadoEn)}</div>
                         <p style={{ fontSize: 14, lineHeight: 1.6, marginBottom: 8 }}>{r.descripcion}</p>
                         <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
                           <strong>Reportado por:</strong> {r.usuarioReporta?.nombre || '—'}

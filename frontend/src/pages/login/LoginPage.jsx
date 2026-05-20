@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Eye, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { getUsuariosPorRol } from '../../api/auth.api';
 
@@ -164,7 +165,7 @@ export default function LoginPage() {
                   borderRadius: 8, padding: '10px 14px', color: 'var(--red-600)',
                   fontSize: 13, marginBottom: '1rem',
                 }}>
-                  ⚠ {error}
+                  <AlertTriangle size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} /> {error}
                 </div>
               )}
 
@@ -228,7 +229,7 @@ export default function LoginPage() {
                       background: 'none', border: 'none', cursor: 'pointer',
                       fontSize: 15, color: 'var(--text-muted)',
                     }}>
-                      {showPass ? '👁' : '👁'}
+                      <Eye size={15} />
                     </button>
                   </div>
                 </div>

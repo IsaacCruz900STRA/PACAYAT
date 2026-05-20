@@ -1,6 +1,7 @@
 // src/pages/control-escolar/Calificaciones.jsx
 // Vista de solo lectura: calificaciones por grupo → materia → alumnos × periodos
 import { useState, useEffect, useCallback } from 'react';
+import { Eye, BookOpen, Inbox } from 'lucide-react';
 import PageHeader from '../../components/layout/PageHeader';
 import Card       from '../../components/ui/Card';
 import Badge      from '../../components/ui/Badge';
@@ -143,7 +144,7 @@ export default function ControlEscolarCalificaciones() {
 
       {/* Aviso solo lectura */}
       <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 'var(--radius)', padding: '10px 16px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#1e40af' }}>
-        <span style={{ fontSize: 16 }}>👁</span>
+        <span style={{ fontSize: 16, display: 'flex', alignItems: 'center' }}><Eye size={16} /></span>
         <span>Vista de solo lectura. Las calificaciones son capturadas por cada docente en su módulo.</span>
       </div>
 
@@ -199,7 +200,7 @@ export default function ControlEscolarCalificaciones() {
       {/* Tabla de calificaciones */}
       {!asignacionSel ? (
         <Card style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>📖</div>
+          <div style={{ fontSize: 40, marginBottom: 12, display: 'flex', justifyContent: 'center' }}><BookOpen size={40} /></div>
           <div style={{ fontWeight: 600 }}>Selecciona un grupo y una materia</div>
           <div style={{ fontSize: 13, marginTop: 4 }}>Verás el listado de alumnos con sus calificaciones por periodo.</div>
         </Card>
@@ -219,7 +220,7 @@ export default function ControlEscolarCalificaciones() {
 
           {rows.length === 0 ? (
             <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>📭</div>
+              <div style={{ fontSize: 32, marginBottom: 8, display: 'flex', justifyContent: 'center' }}><Inbox size={32} /></div>
               <div style={{ fontWeight: 600 }}>Sin calificaciones capturadas aún</div>
               <div style={{ fontSize: 13, marginTop: 4 }}>El docente no ha registrado calificaciones para esta materia.</div>
             </div>

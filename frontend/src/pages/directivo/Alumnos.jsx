@@ -1,5 +1,6 @@
 // src/pages/directivo/Alumnos.jsx
 import { useState, useEffect } from 'react';
+import { Search, X } from 'lucide-react';
 import PageHeader from '../../components/layout/PageHeader';
 import Card       from '../../components/ui/Card';
 import Badge      from '../../components/ui/Badge';
@@ -66,7 +67,7 @@ export default function DirectivoAlumnos() {
 
       <Card style={{ padding:'1rem 1.25rem', marginBottom:'1.25rem', display:'flex', gap:12, flexWrap:'wrap', alignItems:'center' }}>
         <div style={{ position:'relative', flex:1, minWidth:280 }}>
-          <span style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', fontSize:14 }}>🔍</span>
+          <span style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', fontSize:14, display:'flex', alignItems:'center' }}><Search size={14} /></span>
           <input value={q} onChange={e => setQ(e.target.value)}
             placeholder="Buscar por nombre, matrícula o grupo..."
             style={{ ...fs, width:'100%', paddingLeft:36 }} />
@@ -128,7 +129,7 @@ export default function DirectivoAlumnos() {
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'1rem' }}>
               <h3 style={{ fontSize:16, fontWeight:700 }}>Información del Alumno</h3>
               <button onClick={() => { setSel(null); setSelDetail(null); }}
-                style={{ background:'none', border:'none', cursor:'pointer', fontSize:18, color:'var(--text-muted)' }}>✕</button>
+                style={{ background:'none', border:'none', cursor:'pointer', fontSize:18, color:'var(--text-muted)', display:'flex', alignItems:'center' }}><X size={18} /></button>
             </div>
 
             <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:'1.25rem', paddingBottom:'1rem', borderBottom:'1px solid var(--border)' }}>

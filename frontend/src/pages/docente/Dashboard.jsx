@@ -2,6 +2,7 @@
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { Users, Calendar, AlertTriangle, BookOpen } from 'lucide-react';
 import Card from '../../components/ui/Card';
 import PageHeader from '../../components/layout/PageHeader';
 import Button from '../../components/ui/Button';
@@ -49,8 +50,8 @@ function promedioColor(p) {
 
 function avisoColors(tipo) {
   return tipo === 'danger'
-    ? { border: '#ef4444', bg: '#fef2f2', icon: '⚠️', titleColor: '#991b1b' }
-    : { border: '#f59e0b', bg: '#fffbeb', icon: '🔔', titleColor: '#92400e' };
+    ? { border: '#ef4444', bg: '#fef2f2', icon: 'warning', titleColor: '#991b1b' }
+    : { border: '#f59e0b', bg: '#fffbeb', icon: 'bell', titleColor: '#92400e' };
 }
 
 export default function DocenteDashboard() {
@@ -88,16 +89,16 @@ export default function DocenteDashboard() {
       {/* ── Stats ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
         {[
-          { label: 'Mis Grupos',          value: GRUPOS_MOCK.length,  icon: '👥', iconBg: '#dcfce7' },
-          { label: 'Periodo Actual',       value: periodoEval?.nombre || '—', icon: '📅', iconBg: '#dbeafe', big: true },
-          { label: 'Alumnos en Riesgo',    value: RIESGO_MOCK.length,  icon: '⚠️', iconBg: '#fee2e2' },
+          { label: 'Mis Grupos',          value: GRUPOS_MOCK.length,  icon: <Users size={22} />,        iconBg: '#dcfce7' },
+          { label: 'Periodo Actual',       value: periodoEval?.nombre || '—', icon: <Calendar size={22} />,   iconBg: '#dbeafe', big: true },
+          { label: 'Alumnos en Riesgo',    value: RIESGO_MOCK.length,  icon: <AlertTriangle size={22} />, iconBg: '#fee2e2' },
         ].map((s, i) => (
           <Card key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem' }}>
             <div>
               <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 4 }}>{s.label}</div>
               <div style={{ fontSize: s.big ? 26 : 32, fontWeight: 700, lineHeight: 1.2, whiteSpace: 'pre-line' }}>{s.value}</div>
             </div>
-            <div style={{ width: 48, height: 48, borderRadius: '50%', background: s.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>
+            <div style={{ width: 48, height: 48, borderRadius: '50%', background: s.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               {s.icon}
             </div>
           </Card>
@@ -108,7 +109,7 @@ export default function DocenteDashboard() {
       <Card style={{ padding: 0, marginBottom: '1.5rem' }}>
         <div style={{ padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border)' }}>
           <h2 style={{ fontSize: 16, fontWeight: 700 }}>Mis Grupos Este Periodo</h2>
-          <Button variant="outline" icon="📅" onClick={() => navigate('/docente/horario')}>Ver Horario</Button>
+          <Button variant="outline" icon={<Calendar size={14} />} onClick={() => navigate('/docente/horario')}>Ver Horario</Button>
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
@@ -130,7 +131,7 @@ export default function DocenteDashboard() {
                   <span style={{ color: promedioColor(g.promedio), fontWeight: 700, fontSize: 15 }}>{g.promedio.toFixed(1)}</span>
                 </td>
                 <td style={tdStyle}>
-                  <Button variant="outline" icon="📖"
+                  <Button variant="outline" icon={<BookOpen size={14} />}
                     onClick={() => navigate(`/docente/calificaciones?asignacion=${g.idAsignacion}`)}>
                     Calificaciones
                   </Button>

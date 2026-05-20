@@ -7,6 +7,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff, Check, AlertTriangle, CheckCircle } from 'lucide-react';
 import api from '../../api/client';
 
 // ── Helpers visuales ─────────────────────────────────────────
@@ -49,8 +50,8 @@ const labelStyle = {
 function ErrorMsg({ msg }) {
   if (!msg) return null;
   return (
-    <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 14px', color: '#991b1b', fontSize: 13, marginBottom: '1rem' }}>
-      ⚠ {msg}
+    <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 14px', color: '#991b1b', fontSize: 13, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: 6 }}>
+      <AlertTriangle size={13} /> {msg}
     </div>
   );
 }
@@ -58,8 +59,8 @@ function ErrorMsg({ msg }) {
 function SuccessMsg({ msg }) {
   if (!msg) return null;
   return (
-    <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '10px 14px', color: '#14532d', fontSize: 13, marginBottom: '1rem' }}>
-      ✓ {msg}
+    <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '10px 14px', color: '#14532d', fontSize: 13, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: 6 }}>
+      <Check size={13} /> {msg}
     </div>
   );
 }
@@ -86,7 +87,7 @@ function StepIndicator({ paso }) {
                 border: active ? '3px solid #bbf7d0' : 'none',
                 transition: 'all 0.2s',
               }}>
-                {done ? '✓' : num}
+                {done ? <Check size={13} /> : num}
               </div>
               <span style={{ fontSize: 10, color: active ? 'var(--green-700)' : 'var(--text-muted)', fontWeight: active ? 600 : 400 }}>
                 {label}
@@ -147,7 +148,7 @@ function Paso1({ onNext }) {
           Correo institucional <span style={{ color: 'var(--red-500)' }}>*</span>
         </label>
         <div style={{ position: 'relative' }}>
-          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 15, color: 'var(--text-muted)' }}>✉️</span>
+          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 15, color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}><Mail size={15} /></span>
           <input
             type="email"
             value={correo}
@@ -347,7 +348,7 @@ function Paso3({ correo, codigo, onExito }) {
       <div style={{ marginBottom: '1rem' }}>
         <label style={labelStyle}>Nueva contraseña <span style={{ color: 'var(--red-500)' }}>*</span></label>
         <div style={{ position: 'relative' }}>
-          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 15, color: 'var(--text-muted)' }}>🔒</span>
+          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 15, color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}><Lock size={15} /></span>
           <input
             type={showNueva ? 'text' : 'password'}
             value={nueva}
@@ -357,8 +358,8 @@ function Paso3({ correo, codigo, onExito }) {
             onFocus={e => e.target.style.borderColor = 'var(--green-600)'}
             onBlur={e => e.target.style.borderColor = 'var(--border)'}
           />
-          <button type="button" onClick={() => setShowNueva(s => !s)} style={eyeBtn}>
-            {showNueva ? '🙈' : '👁'}
+          <button type="button" onClick={() => setShowNueva(s => !s)} style={{ ...eyeBtn, display: 'flex', alignItems: 'center' }}>
+            {showNueva ? <EyeOff size={15} /> : <Eye size={15} />}
           </button>
         </div>
       </div>
@@ -367,7 +368,7 @@ function Paso3({ correo, codigo, onExito }) {
       <div style={{ marginBottom: '1.25rem' }}>
         <label style={labelStyle}>Confirmar contraseña <span style={{ color: 'var(--red-500)' }}>*</span></label>
         <div style={{ position: 'relative' }}>
-          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 15, color: 'var(--text-muted)' }}>🔒</span>
+          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 15, color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}><Lock size={15} /></span>
           <input
             type={showConf ? 'text' : 'password'}
             value={confirmar}
@@ -377,8 +378,8 @@ function Paso3({ correo, codigo, onExito }) {
             onFocus={e => e.target.style.borderColor = 'var(--green-600)'}
             onBlur={e => e.target.style.borderColor = 'var(--border)'}
           />
-          <button type="button" onClick={() => setShowConf(s => !s)} style={eyeBtn}>
-            {showConf ? '🙈' : '👁'}
+          <button type="button" onClick={() => setShowConf(s => !s)} style={{ ...eyeBtn, display: 'flex', alignItems: 'center' }}>
+            {showConf ? <EyeOff size={15} /> : <Eye size={15} />}
           </button>
         </div>
       </div>
@@ -388,7 +389,7 @@ function Paso3({ correo, codigo, onExito }) {
         <div style={{ background: '#f9fafb', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '12px 14px', marginBottom: '1.25rem' }}>
           {requisitos.map((r, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: i < requisitos.length - 1 ? 6 : 0 }}>
-              <span style={{ fontSize: 14, color: r.ok ? '#16a34a' : '#9ca3af' }}>{r.ok ? '✓' : '○'}</span>
+              <span style={{ fontSize: 14, color: r.ok ? '#16a34a' : '#9ca3af', display: 'flex', alignItems: 'center' }}>{r.ok ? <Check size={14} /> : '○'}</span>
               <span style={{ fontSize: 13, color: r.ok ? '#14532d' : 'var(--text-muted)', fontWeight: r.ok ? 500 : 400 }}>
                 {r.label}
               </span>
@@ -411,7 +412,7 @@ function PasoExito({ onLogin }) {
   return (
     <div style={{ textAlign: 'center' }}>
       <div style={{ width: 72, height: 72, borderRadius: '50%', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, margin: '0 auto 1.25rem' }}>
-        ✓
+        <CheckCircle size={32} color="#16a34a" />
       </div>
       <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8, color: 'var(--green-800)' }}>
         ¡Contraseña actualizada!

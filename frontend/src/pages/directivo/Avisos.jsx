@@ -1,5 +1,6 @@
 // src/pages/directivo/Avisos.jsx — CRUD con COLABORADORES y documentos adjuntos
 import { useState, useEffect, useCallback } from 'react';
+import { Monitor, Mail, Smartphone, Bell, Pencil, Trash2 } from 'lucide-react';
 import PageHeader    from '../../components/layout/PageHeader';
 import Card          from '../../components/ui/Card';
 import Button        from '../../components/ui/Button';
@@ -30,9 +31,9 @@ const DESTINATARIO_LABEL = {
 };
 
 const CANALES_OPTS = [
-  { value: 'PLATAFORMA', label: '🖥️ Plataforma' },
-  { value: 'CORREO',     label: '📧 Correo' },
-  { value: 'WHATSAPP',   label: '📱 WhatsApp' },
+  { value: 'PLATAFORMA', label: 'Plataforma', Icon: Monitor },
+  { value: 'CORREO',     label: 'Correo',     Icon: Mail },
+  { value: 'WHATSAPP',   label: 'WhatsApp',   Icon: Smartphone },
 ];
 
 const FORM_INICIAL = { tipo: 'CONDUCTA', titulo: '', mensaje: '', umbralPuntos: '', canales: ['PLATAFORMA'], documentos: [] };
@@ -136,7 +137,7 @@ export default function DirectivoAvisos() {
         <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>Cargando avisos...</div>
       ) : avisosFiltrados.length === 0 ? (
         <Card style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-          <div style={{ fontSize: 32, marginBottom: 8 }}>🔔</div>
+          <div style={{ fontSize: 32, marginBottom: 8, display: 'flex', justifyContent: 'center' }}><Bell size={32} /></div>
           <div style={{ fontWeight: 600 }}>Sin avisos en esta categoría</div>
           <div style={{ fontSize: 13, marginTop: 4 }}>Crea el primero con el botón de arriba.</div>
         </Card>
@@ -163,8 +164,8 @@ export default function DirectivoAvisos() {
                     <AvisoDocumentos documentos={aviso.documentos || []} editable={false} />
                   </div>
                   <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                    <button onClick={() => abrirEditar(aviso)} title="Editar" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 15, color: 'var(--blue-600)', padding: '4px 6px', borderRadius: 6 }}>✏️</button>
-                    <button onClick={() => handleEliminar(aviso.id)} title="Eliminar" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 15, color: 'var(--red-500)', padding: '4px 6px', borderRadius: 6 }}>🗑️</button>
+                    <button onClick={() => abrirEditar(aviso)} title="Editar" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 15, color: 'var(--blue-600)', padding: '4px 6px', borderRadius: 6, display: 'flex', alignItems: 'center' }}><Pencil size={15} /></button>
+                    <button onClick={() => handleEliminar(aviso.id)} title="Eliminar" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 15, color: 'var(--red-500)', padding: '4px 6px', borderRadius: 6, display: 'flex', alignItems: 'center' }}><Trash2 size={15} /></button>
                   </div>
                 </div>
               </div>
@@ -206,7 +207,8 @@ export default function DirectivoAvisos() {
                       padding: '6px 14px', borderRadius: 'var(--radius)', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit',
                       border: `1.5px solid ${sel ? 'var(--green-700)' : 'var(--border)'}`,
                       background: sel ? 'var(--green-700)' : '#fff', color: sel ? '#fff' : 'var(--text-secondary)',
-                    }}>{c.label}</button>
+                      display: 'inline-flex', alignItems: 'center', gap: 5,
+                    }}><c.Icon size={13} />{c.label}</button>
                   );
                 })}
               </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Search, Eye, Pencil } from 'lucide-react';
 import PageHeader        from '../../components/layout/PageHeader';
 import Card              from '../../components/ui/Card';
 import Badge             from '../../components/ui/Badge';
@@ -65,7 +66,7 @@ export default function PrefectoAlumnos() {
       {/* Filtros */}
       <Card style={{ padding: '1rem 1.25rem', marginBottom: '1.25rem', display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={{ position: 'relative', flex: 1, minWidth: 240 }}>
-          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 14 }}>🔍</span>
+          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 14, display: 'flex', alignItems: 'center' }}><Search size={14} /></span>
           <input
             value={q}
             onChange={e => setQ(e.target.value)}
@@ -108,15 +109,15 @@ export default function PrefectoAlumnos() {
                       <button
                         title="Ver reportes"
                         onClick={() => navigate(`/prefecto/reportes?alumno=${a.id}&nombre=${encodeURIComponent(a.nombreCompleto)}`)}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 17, color: 'var(--green-700)', padding: '3px 5px', borderRadius: 6 }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 17, color: 'var(--green-700)', padding: '3px 5px', borderRadius: 6, display: 'flex', alignItems: 'center' }}
                         onMouseEnter={e => e.currentTarget.style.background = 'var(--green-50)'}
-                        onMouseLeave={e => e.currentTarget.style.background = ''}>👁</button>
+                        onMouseLeave={e => e.currentTarget.style.background = ''}><Eye size={17} /></button>
                       <button
                         title="Crear reporte"
                         onClick={() => setModalAlumno({ id: a.id, nombre: a.nombreCompleto, matricula: a.matricula, puntosConducta: a.puntosConducta })}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 17, color: '#2563eb', padding: '3px 5px', borderRadius: 6 }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 17, color: '#2563eb', padding: '3px 5px', borderRadius: 6, display: 'flex', alignItems: 'center' }}
                         onMouseEnter={e => e.currentTarget.style.background = '#eff6ff'}
-                        onMouseLeave={e => e.currentTarget.style.background = ''}>✏️</button>
+                        onMouseLeave={e => e.currentTarget.style.background = ''}><Pencil size={17} /></button>
                     </div>
                   </td>
                 </tr>

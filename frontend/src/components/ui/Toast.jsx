@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Check, X, Info } from 'lucide-react';
 
 let toastFn = null;
 
@@ -38,8 +39,8 @@ export function Toast() {
       boxShadow: 'var(--shadow-lg)',
       animation: 'slideUp 0.25s ease',
     }}>
-      <span style={{ color: accent, fontSize: 16 }}>
-        {toast.type === 'success' ? '✓' : toast.type === 'error' ? '✕' : 'ℹ'}
+      <span style={{ color: accent, fontSize: 16, display: 'flex', alignItems: 'center' }}>
+        {toast.type === 'success' ? <Check size={14} /> : toast.type === 'error' ? <X size={14} /> : <Info size={14} />}
       </span>
       {toast.message}
       <style>{`@keyframes slideUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }`}</style>

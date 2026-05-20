@@ -5,6 +5,7 @@
  */
 
 import { useState, useRef, useCallback, Fragment } from 'react';
+import { Users, GraduationCap, Check, Ban } from 'lucide-react';
 import { colorMateria, colorGrupo } from '../../utils/horarioColors';
 
 export const BLOQUES_9 = [
@@ -130,7 +131,7 @@ export default function HorarioGrid({
           alignItems:'center', flexWrap:'wrap', gap:12,
         }}>
           <div>
-            {titulo    && <div style={{ fontSize:compact?14:17, fontWeight:700 }}>{modo==='grupo'?'👥':'🧑‍🏫'} {titulo}</div>}
+            {titulo    && <div style={{ fontSize:compact?14:17, fontWeight:700, display:'flex', alignItems:'center', gap:6 }}>{modo==='grupo'?<Users size={compact?14:17} />:<GraduationCap size={compact?14:17} />} {titulo}</div>}
             {subtitulo && <div style={{ fontSize:compact?11:13, opacity:.85, marginTop:2 }}>{subtitulo}</div>}
           </div>
           {estadisticas && (
@@ -153,7 +154,7 @@ export default function HorarioGrid({
       {/* Toast conflicto */}
       {toast && (
         <div style={{ position:'sticky', top:0, zIndex:50, margin:'0 0 8px', padding:'10px 16px', background:'#fef2f2', border:'1.5px solid #fecaca', borderRadius:'var(--radius)', display:'flex', gap:10, alignItems:'flex-start' }}>
-          <span style={{ fontSize:16 }}>🚫</span>
+          <span style={{ fontSize:16, display:'flex', alignItems:'center' }}><Ban size={16} /></span>
           <div style={{ flex:1 }}>
             <div style={{ fontSize:13, fontWeight:700, color:'#dc2626' }}>Movimiento no permitido</div>
             {toast.map((m,i) => <div key={i} style={{ fontSize:12, color:'#991b1b', marginTop:2 }}>• {m}</div>)}
@@ -170,7 +171,7 @@ export default function HorarioGrid({
           border:`1.5px solid ${hasConflict ? '#fecaca':'#bbf7d0'}`,
           borderRadius:'var(--radius)', fontSize:13, display:'flex', alignItems:'center', gap:8,
         }}>
-          <span>{hasConflict ? '🔴' : '🟢'}</span>
+          <span style={{ width:10, height:10, borderRadius:'50%', background: hasConflict ? '#dc2626' : '#16a34a', display:'inline-block', flexShrink:0 }} />
           <span style={{ fontWeight:600, color: hasConflict?'#dc2626':'#16a34a' }}>
             {hasConflict ? preview.conflictos[0] : 'Posición libre — suelta para confirmar'}
           </span>
@@ -270,7 +271,7 @@ export default function HorarioGrid({
                           </div>
                         ) : editMode && isDrag ? (
                           <div style={{ height:'100%', minHeight:40, borderRadius:'var(--radius)', border:`1.5px dashed ${valido?'#16a34a':'#d1d5db'}`, display:'flex', alignItems:'center', justifyContent:'center', opacity:.5 }}>
-                            <span style={{ fontSize:16 }}>{valido ? '✓' : '+'}</span>
+                            <span style={{ fontSize:16, display:'flex', alignItems:'center' }}>{valido ? <Check size={16} /> : '+'}</span>
                           </div>
                         ) : null}
                       </td>

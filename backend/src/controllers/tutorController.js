@@ -65,7 +65,7 @@ async function updateTutor(req, res) {
 async function getMisAlumnos(req, res) {
   try {
     const tutor = await prisma.tutor.findUnique({
-      where: { idUsuario: req.user.id },
+      where: { idUsuario: req.usuario.id },
       include: {
         alumnos: {
           where: { activo: true },
@@ -99,6 +99,7 @@ async function getMisAlumnos(req, res) {
         nombre: a.nombreCompleto,
         matricula: a.matricula,
         grupo: ins?.grupo?.nombre || '—',
+        idInscripcion: ins?.id || null,
         puntosConducta: a.puntosConducta,
         faltas,
         promedio: Math.round(promedio * 10) / 10,

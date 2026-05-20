@@ -1,6 +1,7 @@
 // src/pages/prefecto/Horarios.jsx
 // Vista: todos los grupos/grados. El prefecto selecciona grado → grupo → ve el horario.
 import { useState, useEffect } from 'react';
+import { ClipboardList, Calendar } from 'lucide-react';
 import PageHeader from '../../components/layout/PageHeader';
 import Card       from '../../components/ui/Card';
 import HorarioGrid, { BLOQUES_9, RECESO_9, DIAS_DEFAULT } from '../../components/horarios/HorarioGrid';
@@ -107,7 +108,7 @@ export default function PrefectoHorarios() {
         <Card style={{ padding:'2.5rem', textAlign:'center', color:'var(--text-secondary)' }}>Cargando horario…</Card>
       ) : sinDatos ? (
         <Card style={{ padding:'3rem', textAlign:'center' }}>
-          <div style={{ fontSize:40, marginBottom:12 }}>📋</div>
+          <div style={{ fontSize:40, marginBottom:12, display:'flex', justifyContent:'center' }}><ClipboardList size={40} /></div>
           <div style={{ fontWeight:600, marginBottom:6 }}>Sin horario para {grupoActual?.nombre}</div>
           <div style={{ fontSize:13, color:'var(--text-secondary)' }}>El administrador aún no ha importado el horario de este grupo.</div>
         </Card>
@@ -125,7 +126,7 @@ export default function PrefectoHorarios() {
         </Card>
       ) : (
         <Card style={{ padding:'3rem', textAlign:'center', color:'var(--text-secondary)' }}>
-          <div style={{ fontSize:40, marginBottom:12 }}>📅</div>
+          <div style={{ fontSize:40, marginBottom:12, display:'flex', justifyContent:'center' }}><Calendar size={40} /></div>
           <div style={{ fontWeight:600 }}>Selecciona un grupo para ver su horario</div>
         </Card>
       )}

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Mail, Eye, EyeOff } from 'lucide-react';
 import Button from '../ui/Button';
 import { showToast } from '../ui/Toast';
 import { createPersonal, updatePersonal } from '../../api/personal.api';
@@ -182,7 +183,7 @@ export default function ModalPersonal({ open, personal = null, onClose, onSaved 
 
         {!isEdit && (
           <div style={{ marginTop: 18, padding: 14, border: '1px solid #bbf7d0', borderRadius: 10, background: '#f0fdf4', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-            <span style={{ fontSize: 18, lineHeight: 1.4 }}>📧</span>
+            <span style={{ fontSize: 18, lineHeight: 1.4, display: 'flex', alignItems: 'center' }}><Mail size={18} /></span>
             <div>
               <div style={{ fontSize: 13, fontWeight: 600, color: '#166534', marginBottom: 2 }}>Contraseña temporal automática</div>
               <div style={{ fontSize: 12, color: '#166534', lineHeight: 1.5 }}>
@@ -278,11 +279,11 @@ function PasswordField({ label, value, onChange, show, onToggle, required = fals
         <button
           type="button"
           onClick={onToggle}
-          style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 16, color: 'var(--text-secondary, #6b7280)', padding: 0, lineHeight: 1 }}
+          style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 16, color: 'var(--text-secondary, #6b7280)', padding: 0, lineHeight: 1, display: 'flex', alignItems: 'center' }}
           tabIndex={-1}
           title={show ? 'Ocultar contraseña' : 'Mostrar contraseña'}
         >
-          {show ? '🙈' : '👁'}
+          {show ? <EyeOff size={16} /> : <Eye size={16} />}
         </button>
       </div>
     </label>

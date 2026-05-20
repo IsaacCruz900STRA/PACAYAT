@@ -1,11 +1,12 @@
 // src/pages/tutor/Contacto.jsx
+import { Phone, Mail, MapPin, Clock, User } from 'lucide-react';
 import Card from '../../components/ui/Card';
 
 const INFO = [
-  { icon:'📞', iconBg:'#dbeafe', title:'Teléfono',            sub:'Línea principal',   main:{ text:'951 123 4567', color:'#2563eb', size:24 }, extra:['Extensión 101 - Dirección','Extensión 102 - Secretaría'] },
-  { icon:'✉️', iconBg:'#dcfce7', title:'Correo Electrónico',  sub:'Email institucional',main:{ text:'secundaria177@oaxaca.edu.mx', color:'#16a34a', size:14 }, extra:['Tiempo de respuesta: 24-48 horas hábiles'] },
-  { icon:'📍', iconBg:'#f3e8ff', title:'Dirección',           sub:'Ubicación física',  main:null, extra:['Av. Independencia #123','Col. Centro, C.P. 68000','Oaxaca de Juárez, Oaxaca'] },
-  { icon:'🕐', iconBg:'#ffedd5', title:'Horario de Atención', sub:'Lunes a Viernes',   main:null, horario:[{area:'Dirección:',hrs:'8:00 AM - 2:00 PM'},{area:'Secretaría:',hrs:'7:00 AM - 3:00 PM'},{area:'Prefectura:',hrs:'7:00 AM - 3:00 PM'}] },
+  { icon:<Phone size={22} />, iconBg:'#dbeafe', title:'Teléfono',            sub:'Línea principal',   main:{ text:'951 123 4567', color:'#2563eb', size:24 }, extra:['Extensión 101 - Dirección','Extensión 102 - Secretaría'] },
+  { icon:<Mail size={22} />,  iconBg:'#dcfce7', title:'Correo Electrónico',  sub:'Email institucional',main:{ text:'secundaria177@oaxaca.edu.mx', color:'#16a34a', size:14 }, extra:['Tiempo de respuesta: 24-48 horas hábiles'] },
+  { icon:<MapPin size={22} />,iconBg:'#f3e8ff', title:'Dirección',           sub:'Ubicación física',  main:null, extra:['Av. Independencia #123','Col. Centro, C.P. 68000','Oaxaca de Juárez, Oaxaca'] },
+  { icon:<Clock size={22} />, iconBg:'#ffedd5', title:'Horario de Atención', sub:'Lunes a Viernes',   main:null, horario:[{area:'Dirección:',hrs:'8:00 AM - 2:00 PM'},{area:'Secretaría:',hrs:'7:00 AM - 3:00 PM'},{area:'Prefectura:',hrs:'7:00 AM - 3:00 PM'}] },
 ];
 
 const DIRECTIVOS = [
@@ -30,7 +31,7 @@ export default function TutorContacto() {
         {INFO.map(card => (
           <Card key={card.title} style={{ padding: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: '1rem' }}>
-              <div style={{ width: 46, height: 46, borderRadius: '50%', background: card.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>
+              <div style={{ width: 46, height: 46, borderRadius: '50%', background: card.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 {card.icon}
               </div>
               <div>
@@ -61,8 +62,8 @@ export default function TutorContacto() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1rem' }}>
           {DIRECTIVOS.map(d => (
             <div key={d.nombre} style={{ textAlign: 'center' }}>
-              <div style={{ width: 70, height: 70, borderRadius: '50%', background: d.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, margin: '0 auto 12px' }}>
-                👤
+              <div style={{ width: 70, height: 70, borderRadius: '50%', background: d.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+                <User size={28} />
               </div>
               <div style={{ fontWeight: 700, fontSize: 15 }}>{d.nombre}</div>
               <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>{d.rol}</div>

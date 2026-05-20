@@ -1,5 +1,6 @@
 // src/pages/directivo/Personal.jsx
 import { useState, useEffect } from 'react';
+import { Search, X } from 'lucide-react';
 import PageHeader from '../../components/layout/PageHeader';
 import Card       from '../../components/ui/Card';
 import Badge      from '../../components/ui/Badge';
@@ -68,7 +69,7 @@ export default function DirectivoPersonal() {
 
       <Card style={{ padding: '1rem 1.25rem', marginBottom: '1.25rem', display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={{ position: 'relative', flex: 1, minWidth: 280 }}>
-          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 14 }}>🔍</span>
+          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 14, display: 'flex', alignItems: 'center' }}><Search size={14} /></span>
           <input value={q} onChange={e => setQ(e.target.value)}
             placeholder="Buscar por nombre o correo..."
             style={{ ...fs, width: '100%', paddingLeft: 36 }} />
@@ -125,7 +126,7 @@ export default function DirectivoPersonal() {
           <Card style={{ padding: '1.5rem', position: 'sticky', top: 80 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
               <h3 style={{ fontSize: 16, fontWeight: 700 }}>Información</h3>
-              <button onClick={() => setSel(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: 'var(--text-muted)' }}>✕</button>
+              <button onClick={() => setSel(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}><X size={18} /></button>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: '1.25rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border)' }}>
               <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'var(--green-100)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 700, color: 'var(--green-800)' }}>

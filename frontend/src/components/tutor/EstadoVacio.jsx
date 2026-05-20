@@ -1,12 +1,14 @@
 // src/components/tutor/EstadoVacio.jsx
 // Muestra un mensaje cuando no hay hijos registrados o hay un error.
+import { Inbox, Clock, AlertTriangle } from 'lucide-react';
 import Card from '../ui/Card';
 
-export default function EstadoVacio({ error, loading, titulo, descripcion, icon = '📭' }) {
+export default function EstadoVacio({ error, loading, titulo, descripcion, icon }) {
+  const defaultIcon = <Inbox size={44} />;
   if (loading) {
     return (
       <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-        <div style={{ fontSize: 32, marginBottom: 12 }}>⏳</div>
+        <div style={{ fontSize: 32, marginBottom: 12, display: 'flex', justifyContent: 'center' }}><Clock size={32} /></div>
         <p>Cargando información...</p>
       </div>
     );
@@ -15,7 +17,7 @@ export default function EstadoVacio({ error, loading, titulo, descripcion, icon 
   if (error) {
     return (
       <Card style={{ margin: '2rem', padding: '2.5rem', textAlign: 'center', border: '1px solid var(--red-100)', background: 'var(--red-50)' }}>
-        <div style={{ fontSize: 40, marginBottom: 12 }}>⚠️</div>
+        <div style={{ fontSize: 40, marginBottom: 12, display: 'flex', justifyContent: 'center' }}><AlertTriangle size={40} /></div>
         <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--red-600)', marginBottom: 8 }}>
           {titulo || 'Sin alumnos registrados'}
         </h3>
@@ -31,7 +33,7 @@ export default function EstadoVacio({ error, loading, titulo, descripcion, icon 
 
   return (
     <Card style={{ margin: '2rem', padding: '2.5rem', textAlign: 'center' }}>
-      <div style={{ fontSize: 44, marginBottom: 12 }}>{icon}</div>
+      <div style={{ fontSize: 44, marginBottom: 12, display: 'flex', justifyContent: 'center' }}>{icon || defaultIcon}</div>
       <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>
         {titulo || 'Sin datos'}
       </h3>

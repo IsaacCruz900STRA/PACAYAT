@@ -1,4 +1,5 @@
 import { Navigate, Outlet } from 'react-router-dom';
+import { Leaf } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 // rolesPermitidos: array de roles que pueden acceder, ej. ['ADMIN', 'DIRECTIVO']
@@ -10,7 +11,7 @@ export default function ProtectedRoute({ rolesPermitidos = [] }) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 32, marginBottom: 12 }}>🌿</div>
+          <div style={{ fontSize: 32, marginBottom: 12, display: 'flex', justifyContent: 'center' }}><Leaf size={32} /></div>
           <p style={{ color: 'var(--text-secondary)' }}>Cargando PACAYAT...</p>
         </div>
       </div>

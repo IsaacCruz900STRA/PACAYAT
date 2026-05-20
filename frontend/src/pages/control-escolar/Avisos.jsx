@@ -1,6 +1,6 @@
-<<<<<<< HEAD
 // src/pages/control-escolar/Avisos.jsx — mismo CRUD que admin/GestionAvisos y secretaria/Avisos
 import { useState, useEffect, useCallback } from 'react';
+import { Bell } from 'lucide-react';
 import PageHeader from '../../components/layout/PageHeader';
 import Card       from '../../components/ui/Card';
 import Button     from '../../components/ui/Button';
@@ -83,7 +83,7 @@ export default function ControlEscolarAvisos() {
         <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>Cargando...</div>
       ) : avisosFiltrados.length === 0 ? (
         <Card style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-          <div style={{ fontSize: 32, marginBottom: 8 }}>🔔</div>
+          <div style={{ fontSize: 32, marginBottom: 8, display: 'flex', justifyContent: 'center' }}><Bell size={32} /></div>
           <div style={{ fontWeight: 600 }}>Sin avisos en esta categoría</div>
         </Card>
       ) : (
@@ -114,10 +114,5 @@ export default function ControlEscolarAvisos() {
       )}
     </div>
   );
-=======
-import AvisosViewer from '../../components/avisos/AvisosViewer';
-const TIPOS = ['PERIODO_EVALUACION', 'REINSCRIPCION', 'GENERAL'];
-export default function ControlEscolarAvisos() {
-  return <AvisosViewer tiposPermitidos={TIPOS} />;
->>>>>>> cbded72 (Avisos++)
+
 }

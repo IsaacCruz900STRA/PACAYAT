@@ -2,6 +2,7 @@
 // El directivo ve el horario de todos los grupos por grado.
 // También puede buscar a un docente específico para ver su agenda semanal.
 import { useState, useEffect, useRef } from 'react';
+import { ClipboardList, GraduationCap, Calendar } from 'lucide-react';
 import PageHeader from '../../components/layout/PageHeader';
 import Card       from '../../components/ui/Card';
 import HorarioGrid, { BLOQUES_9, RECESO_9, DIAS_DEFAULT } from '../../components/horarios/HorarioGrid';
@@ -89,7 +90,7 @@ function TabGrupos({ grupos }) {
         <Card style={{ padding:'2.5rem', textAlign:'center', color:'var(--text-secondary)' }}>Cargando horario…</Card>
       ) : sinDatos ? (
         <Card style={{ padding:'3rem', textAlign:'center' }}>
-          <div style={{ fontSize:36, marginBottom:10 }}>📋</div>
+          <div style={{ fontSize:36, marginBottom:10, display:'flex', justifyContent:'center' }}><ClipboardList size={36} /></div>
           <div style={{ fontWeight:600 }}>Sin horario para {grupoActual?.nombre}</div>
           <div style={{ fontSize:13, color:'var(--text-secondary)', marginTop:4 }}>Importa el PDF en Administración &gt; Horarios.</div>
         </Card>
@@ -107,7 +108,7 @@ function TabGrupos({ grupos }) {
         </Card>
       ) : (
         <Card style={{ padding:'3rem', textAlign:'center', color:'var(--text-secondary)' }}>
-          <div style={{ fontSize:40, marginBottom:10 }}>📅</div>
+          <div style={{ fontSize:40, marginBottom:10, display:'flex', justifyContent:'center' }}><Calendar size={40} /></div>
           <div style={{ fontWeight:600 }}>Selecciona un grupo</div>
         </Card>
       )}
@@ -148,7 +149,7 @@ function TabDocentes({ docentes }) {
         <Card style={{ padding:'2rem', textAlign:'center', color:'var(--text-secondary)' }}>Cargando agenda…</Card>
       ) : docId && Object.keys(gridDoc).length === 0 ? (
         <Card style={{ padding:'2.5rem', textAlign:'center', color:'var(--text-secondary)' }}>
-          <div style={{ fontSize:36, marginBottom:10 }}>🧑‍🏫</div>
+          <div style={{ fontSize:36, marginBottom:10, display:'flex', justifyContent:'center' }}><GraduationCap size={36} /></div>
           <div style={{ fontWeight:600 }}>Sin horario asignado aún para {docActual?.nombre}</div>
         </Card>
       ) : docId ? (
@@ -166,7 +167,7 @@ function TabDocentes({ docentes }) {
         </Card>
       ) : (
         <Card style={{ padding:'3rem', textAlign:'center', color:'var(--text-secondary)' }}>
-          <div style={{ fontSize:40, marginBottom:10 }}>🧑‍🏫</div>
+          <div style={{ fontSize:40, marginBottom:10, display:'flex', justifyContent:'center' }}><GraduationCap size={40} /></div>
           <div style={{ fontWeight:600 }}>Selecciona un docente para ver su agenda semanal</div>
         </Card>
       )}
@@ -213,8 +214,8 @@ export default function DirectivoHorarios() {
       <PageHeader title="Horarios" subtitle="Consulta horarios por grupo o por docente" />
 
       <div style={{ display:'flex', gap:4, background:'#f3f4f6', borderRadius:'var(--radius-lg)', padding:4, width:'fit-content', marginBottom:'1.5rem' }}>
-        {tabBtn('grupos',   '📋', 'Por Grupo')}
-        {tabBtn('docentes', '🧑‍🏫', 'Por Docente')}
+        {tabBtn('grupos',   <ClipboardList size={14} />, 'Por Grupo')}
+        {tabBtn('docentes', <GraduationCap size={14} />, 'Por Docente')}
       </div>
 
       {tab === 'grupos'   && <TabGrupos  grupos={grupos}   />}

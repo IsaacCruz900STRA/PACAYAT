@@ -1,6 +1,7 @@
 // src/pages/secretaria/GestionAlumnos.jsx
 // Recicla ModalAlumno y la misma lógica del admin/ListadoAlumnos
 import { useState, useEffect } from 'react';
+import { Search, Pencil, X, AlertTriangle } from 'lucide-react';
 import PageHeader   from '../../components/layout/PageHeader';
 import Card         from '../../components/ui/Card';
 import Badge        from '../../components/ui/Badge';
@@ -122,8 +123,8 @@ export default function SecretariaAlumnos() {
     { key: 'id', label: 'Acciones', width: 100,
       render: (_, row) => (
         <div style={{ display: 'flex', gap: 4 }}>
-          <ActionBtn title="Editar" color="var(--blue-600)" onClick={() => abrirEditar(row)}>✏️</ActionBtn>
-          <ActionBtn title="Eliminar" color="var(--red-500)" onClick={() => openDeleteModal(row)}>✕</ActionBtn>
+          <ActionBtn title="Editar" color="var(--blue-600)" onClick={() => abrirEditar(row)}><Pencil size={16} /></ActionBtn>
+          <ActionBtn title="Eliminar" color="var(--red-500)" onClick={() => openDeleteModal(row)}><X size={16} /></ActionBtn>
         </div>
       ),
     },
@@ -153,7 +154,7 @@ export default function SecretariaAlumnos() {
       {/* Modal confirmar eliminación */}
       <Modal open={deleteModalOpen} onClose={closeDeleteModal} title="Eliminar alumno" width={520}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ color: 'var(--red-700)', fontWeight: 700 }}>⚠ Advertencia</div>
+          <div style={{ color: 'var(--red-700)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}><AlertTriangle size={16} /> Advertencia</div>
           <div style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
             Estás a punto de eliminar a este alumno del sistema. Esta acción no se puede deshacer.
           </div>
@@ -178,7 +179,7 @@ export default function SecretariaAlumnos() {
       {/* Modal confirmar desactivación */}
       <Modal open={inactiveModalOpen} onClose={closeInactiveModal} title="Desactivar alumno" width={520}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ color: '#d97706', fontWeight: 700 }}>⚠ Advertencia</div>
+          <div style={{ color: '#d97706', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}><AlertTriangle size={16} /> Advertencia</div>
           <div style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
             El alumno quedará inactivo. Sus datos se conservan y puede reactivarse después.
           </div>
@@ -200,7 +201,7 @@ export default function SecretariaAlumnos() {
       {/* Filtros + botón nuevo */}
       <div style={{ display: 'flex', gap: 10, marginBottom: '1.25rem', flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
-          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 14 }}>🔍</span>
+          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 14, display: 'flex', alignItems: 'center' }}><Search size={14} /></span>
           <input value={query} onChange={e => setQuery(e.target.value)}
             placeholder="Buscar por nombre o matrícula..."
             style={{ ...filterStyle, width: '100%', paddingLeft: 36 }} />
