@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { login as apiLogin, logout as apiLogout } from '../api/auth.api';
+import { login as apiLogin, logout as apiLogout, getMe } from '../api/auth.api';
 import ForcedChangePassword from '../components/auth/ForcedChangePassword';
 
 const AuthContext = createContext(null);
@@ -9,27 +9,35 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // El token vive en cookie httpOnly — solo guardamos info del usuario para la UI
-    const savedUser = localStorage.getItem('pacayat_user');
-    if (savedUser) setUser(JSON.parse(savedUser));
-    setLoading(false);
+    // Verifica la sesión con el servidor — no confiamos solo en localStorage.
+    // Si el JWT de la cookie es válido, el servidor devuelve el usuario real.
+    getMe()
+      .then(({ data }) => {
+        const u = { ...data.usuario, changePassword: Boolean(data.usuario.changePassword) };
+        localStorage.setItem('pacayat_user', JSON.stringify(u));
+        setUser(u);
+      })
+      .catch(() => {
+        // Cookie ausente, expirada o inválida — limpiar estado
+        localStorage.removeItem('pacayat_user');
+        setUser(null);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const login = useCallback(async (username, password, rol) => {
     const { data } = await apiLogin(username, password, rol);
-    const { usuario } = data; // el token lo maneja el backend vía cookie httpOnly
-    const userToStore = { ...usuario, changePassword: Boolean(usuario.changePassword) };
-    localStorage.setItem('pacayat_user', JSON.stringify(userToStore));
-    setUser(userToStore);
+    const { usuario } = data;
+    const u = { ...usuario, changePassword: Boolean(usuario.changePassword) };
+    localStorage.setItem('pacayat_user', JSON.stringify(u));
+    setUser(u);
     return usuario;
   }, []);
 
   const logout = useCallback(async () => {
     try {
-      await apiLogout(); // invalida el token en el servidor y limpia la cookie
-    } catch {
-      // continuar aunque falle la llamada al servidor
-    }
+      await apiLogout();
+    } catch { /* continuar aunque falle */ }
     localStorage.removeItem('pacayat_user');
     setUser(null);
   }, []);
@@ -41,9 +49,9 @@ export function AuthProvider({ children }) {
         open={!!user?.changePassword}
         onDone={(usuarioActualizado) => {
           if (usuarioActualizado) {
-            const userToStore = { ...usuarioActualizado, changePassword: Boolean(usuarioActualizado.changePassword) };
-            localStorage.setItem('pacayat_user', JSON.stringify(userToStore));
-            setUser(userToStore);
+            const u = { ...usuarioActualizado, changePassword: Boolean(usuarioActualizado.changePassword) };
+            localStorage.setItem('pacayat_user', JSON.stringify(u));
+            setUser(u);
           } else {
             const updated = { ...user, changePassword: false };
             setUser(updated);

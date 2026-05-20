@@ -388,10 +388,30 @@ async function changePassword(req, res) {
   }
 }
 
+/**
+ * GET /api/auth/me
+ * Devuelve el usuario real según el JWT de la cookie — no confía en localStorage.
+ */
+async function me(req, res) {
+  try {
+    const usuario = await prisma.usuario.findUnique({
+      where: { id: req.usuario.id },
+      select: { id: true, username: true, nombre: true, rol: true, changePassword: true, activo: true },
+    });
+    if (!usuario || !usuario.activo) {
+      return res.status(401).json({ message: 'Sesión inválida' });
+    }
+    res.json({ usuario });
+  } catch {
+    res.status(500).json({ message: 'Error al verificar sesión' });
+  }
+}
+
 module.exports = {
   getUsuariosPorRol,
   login,
   logout,
+  me,
   forgotPassword,
   verificarCodigo,
   nuevaPassword,

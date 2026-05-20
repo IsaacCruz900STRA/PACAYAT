@@ -8,6 +8,7 @@ const {
   getUsuariosPorRol,
   login,
   logout,
+  me,
   forgotPassword,
   verificarCodigo,
   nuevaPassword,
@@ -15,6 +16,7 @@ const {
 } = require('../controllers/authController');
 
 router.get('/usuarios-por-rol/:rol', getUsuariosPorRol);
+router.get('/me', auth, me);
 
 router.post('/login',           validate(loginSchema),          login);
 router.post('/logout',          logout);

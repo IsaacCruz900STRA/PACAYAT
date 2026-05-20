@@ -173,6 +173,13 @@ export default function PrefectoReportes() {
         </Card>
       )}
 
+      <ModalCrearReporte
+        open={modal}
+        onClose={() => setModal(false)}
+        alumnoPreset={alumno ? { id: alumno.id, nombre: alumno.nombreCompleto || alumno.nombre, matricula: alumno.matricula, puntosConducta: alumno.puntosConducta } : null}
+        onSuccess={() => { setModal(false); if (alumno) cargarReportes(alumno.id); showToast('Reporte guardado'); }}
+      />
+
       {/* Historial */}
       {alumno && (
         <>
@@ -261,12 +268,6 @@ export default function PrefectoReportes() {
             </div>
           )}
 
-          <ModalCrearReporte
-            open={modal}
-            onClose={() => setModal(false)}
-            alumnoPreset={alumno ? { id: alumno.id, nombre: alumno.nombreCompleto || alumno.nombre, matricula: alumno.matricula, puntosConducta: alumno.puntosConducta } : null}
-            onSuccess={() => { setModal(false); if (alumno) cargarReportes(alumno.id); showToast('Reporte guardado'); }}
-          />
         </>
       )}
     </div>

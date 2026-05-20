@@ -15,3 +15,6 @@ export const sendRecoveryCode = (email) =>
 
 export const changePassword = (nuevaPassword) =>
   api.post('/auth/change-password', { nuevaPassword });
+
+export const getMe = () =>
+  api.get('/auth/me');

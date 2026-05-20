@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, AlertTriangle } from 'lucide-react';
+import { Eye, AlertTriangle, MapPin, Mail, Phone, ExternalLink } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { getUsuariosPorRol } from '../../api/auth.api';
+import HelpFAB from '../../components/ui/HelpFAB';
 
 const ROLES = [
   { value: 'ADMIN',           label: 'Administrador'  },
@@ -39,14 +40,12 @@ export default function LoginPage() {
   const [blocked,        setBlocked]        = useState(false);
   const [blockedMessage, setBlockedMessage] = useState('');
 
-  // Redirigir si ya hay sesión
   useEffect(() => {
     if (isAuthenticated && user) {
       navigate(ROLE_ROUTES[user.rol] || '/', { replace: true });
     }
   }, [isAuthenticated, user, navigate]);
 
-  // Cargar usuarios cuando cambia el rol
   const handleRolChange = async (e) => {
     const newRol = e.target.value;
     setRol(newRol);
@@ -68,7 +67,6 @@ export default function LoginPage() {
     if (!rol)      { setError('Selecciona tu rol.');      return; }
     if (!username) { setError('Selecciona tu usuario.');  return; }
     if (!password) { setError('Ingresa tu contraseña.'); return; }
-
     setSubmitting(true);
     setError('');
     try {
@@ -76,17 +74,13 @@ export default function LoginPage() {
       navigate(ROLE_ROUTES[loggedUser.rol] || '/', { replace: true });
     } catch (err) {
       const message = err.response?.data?.message || 'Credenciales incorrectas. Intenta de nuevo.';
-      if (err.response?.status === 423) {
-        setBlocked(true);
-        setBlockedMessage(message);
-      }
+      if (err.response?.status === 423) { setBlocked(true); setBlockedMessage(message); }
       setError(message);
     } finally {
       setSubmitting(false);
     }
   };
 
-  // ── Estilos ───────────────────────────────────────────────
   const bgStyle = {
     minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
     background: 'linear-gradient(160deg, #c8e6c9 0%, #a5d6a7 40%, #81c784 100%)',
@@ -112,9 +106,14 @@ export default function LoginPage() {
     fontSize: 14, outline: 'none',
   };
 
+  const linkStyle = {
+    display: 'inline-flex', alignItems: 'center', gap: 4,
+    color: 'rgba(0,0,0,0.55)', fontSize: 12, textDecoration: 'none',
+    fontWeight: 500, transition: 'color 0.15s',
+  };
+
   return (
     <div style={bgStyle}>
-      {/* Fondo decorativo */}
       <div style={{
         position: 'absolute', inset: 0, pointerEvents: 'none',
         background: 'radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.3) 0%, transparent 60%)',
@@ -123,11 +122,11 @@ export default function LoginPage() {
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
         {/* Logo */}
-        <div style={{
-          width: 72, height: 72, borderRadius: '50%', border: '3px solid var(--green-700)',
-          background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          marginBottom: '1rem', fontSize: 22, fontWeight: 700, color: 'var(--green-800)',
-        }}>ST</div>
+        <img
+          src="/logo.png"
+          alt="Logo Secundaria Técnica 177"
+          style={{ width: 100, height: 100, borderRadius: '50%', objectFit: 'cover', marginBottom: '1rem', boxShadow: '0 4px 16px rgba(0,0,0,0.15)' }}
+        />
         <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--green-800)', marginBottom: 2 }}>
           Secundaria Técnica 177
         </div>
@@ -139,11 +138,11 @@ export default function LoginPage() {
         <div style={cardStyle}>
           {blocked ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
-              <div style={{
-                width: 72, height: 72, borderRadius: '50%', border: '3px solid var(--green-700)',
-                background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 22, fontWeight: 700, color: 'var(--green-800)',
-              }}>ST</div>
+              <img
+                src="/logo.png"
+                alt="Logo Secundaria Técnica 177"
+                style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', boxShadow: '0 4px 16px rgba(0,0,0,0.15)' }}
+              />
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--green-800)' }}>Secundaria Técnica 177</div>
                 <div style={{ fontSize: 14, color: 'var(--green-700)', fontWeight: 500, marginTop: 4 }}>Sistema PACAYAT</div>
@@ -158,7 +157,6 @@ export default function LoginPage() {
                 Iniciar Sesión
               </h2>
 
-              {/* Error */}
               {error && (
                 <div style={{
                   background: 'var(--red-50)', border: '1px solid var(--red-100)',
@@ -198,9 +196,7 @@ export default function LoginPage() {
                       onFocus={e => e.target.style.borderColor = 'var(--green-600)'}
                       onBlur={e => e.target.style.borderColor = 'var(--border)'}>
                       <option value="">{loadingUsers ? 'Cargando...' : 'Selecciona tu nombre'}</option>
-                      {usuarios.map(u => (
-                        <option key={u.id} value={u.username}>{u.nombre}</option>
-                      ))}
+                      {usuarios.map(u => <option key={u.id} value={u.username}>{u.nombre}</option>)}
                     </select>
                     <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--text-muted)', fontSize: 12 }}>▾</span>
                   </div>
@@ -235,31 +231,22 @@ export default function LoginPage() {
                 </div>
               )}
 
-              {/* ¿Olvidaste tu contraseña? + Botón ingresar */}
               {username && (
                 <>
-                  {/* Enlace recuperar contraseña */}
                   <div style={{ textAlign: 'right', marginBottom: 12 }}>
-                    <button
-                      type="button"
-                      onClick={() => navigate('/recuperar-password')}
-                      style={{
-                        background: 'none', border: 'none', cursor: 'pointer',
-                        color: 'var(--green-700)', fontSize: 13, fontWeight: 500,
-                        fontFamily: 'inherit', padding: 0,
-                      }}
-                    >
+                    <button type="button" onClick={() => navigate('/recuperar-password')} style={{
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      color: 'var(--green-700)', fontSize: 13, fontWeight: 500,
+                      fontFamily: 'inherit', padding: 0,
+                    }}>
                       ¿Olvidaste tu contraseña?
                     </button>
                   </div>
-
-                  {/* Botón ingresar */}
                   <button onClick={handleSubmit} disabled={submitting} style={{
                     width: '100%', padding: 12, borderRadius: 'var(--radius)', border: 'none',
                     background: submitting ? 'var(--green-600)' : 'var(--green-700)',
                     color: '#fff', fontSize: 15, fontWeight: 600,
-                    cursor: submitting ? 'wait' : 'pointer',
-                    fontFamily: 'inherit',
+                    cursor: submitting ? 'wait' : 'pointer', fontFamily: 'inherit',
                   }}>
                     {submitting ? 'Verificando...' : 'Ingresar'}
                   </button>
@@ -269,23 +256,45 @@ export default function LoginPage() {
           )}
         </div>
 
-        <p style={{ fontSize: 12, color: 'rgba(0,0,0,0.45)', marginTop: '1.5rem' }}>
+        {/* ── Pie de página ── */}
+        <p style={{ fontSize: 12, color: 'rgba(0,0,0,0.45)', marginTop: '1.5rem', marginBottom: '0.6rem' }}>
           © 2026 Secundaria Técnica 177 — Sistema PACAYAT
+        </p>
+
+        {/* Datos de contacto */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap', justifyContent: 'center' }}>
+          <a href="https://maps.app.goo.gl/YTwUHo3k6a1dWDe68" target="_blank" rel="noopener noreferrer" style={linkStyle}
+            onMouseEnter={e => e.currentTarget.style.color = 'rgba(0,0,0,0.8)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'rgba(0,0,0,0.55)'}>
+            <MapPin size={12} /> Ubicación
+          </a>
+          <span style={{ color: 'rgba(0,0,0,0.25)', fontSize: 12 }}>·</span>
+          <a href="https://www.facebook.com/share/18v8kQLAGd/" target="_blank" rel="noopener noreferrer" style={linkStyle}
+            onMouseEnter={e => e.currentTarget.style.color = 'rgba(0,0,0,0.8)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'rgba(0,0,0,0.55)'}>
+            <ExternalLink size={12} /> Facebook
+          </a>
+          <span style={{ color: 'rgba(0,0,0,0.25)', fontSize: 12 }}>·</span>
+          <a href="mailto:secundariatecnica177@gmail.com" style={linkStyle}
+            onMouseEnter={e => e.currentTarget.style.color = 'rgba(0,0,0,0.8)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'rgba(0,0,0,0.55)'}>
+            <Mail size={12} /> secundariatecnica177@gmail.com
+          </a>
+          <span style={{ color: 'rgba(0,0,0,0.25)', fontSize: 12 }}>·</span>
+          <a href="tel:9515123479" style={linkStyle}
+            onMouseEnter={e => e.currentTarget.style.color = 'rgba(0,0,0,0.8)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'rgba(0,0,0,0.55)'}>
+            <Phone size={12} /> 951 512 3479
+          </a>
+        </div>
+
+        {/* Firma desarrolladores */}
+        <p style={{ fontSize: 11, color: 'rgba(0,0,0,0.35)', marginTop: '0.6rem', fontFamily: 'monospace', letterSpacing: 1 }}>
+          msz::stra
         </p>
       </div>
 
-      {/* Help FAB */}
-      <button
-        title="Plataforma de Control Académico y Alertas Tempranas"
-        aria-label="Plataforma de Control Académico y Alertas Tempranas"
-        style={{
-          position: 'fixed', bottom: 24, right: 24, width: 44, height: 44,
-          borderRadius: '50%', background: '#374151', color: '#fff', border: 'none',
-          fontSize: 18, fontWeight: 700, cursor: 'pointer',
-          boxShadow: 'var(--shadow-md)', zIndex: 300,
-        }}
-      >?
-      </button>
+      <HelpFAB />
     </div>
   );
 }

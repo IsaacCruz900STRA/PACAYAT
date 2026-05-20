@@ -27,7 +27,10 @@
       "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\PC\\\\OneDrive\\\\Escritorio\\\\PACAYAT\\\\frontend\" -Force -Recurse | Select-Object FullName | ForEach-Object { $_.FullName -replace [regex]::Escape\\(\"C:\\\\Users\\\\PC\\\\OneDrive\\\\Escritorio\\\\PACAYAT\\\\\"\\), \"\" } | Sort-Object | Select-Object -First 50)",
       "Bash(git pull *)",
       "Bash(git stash *)",
-      "Bash(Select-String \"\\\\.env\")"
+      "Bash(Select-String \"\\\\.env\")",
+      "Bash(xargs grep -l \"cors\\\\|helmet\\\\|rateLimit\\\\|sanitize\\\\|xss\")",
+      "Bash(npm audit *)",
+      "Bash(curl *)"
     ]
   }
 }

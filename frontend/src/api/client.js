@@ -13,7 +13,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       const requestUrl = error.config?.url || '';
-      const isAuthRequest = requestUrl.includes('/auth/login') || requestUrl.includes('/auth/logout');
+      const isAuthRequest = requestUrl.includes('/auth/login') || requestUrl.includes('/auth/logout') || requestUrl.includes('/auth/me');
 
       localStorage.removeItem('pacayat_user');
 

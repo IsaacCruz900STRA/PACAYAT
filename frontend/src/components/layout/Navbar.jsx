@@ -29,10 +29,17 @@ const VENTANA_NUEVA_MS = 24 * 60 * 60 * 1000; // 24 horas
 
 function useAvisosNuevos(rol) {
   const [count, setCount] = useState(0);
+  const storageKey = `avisosVistosEn_${rol}`;
+
+  const marcarVisto = () => {
+    localStorage.setItem(storageKey, Date.now().toString());
+    setCount(0);
+  };
 
   useEffect(() => {
     if (!rol) return;
     const tipos = TIPOS_POR_ROL[rol] || [];
+    const vistosEn = Number(localStorage.getItem(storageKey) || 0);
     getAvisos()
       .then(res => {
         const ahora = Date.now();
@@ -40,20 +47,21 @@ function useAvisosNuevos(rol) {
         const nuevos = avisos.filter(a =>
           a.activo &&
           tipos.includes(a.tipo) &&
-          ahora - new Date(a.creadoEn).getTime() <= VENTANA_NUEVA_MS
+          ahora - new Date(a.creadoEn).getTime() <= VENTANA_NUEVA_MS &&
+          new Date(a.creadoEn).getTime() > vistosEn
         );
         setCount(nuevos.length);
       })
       .catch(() => {});
-  }, [rol]);
+  }, [rol, storageKey]);
 
-  return count;
+  return { count, marcarVisto };
 }
 
 export default function Navbar({ breadcrumb }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const avisosNuevos = useAvisosNuevos(user?.rol);
+  const { count: avisosNuevos, marcarVisto } = useAvisosNuevos(user?.rol);
 
   const handleLogout = () => {
     logout();
@@ -61,6 +69,7 @@ export default function Navbar({ breadcrumb }) {
   };
 
   const handleIrAvisos = () => {
+    marcarVisto();
     const ruta = RUTA_AVISOS[user?.rol];
     if (ruta) navigate(ruta);
   };
