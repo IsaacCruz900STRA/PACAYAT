@@ -4,18 +4,21 @@ import Button     from '../../components/ui/Button';
 import Modal      from '../../components/ui/Modal';
 import { showToast } from '../../components/ui/Toast';
 import { getAvisos, createAviso, updateAviso, deleteAviso } from '../../api/avisos.api';
+import AvisoDocumentos from '../../components/avisos/AvisoDocumentos';
+import { getAvisoDocUrl } from '../../api/avisos.api';
 
 // ── Constantes ────────────────────────────────────────────────────────────────
 const TABS = [
-  { label: 'Conducta', tipo: 'CONDUCTA' },
-  { label: 'Generales', tipo: 'GENERAL' },
+  { label: 'Conducta',      tipo: 'CONDUCTA'      },
+  { label: 'Generales',     tipo: 'GENERAL'        },
+  { label: 'Colaboradores', tipo: 'COLABORADORES'  },
 ];
 
-// Tipos disponibles para crear (PERIODO_EVALUACION se gestiona automáticamente)
 const TIPOS_FORM = [
-  { value: 'CONDUCTA',     label: 'Conducta',      destinatario: 'Tutores' },
-  { value: 'REINSCRIPCION',label: 'Reinscripción', destinatario: 'Tutores' },
-  { value: 'GENERAL',      label: 'General',       destinatario: 'Todos'   },
+  { value: 'CONDUCTA',      label: 'Conducta',      destinatario: 'Tutores'           },
+  { value: 'REINSCRIPCION', label: 'Reinscripción', destinatario: 'Tutores'           },
+  { value: 'GENERAL',       label: 'General',       destinatario: 'Todos'             },
+  { value: 'COLABORADORES', label: 'Colaboradores', destinatario: 'Solo personal'     },
 ];
 
 const DESTINATARIO_LABEL = {
@@ -23,6 +26,7 @@ const DESTINATARIO_LABEL = {
   REINSCRIPCION:      'Tutores',
   GENERAL:            'Todos',
   PERIODO_EVALUACION: 'Tutores y Docentes',
+  COLABORADORES:      'Solo personal (sin tutores)',
 };
 
 const TIPO_STYLE = {
@@ -30,6 +34,7 @@ const TIPO_STYLE = {
   PERIODO_EVALUACION: { border: '#3b82f6', bg: '#eff6ff', badgeBg: '#dbeafe', badgeColor: '#1e40af' },
   REINSCRIPCION:      { border: '#f59e0b', bg: '#fffbeb', badgeBg: '#fef3c7', badgeColor: '#92400e' },
   GENERAL:            { border: '#22c55e', bg: '#f0fdf4', badgeBg: '#dcfce7', badgeColor: '#166534' },
+  COLABORADORES:      { border: '#8b5cf6', bg: '#f5f3ff', badgeBg: '#ede9fe', badgeColor: '#5b21b6' },
 };
 
 const CANALES_OPTS = [
@@ -41,12 +46,13 @@ const CANALES_OPTS = [
 const CANAL_ICON = { PLATAFORMA: '🖥️', CORREO: '📧', WHATSAPP: '📱' };
 
 const FORM_INICIAL = {
-  tipo: 'CONDUCTA', titulo: '', mensaje: '', umbralPuntos: '', canales: ['PLATAFORMA'],
+  tipo: 'CONDUCTA', titulo: '', mensaje: '', umbralPuntos: '', canales: ['PLATAFORMA'], documentos: [],
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function labelTipo(tipo) {
-  if (tipo === 'CONDUCTA') return 'Conducta';
+  if (tipo === 'CONDUCTA')     return 'Conducta';
+  if (tipo === 'COLABORADORES') return 'Colaboradores';
   return 'Generales';
 }
 
@@ -77,13 +83,15 @@ export default function GestionAvisos() {
 
   const avisosFiltrados = tab === 'CONDUCTA'
     ? avisos.filter(a => a.tipo === 'CONDUCTA')
-    : avisos.filter(a => a.tipo !== 'CONDUCTA');
+    : tab === 'COLABORADORES'
+      ? avisos.filter(a => a.tipo === 'COLABORADORES')
+      : avisos.filter(a => a.tipo !== 'CONDUCTA' && a.tipo !== 'COLABORADORES');
 
   // ── Modal helpers ─────────────────────────────────────────────────────────────
   const abrirCrear = () => {
     setEditando(null);
-    // Si el tab es GENERAL, el formulario inicia en GENERAL; CONDUCTA en CONDUCTA
-    setForm({ ...FORM_INICIAL, tipo: tab === 'CONDUCTA' ? 'CONDUCTA' : 'GENERAL' });
+    const tipo = tab === 'CONDUCTA' ? 'CONDUCTA' : tab === 'COLABORADORES' ? 'COLABORADORES' : 'GENERAL';
+    setForm({ ...FORM_INICIAL, tipo });
     setModalOpen(true);
   };
 
@@ -95,6 +103,7 @@ export default function GestionAvisos() {
       mensaje:      aviso.mensaje,
       umbralPuntos: aviso.umbralPuntos ?? '',
       canales:      aviso.canales || [],
+      documentos:   aviso.documentos || [],
     });
     setModalOpen(true);
   };
@@ -135,6 +144,7 @@ export default function GestionAvisos() {
       umbralPuntos: form.tipo === 'CONDUCTA' && form.umbralPuntos !== ''
                       ? parseInt(form.umbralPuntos) : null,
       canales:      form.canales,
+      documentos:   form.documentos || [],
     };
 
     setSaving(true);
@@ -295,6 +305,14 @@ export default function GestionAvisos() {
             </div>
           </FormField>
 
+          <FormField label="Documentos adjuntos (opcional)">
+            <AvisoDocumentos
+              documentos={form.documentos || []}
+              onChange={docs => setForm(p => ({ ...p, documentos: docs }))}
+              editable
+            />
+          </FormField>
+
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: '1.75rem' }}>
             <Button type="button" variant="outline" onClick={cerrarModal}>Cancelar</Button>
             <Button type="submit" disabled={saving}>
@@ -310,6 +328,7 @@ export default function GestionAvisos() {
 // ── Tarjeta de aviso ──────────────────────────────────────────────────────────
 function AvisoCard({ aviso, onEditar, onEliminar, onToggleActivo }) {
   const st = TIPO_STYLE[aviso.tipo] || TIPO_STYLE.GENERAL;
+  const docs = aviso.documentos || [];
 
   return (
     <div style={{
@@ -347,6 +366,7 @@ function AvisoCard({ aviso, onEditar, onEliminar, onToggleActivo }) {
             <span key={c} title={c} style={{ fontSize: 17 }}>{CANAL_ICON[c] || c}</span>
           ))}
         </div>
+        <AvisoDocumentos documentos={docs} editable={false} />
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>

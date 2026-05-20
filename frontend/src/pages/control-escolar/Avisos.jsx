@@ -6,17 +6,20 @@ import Button     from '../../components/ui/Button';
 import Modal      from '../../components/ui/Modal';
 import { showToast } from '../../components/ui/Toast';
 import { getAvisos } from '../../api/avisos.api';
+import AvisoDocumentos from '../../components/avisos/AvisoDocumentos';
 
 const TIPO_STYLE = {
   CONDUCTA:           { border: '#ef4444', bg: '#fff5f5', badgeBg: '#fee2e2', badgeColor: '#991b1b', label: 'Conducta' },
   PERIODO_EVALUACION: { border: '#3b82f6', bg: '#eff6ff', badgeBg: '#dbeafe', badgeColor: '#1e40af', label: 'Evaluación' },
   REINSCRIPCION:      { border: '#f59e0b', bg: '#fffbeb', badgeBg: '#fef3c7', badgeColor: '#92400e', label: 'Reinscripción' },
   GENERAL:            { border: '#22c55e', bg: '#f0fdf4', badgeBg: '#dcfce7', badgeColor: '#166534', label: 'General' },
+  COLABORADORES:      { border: '#8b5cf6', bg: '#f5f3ff', badgeBg: '#ede9fe', badgeColor: '#5b21b6', label: 'Colaboradores' },
 };
 
 const DESTINATARIO_LABEL = {
   CONDUCTA: 'Tutores', REINSCRIPCION: 'Tutores',
   GENERAL: 'Todos',   PERIODO_EVALUACION: 'Tutores y Docentes',
+  COLABORADORES: 'Solo personal (sin tutores)',
 };
 
 function fmtFecha(iso) {
@@ -48,9 +51,11 @@ export default function ControlEscolarAvisos() {
 
   const avisosFiltrados = tab === 'CONDUCTA'
     ? avisos.filter(a => a.tipo === 'CONDUCTA')
-    : avisos.filter(a => a.tipo !== 'CONDUCTA');
+    : tab === 'COLABORADORES'
+      ? avisos.filter(a => a.tipo === 'COLABORADORES')
+      : avisos.filter(a => a.tipo !== 'CONDUCTA' && a.tipo !== 'COLABORADORES');
 
-  const tabBtn = (id, label, count) => (
+  const tabBtn = (id, label, count = 0) => (
     <button key={id} onClick={() => setTab(id)} style={{
       padding: '8px 18px', borderRadius: 'var(--radius)', fontSize: 14, fontWeight: tab === id ? 600 : 500,
       border: '1.5px solid', cursor: 'pointer', fontFamily: 'inherit',
@@ -68,8 +73,9 @@ export default function ControlEscolarAvisos() {
       />
 
       <div style={{ display: 'flex', gap: 8, marginBottom: '1.5rem' }}>
-        {tabBtn('CONDUCTA', 'Conducta',  avisos.filter(a => a.tipo === 'CONDUCTA').length)}
-        {tabBtn('GENERAL',  'Generales', avisos.filter(a => a.tipo !== 'CONDUCTA').length)}
+        {tabBtn('CONDUCTA',      'Conducta',      avisos.filter(a => a.tipo === 'CONDUCTA').length)}
+        {tabBtn('GENERAL',       'Generales',     avisos.filter(a => a.tipo !== 'CONDUCTA' && a.tipo !== 'COLABORADORES').length)}
+        {tabBtn('COLABORADORES', 'Colaboradores', avisos.filter(a => a.tipo === 'COLABORADORES').length)}
       </div>
 
       {loading ? (
@@ -97,6 +103,7 @@ export default function ControlEscolarAvisos() {
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
                       <strong>Destinatarios:</strong> {DESTINATARIO_LABEL[aviso.tipo] || 'Todos'}
                     </div>
+                    <AvisoDocumentos documentos={aviso.documentos || []} editable={false} />
                   </div>
                 </div>
               </div>
