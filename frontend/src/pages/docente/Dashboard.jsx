@@ -5,7 +5,10 @@ import { useEffect, useState } from 'react';
 import Card from '../../components/ui/Card';
 import PageHeader from '../../components/layout/PageHeader';
 import Button from '../../components/ui/Button';
+import AvisosNuevosBanner from '../../components/avisos/AvisosNuevosBanner';
 import { getPeriodoEvaluacionActivo } from '../../api/periodos.api';
+
+const TIPOS_DOCENTE = ['PERIODO_EVALUACION', 'GENERAL'];
 
 function fmtFecha(iso) {
   const d = new Date(iso);
@@ -79,32 +82,8 @@ export default function DocenteDashboard() {
         subtitle={user?.nombre || 'Docente'}
       />
 
-      {/* ── Aviso de periodo de evaluación ── */}
-      {periodoEval && (
-        <section style={{ marginBottom: '1.5rem' }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: '1rem', color: 'var(--text-primary)' }}>
-            🔔 Avisos de Evaluación
-          </h2>
-          <div style={{
-            borderLeft: '4px solid #f59e0b', borderRadius: 'var(--radius-lg)',
-            background: '#fffbeb', padding: '1rem 1.25rem',
-            border: '1px solid #f59e0b', borderLeftWidth: 4,
-          }}>
-            <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-              <span style={{ fontSize: 20, lineHeight: 1 }}>🔔</span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#92400e', marginBottom: 4 }}>
-                  Periodo de evaluación activo
-                </div>
-                <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                  El periodo <strong>'{periodoEval.nombre}'</strong> está abierto para captura de calificaciones.
-                  Cierra el {fmtFecha(periodoEval.fechaFin)}. No olvides subir tus calificaciones.
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
+      {/* Banner de avisos nuevos */}
+      <AvisosNuevosBanner tiposPermitidos={TIPOS_DOCENTE} avisosPath="/docente/avisos" />
 
       {/* ── Stats ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>

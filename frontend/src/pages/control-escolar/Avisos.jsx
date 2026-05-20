@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // src/pages/control-escolar/Avisos.jsx — mismo CRUD que admin/GestionAvisos y secretaria/Avisos
 import { useState, useEffect, useCallback } from 'react';
 import PageHeader from '../../components/layout/PageHeader';
@@ -113,4 +114,10 @@ export default function ControlEscolarAvisos() {
       )}
     </div>
   );
+=======
+import AvisosViewer from '../../components/avisos/AvisosViewer';
+const TIPOS = ['PERIODO_EVALUACION', 'REINSCRIPCION', 'GENERAL'];
+export default function ControlEscolarAvisos() {
+  return <AvisosViewer tiposPermitidos={TIPOS} />;
+>>>>>>> cbded72 (Avisos++)
 }

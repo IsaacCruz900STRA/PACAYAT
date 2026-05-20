@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Search, Pencil, X, AlertTriangle } from 'lucide-react';
 import PageHeader from '../../components/layout/PageHeader';
 import Card       from '../../components/ui/Card';
 import Badge      from '../../components/ui/Badge';
@@ -136,8 +137,8 @@ export default function ListadoPersonal() {
     { key: 'id', label: 'Acciones', width: 110,
       render: (_, row) => (
         <div style={{ display: 'flex', gap: 4 }}>
-          <ActionBtn title="Editar" color="var(--blue-600)" onClick={() => { setPersonalEdit(row); setModalOpen(true); }}>✏️</ActionBtn>
-          <ActionBtn title="Eliminar" color="var(--red-500)" onClick={() => eliminar(row)} disabled={row.rol === 'ADMIN'}>✕</ActionBtn>
+          <ActionBtn title="Editar" color="var(--blue-600)" onClick={() => { setPersonalEdit(row); setModalOpen(true); }}><Pencil size={14} /></ActionBtn>
+          <ActionBtn title="Eliminar" color="var(--red-500)" onClick={() => eliminar(row)} disabled={row.rol === 'ADMIN'}><X size={14} /></ActionBtn>
         </div>
       ),
     },
@@ -190,7 +191,7 @@ export default function ListadoPersonal() {
 
       <Modal open={inactiveModalOpen} onClose={closeInactiveModal} title="Desactivar personal" width={520}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ color: 'var(--yellow-700)', fontWeight: 700 }}>⚠ Advertencia</div>
+          <div style={{ color: 'var(--yellow-700)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}><AlertTriangle size={16} /> Advertencia</div>
           <div style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
             Estás a punto de desactivar a este/a este personal. Una vez desactivado, no tendrá acceso al sistema pero sus datos se conservarán.
           </div>
@@ -219,7 +220,7 @@ export default function ListadoPersonal() {
 
       <div style={{ display: 'flex', gap: 10, marginBottom: '1.25rem', flexWrap: 'wrap' }}>
         <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
-          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 14 }}>🔍</span>
+          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', display: 'flex' }}><Search size={14} /></span>
           <input value={query} onChange={e => setQuery(e.target.value)}
             placeholder="Buscar por nombre..."
             style={{ ...filterStyle, width: '100%', paddingLeft: 36 }} />

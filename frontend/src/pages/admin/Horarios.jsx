@@ -1,5 +1,6 @@
 // src/pages/admin/Horarios.jsx
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { AlertTriangle, Loader, FileText, CheckCircle, Upload, ClipboardList, GraduationCap, BarChart2, Calendar } from 'lucide-react';
 import Card   from '../../components/ui/Card';
 import api    from '../../api/client';
 import { importarPDF, guardarImportados } from '../../api/horarios';
@@ -25,7 +26,7 @@ function ModalConfirmacion({ totalBloques, totalGrupos, onConfirm, onCancel }) {
         width:'100%', maxWidth:460, boxShadow:'0 12px 48px rgba(0,0,0,.22)',
       }}>
         {/* Icono */}
-        <div style={{ fontSize:44, textAlign:'center', marginBottom:12 }}>⚠️</div>
+        <div style={{ textAlign:'center', marginBottom:12, color:'#92400e' }}><AlertTriangle size={44} /></div>
 
         {/* Título */}
         <div style={{ fontSize:18, fontWeight:800, color:'#111827', textAlign:'center', marginBottom:8 }}>
@@ -219,7 +220,7 @@ function DropZonePDF({ onFile, loading, progress }) {
 
       {loading ? (
         <div>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>⏳</div>
+          <div style={{ marginBottom: 12, color: '#166534' }}><Loader size={40} /></div>
           <div style={{ fontSize: 15, fontWeight: 700, color: '#166534', marginBottom: 8 }}>Procesando PDF…</div>
           {progress > 0 && (
             <div style={{ maxWidth: 280, margin: '0 auto' }}>
@@ -232,7 +233,7 @@ function DropZonePDF({ onFile, loading, progress }) {
         </div>
       ) : (
         <div>
-          <div style={{ fontSize: 52, marginBottom: 12 }}>📄</div>
+          <div style={{ marginBottom: 12, color: '#6b7280' }}><FileText size={52} /></div>
           <div style={{ fontSize: 16, fontWeight: 700, color: '#111827', marginBottom: 6 }}>
             {dragging ? 'Suelta el PDF aquí' : 'Arrastra el PDF o haz clic para seleccionarlo'}
           </div>
@@ -394,10 +395,10 @@ export default function AdminHorarios() {
 
       {/* Tabs */}
       <div style={{ display:'flex', gap:4, background:'#f3f4f6', borderRadius:'var(--radius-lg)', padding:4, width:'fit-content', marginBottom:'1.5rem' }}>
-        {tabBtn('importar', '📤', 'Importar PDF')}
-        {tabBtn('grupos',   '📋', 'Por Grupo')}
-        {tabBtn('docentes', '🧑‍🏫', 'Por Docente')}
-        {tabBtn('resumen',  '📊', 'Resumen')}
+        {tabBtn('importar', <Upload size={13} />,       'Importar PDF')}
+        {tabBtn('grupos',   <ClipboardList size={13} />, 'Por Grupo')}
+        {tabBtn('docentes', <GraduationCap size={13} />, 'Por Docente')}
+        {tabBtn('resumen',  <BarChart2 size={13} />,     'Resumen')}
       </div>
 
       {/* ── TAB: IMPORTAR ── */}
@@ -470,7 +471,7 @@ export default function AdminHorarios() {
           {/* Éxito */}
           {guardadoOk && (
             <Card style={{ padding:'2.5rem', textAlign:'center' }}>
-              <div style={{ fontSize:56, marginBottom:12 }}>✅</div>
+              <div style={{ marginBottom:12, color:'#166534' }}><CheckCircle size={56} /></div>
               <div style={{ fontSize:18, fontWeight:700, color:'#166534', marginBottom:6 }}>
                 {guardadoOk.message}
               </div>
@@ -502,7 +503,7 @@ export default function AdminHorarios() {
         <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
           {!resumen?.tieneHorario ? (
             <Card style={{ padding:'4rem', textAlign:'center' }}>
-              <div style={{ fontSize:52, marginBottom:12 }}>📋</div>
+              <div style={{ marginBottom:12, color:'var(--text-muted)' }}><ClipboardList size={52} /></div>
               <div style={{ fontSize:16, fontWeight:700, marginBottom:8 }}>Sin horarios registrados</div>
               <div style={{ fontSize:13, color:'var(--text-secondary)', marginBottom:16 }}>Importa el PDF de aSc Horarios para comenzar.</div>
               <button onClick={()=>setTab('importar')} style={{ padding:'9px 22px', borderRadius:8, border:'none', background:'#166534', color:'#fff', fontSize:14, fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}>
@@ -542,7 +543,7 @@ export default function AdminHorarios() {
                 <Card style={{ padding:'2rem', textAlign:'center', color:'var(--text-secondary)' }}>Selecciona un grupo</Card>
               ) : Object.keys(grid).length === 0 ? (
                 <Card style={{ padding:'2rem', textAlign:'center', color:'var(--text-secondary)' }}>
-                  <div style={{ fontSize:28, marginBottom:8 }}>📋</div>
+                  <div style={{ marginBottom:8 }}><ClipboardList size={28} /></div>
                   <div style={{ fontWeight:600 }}>Sin horario para {grupoActual?.nombre}</div>
                 </Card>
               ) : (
@@ -587,7 +588,7 @@ export default function AdminHorarios() {
             </Card>
           ) : (
             <Card style={{ padding:'3rem', textAlign:'center', color:'var(--text-secondary)' }}>
-              <div style={{ fontSize:36, marginBottom:10 }}>🧑‍🏫</div>
+              <div style={{ marginBottom:10 }}><GraduationCap size={36} /></div>
               <div style={{ fontWeight:600 }}>Selecciona un docente para ver su horario</div>
             </Card>
           )}
@@ -599,12 +600,12 @@ export default function AdminHorarios() {
         <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))', gap:'1rem' }}>
             {[
-              { icon:'📋', v:`${resumen?.totalGruposConHorario ?? 0}/${resumen?.totalGrupos ?? 0}`,    l:'Grupos con horario' },
-              { icon:'🧑‍🏫', v:`${resumen?.totalDocentesConHorario ?? 0}/${resumen?.totalDocentes ?? 0}`, l:'Docentes con horario' },
-              { icon:'📅', v: resumen?.totalHorarios ?? 0,                                              l:'Bloques asignados' },
+              { icon:<ClipboardList size={22} />, v:`${resumen?.totalGruposConHorario ?? 0}/${resumen?.totalGrupos ?? 0}`,    l:'Grupos con horario' },
+              { icon:<GraduationCap size={22} />, v:`${resumen?.totalDocentesConHorario ?? 0}/${resumen?.totalDocentes ?? 0}`, l:'Docentes con horario' },
+              { icon:<Calendar size={22} />,       v: resumen?.totalHorarios ?? 0,                                              l:'Bloques asignados' },
             ].map(s => (
               <Card key={s.l} style={{ padding:'1rem 1.25rem' }}>
-                <div style={{ fontSize:22, marginBottom:4 }}>{s.icon}</div>
+                <div style={{ marginBottom:4, color:'var(--green-800)' }}>{s.icon}</div>
                 <div style={{ fontSize:24, fontWeight:800, color:'var(--green-800)' }}>{s.v}</div>
                 <div style={{ fontSize:12, color:'var(--text-secondary)', marginTop:2 }}>{s.l}</div>
               </Card>
@@ -612,7 +613,7 @@ export default function AdminHorarios() {
           </div>
           {resumen?.warnings?.length > 0 && (
             <Card style={{ padding:'1.25rem' }}>
-              <div style={{ fontSize:14, fontWeight:700, marginBottom:10, color:'#92400e' }}>⚠️ Grupos sin horario</div>
+              <div style={{ fontSize:14, fontWeight:700, marginBottom:10, color:'#92400e', display:'flex', alignItems:'center', gap:6 }}><AlertTriangle size={14} /> Grupos sin horario</div>
               <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
                 {resumen.warnings.map((w,i) => (
                   <div key={i} style={{ padding:'5px 10px', background:'#fef3c7', border:'1px solid #fcd34d', borderRadius:6, fontSize:12, color:'#78350f' }}>

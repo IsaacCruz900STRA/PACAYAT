@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Pencil } from 'lucide-react';
 import PageHeader from '../../components/layout/PageHeader';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
@@ -65,9 +66,9 @@ export default function ConfigurarPeriodos() {
         <button
           title="Editar periodo"
           onClick={() => setModalPeriodo(row)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 15, color: 'var(--blue-600)', padding: '4px 6px', borderRadius: 6 }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--blue-600)', padding: '4px 6px', borderRadius: 6, display: 'inline-flex', alignItems: 'center' }}
         >
-          ✏️
+          <Pencil size={15} />
         </button>
       ),
     },

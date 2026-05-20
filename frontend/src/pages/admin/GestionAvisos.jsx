@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Monitor, Mail, Smartphone, Users, Bell, Pencil, Pause, Play, Trash2 } from 'lucide-react';
 import PageHeader from '../../components/layout/PageHeader';
 import Button     from '../../components/ui/Button';
 import Modal      from '../../components/ui/Modal';
@@ -38,12 +39,12 @@ const TIPO_STYLE = {
 };
 
 const CANALES_OPTS = [
-  { value: 'PLATAFORMA', label: '🖥️ Plataforma' },
-  { value: 'CORREO',     label: '📧 Correo' },
-  { value: 'WHATSAPP',   label: '📱 WhatsApp' },
+  { value: 'PLATAFORMA', label: 'Plataforma', Icon: Monitor },
+  { value: 'CORREO',     label: 'Correo',     Icon: Mail },
+  { value: 'WHATSAPP',   label: 'WhatsApp',   Icon: Smartphone },
 ];
 
-const CANAL_ICON = { PLATAFORMA: '🖥️', CORREO: '📧', WHATSAPP: '📱' };
+const CANAL_ICON = { PLATAFORMA: Monitor, CORREO: Mail, WHATSAPP: Smartphone };
 
 const FORM_INICIAL = {
   tipo: 'CONDUCTA', titulo: '', mensaje: '', umbralPuntos: '', canales: ['PLATAFORMA'], documentos: [],
@@ -221,7 +222,7 @@ export default function GestionAvisos() {
           padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)',
           background: '#fff', borderRadius: 'var(--radius)', border: '1px dashed var(--border)',
         }}>
-          <div style={{ fontSize: 32, marginBottom: 8 }}>🔔</div>
+          <Bell size={32} style={{ marginBottom: 8, color: 'var(--text-muted)' }} />
           <div style={{ fontWeight: 600, marginBottom: 4 }}>Sin avisos de tipo {labelTipo(tab)}</div>
           <div style={{ fontSize: 13 }}>Crea uno con el botón "+ Crear Aviso"</div>
         </div>
@@ -253,7 +254,7 @@ export default function GestionAvisos() {
               {TIPOS_FORM.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
             <div style={{ marginTop: 6, fontSize: 12, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span>👥</span>
+              <Users size={13} />
               <span>Destinatarios: <strong>{DESTINATARIO_LABEL[form.tipo] || 'Todos'}</strong></span>
             </div>
           </FormField>
@@ -299,6 +300,7 @@ export default function GestionAvisos() {
                     onChange={() => toggleCanal(c.value)}
                     style={{ accentColor: 'var(--green-700)', width: 16, height: 16 }}
                   />
+                  <c.Icon size={14} />
                   {c.label}
                 </label>
               ))}
@@ -359,27 +361,29 @@ function AvisoCard({ aviso, onEditar, onEliminar, onToggleActivo }) {
               ≤ {aviso.umbralPuntos} pts
             </span>
           )}
-          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-            👥 {DESTINATARIO_LABEL[aviso.tipo] || 'Todos'}
+          <span style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+            <Users size={13} /> {DESTINATARIO_LABEL[aviso.tipo] || 'Todos'}
           </span>
-          {(aviso.canales || []).map(c => (
-            <span key={c} title={c} style={{ fontSize: 17 }}>{CANAL_ICON[c] || c}</span>
-          ))}
+          {(aviso.canales || []).map(c => {
+            const Icon = CANAL_ICON[c];
+            return Icon ? <Icon key={c} size={16} title={c} color="var(--text-secondary)" /> : <span key={c}>{c}</span>;
+          })}
         </div>
         <AvisoDocumentos documentos={docs} editable={false} />
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
-        <Button size="sm" variant="outline" onClick={onEditar}>✏️ Editar</Button>
+        <Button size="sm" variant="outline" onClick={onEditar} icon={<Pencil size={12} />}>Editar</Button>
         <button
           onClick={onToggleActivo}
           style={{
             padding: '6px 12px', borderRadius: 'var(--radius)', fontSize: 12, fontWeight: 600,
             border: '1.5px solid var(--border)', background: '#fff', cursor: 'pointer',
             color: aviso.activo ? '#6b7280' : 'var(--green-700)', fontFamily: 'inherit',
+            display: 'inline-flex', alignItems: 'center', gap: 5,
           }}
         >
-          {aviso.activo ? '⏸ Desactivar' : '▶ Activar'}
+          {aviso.activo ? <><Pause size={12} /> Desactivar</> : <><Play size={12} /> Activar</>}
         </button>
         <button
           onClick={onEliminar}
@@ -387,9 +391,10 @@ function AvisoCard({ aviso, onEditar, onEliminar, onToggleActivo }) {
             padding: '6px 12px', borderRadius: 'var(--radius)', fontSize: 12, fontWeight: 600,
             border: '1.5px solid #fca5a5', background: '#fff5f5', cursor: 'pointer',
             color: 'var(--red-600)', fontFamily: 'inherit',
+            display: 'inline-flex', alignItems: 'center', gap: 5,
           }}
         >
-          🗑 Eliminar
+          <Trash2 size={12} /> Eliminar
         </button>
       </div>
     </div>

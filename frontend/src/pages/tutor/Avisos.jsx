@@ -1,5 +1,5 @@
 import AvisosViewer from '../../components/avisos/AvisosViewer';
-const TIPOS = ['PERIODO_EVALUACION', 'GENERAL'];
-export default function DocenteAvisos() {
+const TIPOS = ['CONDUCTA', 'REINSCRIPCION', 'GENERAL'];
+export default function TutorAvisos() {
   return <AvisosViewer tiposPermitidos={TIPOS} />;
 }

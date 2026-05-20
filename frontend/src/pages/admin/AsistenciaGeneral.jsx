@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Download } from 'lucide-react';
 import PageHeader from '../../components/layout/PageHeader';
 import Card       from '../../components/ui/Card';
 import Button     from '../../components/ui/Button';
@@ -44,7 +45,7 @@ export default function AsistenciaGeneral() {
         <input type="text" value={fecha} onChange={e => setFecha(e.target.value)}
           placeholder="dd/mm/aaaa" style={{ ...filterStyle, width: 160 }} />
         <Button>Buscar</Button>
-        <Button variant="outline" style={{ marginLeft: 'auto' }} icon="⬇">Descargar PDF</Button>
+        <Button variant="outline" style={{ marginLeft: 'auto' }} icon={<Download size={14} />}>Descargar PDF</Button>
       </div>
 
       <Card style={{ padding: 0 }}>

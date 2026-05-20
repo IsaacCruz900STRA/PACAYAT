@@ -7,62 +7,9 @@ import Card               from '../../components/ui/Card';
 import Button             from '../../components/ui/Button';
 import SelectorHijo       from '../../components/tutor/SelectorHijo';
 import GaugeConducta      from '../../components/tutor/GaugeConducta';
+import AvisosNuevosBanner from '../../components/avisos/AvisosNuevosBanner';
 
-// ── Avisos estáticos (en producción vendrán del backend) ──────
-const AVISOS = [
-  {
-    tipo: 'danger',
-    titulo: 'Atención requerida: Sofía Díaz Morales',
-    corto: 'Sofía tiene 58 puntos de conducta. Te recomendamos conversar con ella sobre su comportamiento y contactar a la escuela s...',
-    largo: 'Sofía tiene 58 puntos de conducta. Te recomendamos conversar con ella sobre su comportamiento y contactar a la escuela. Puedes agendar una cita en secretaría o llamar al 951 123 4567.',
-  },
-  {
-    tipo: 'warning',
-    titulo: 'Periodo de evaluación próximo a cerrar',
-    corto: "El periodo de evaluación 'Marzo-Abril 2026' está por terminar. Las calificaciones finales estarán disponibles la próxima semana.",
-    largo: "El periodo 'Marzo-Abril 2026' cerrará el 30 de abril. Las calificaciones estarán disponibles en la boleta digital a partir del 5 de mayo.",
-  },
-];
-
-function AvisoCard({ aviso }) {
-  const [expandido, setExpandido] = useState(false);
-  const isD = aviso.tipo === 'danger';
-  return (
-    <div style={{
-      borderLeft: `4px solid ${isD ? '#ef4444' : '#f59e0b'}`,
-      border: `1px solid ${isD ? '#ef4444' : '#f59e0b'}`,
-      borderLeftWidth: 4,
-      background: isD ? '#fef2f2' : '#fffbeb',
-      borderRadius: 'var(--radius-lg)',
-      padding: '1rem 1.25rem',
-    }}>
-      <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-        <div style={{
-          width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-          background: isD ? '#fee2e2' : '#fef3c7',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18,
-        }}>
-          {isD ? '⚠️' : '🔔'}
-        </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: isD ? '#991b1b' : '#92400e', marginBottom: 6 }}>
-            {aviso.titulo}
-          </div>
-          <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.55, marginBottom: 8 }}>
-            {expandido ? aviso.largo : aviso.corto}
-          </p>
-          <button onClick={() => setExpandido(e => !e)} style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: 'var(--green-700)', fontSize: 13, fontWeight: 600,
-            padding: 0, fontFamily: 'inherit',
-          }}>
-            {expandido ? 'Ver menos ∧' : 'Ver más ∨'}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
+const TIPOS_TUTOR = ['CONDUCTA', 'REINSCRIPCION', 'GENERAL'];
 
 // ── Componente principal ──────────────────────────────────────
 export default function TutorInicio() {
@@ -87,13 +34,8 @@ export default function TutorInicio() {
         <p style={{ fontSize: 15, opacity: 0.9 }}>Aquí puedes consultar el progreso de tus hijos</p>
       </div>
 
-      {/* Avisos */}
-      <section style={{ marginBottom: '1.75rem' }}>
-        <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: '1rem' }}>Avisos Importantes</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {AVISOS.map((a, i) => <AvisoCard key={i} aviso={a} />)}
-        </div>
-      </section>
+      {/* Banner de avisos nuevos */}
+      <AvisosNuevosBanner tiposPermitidos={TIPOS_TUTOR} avisosPath="/tutor/avisos" />
 
       {/* Selector de hijos */}
       {!loading && hijos.length > 1 && (

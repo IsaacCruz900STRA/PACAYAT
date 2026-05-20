@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Pencil, ArrowLeft } from 'lucide-react';
 import PageHeader from '../../components/layout/PageHeader';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
@@ -79,19 +80,19 @@ export default function ExpedienteAlumno() {
       <PageHeader
         title="Expediente del Alumno"
         subtitle={`${alumno.nombreCompleto} · ${alumno.matricula}`}
-        action={<Button onClick={() => setModalOpen(true)} icon="✏️">Editar información</Button>}
+        action={<Button onClick={() => setModalOpen(true)} icon={<Pencil size={14} />}>Editar información</Button>}
       />
 
       <button
         type="button"
         onClick={volver}
         style={{
-          display: 'inline-block', marginBottom: 10, fontSize: 23,
-          color: 'var(--green-700)', fontWeight: 600,
-          border: 'none', background: 'transparent', padding: 0,
+          display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 10,
+          color: 'var(--green-700)', fontWeight: 600, fontSize: 14,
+          border: 'none', background: 'transparent', padding: 0, cursor: 'pointer',
         }}
       >
-        ← Volver
+        <ArrowLeft size={18} /> Volver
       </button>
 
       <Card style={{ marginBottom: '1rem' }}>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Users, User, AlertTriangle, TrendingUp, ClipboardList, TrendingDown } from 'lucide-react';
 import PageHeader from '../../components/layout/PageHeader';
 import Card       from '../../components/ui/Card';
 import { getAlumnos }  from '../../api/alumnos.api';
@@ -72,10 +73,10 @@ export default function AdminDashboard() {
   const menorPuntaje = alumnos;
 
   const stats = [
-    { icon: '👥', iconBg: '#dcfce7', value: totalAlumnos || alumnos.length, label: 'Alumnos Activos' },
-    { icon: '👤', iconBg: '#dbeafe', value: totalPersonal, label: 'Personal Activo' },
-    { icon: '⚠️', iconBg: '#fef3c7', value: totalReportes, label: 'Reportes del Mes' },
-    { icon: '📈', iconBg: '#ccfbf1', value: promedioConducta, label: 'Promedio Conducta' },
+    { icon: <Users size={18} />, iconBg: '#dcfce7', value: totalAlumnos || alumnos.length, label: 'Alumnos Activos' },
+    { icon: <User size={18} />, iconBg: '#dbeafe', value: totalPersonal, label: 'Personal Activo' },
+    { icon: <AlertTriangle size={18} />, iconBg: '#fef3c7', value: totalReportes, label: 'Reportes del Mes' },
+    { icon: <TrendingUp size={18} />, iconBg: '#ccfbf1', value: promedioConducta, label: 'Promedio Conducta' },
   ];
 
   return (
@@ -98,7 +99,7 @@ export default function AdminDashboard() {
           onMouseEnter={e => { e.currentTarget.style.background = '#14532d'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
           onMouseLeave={e => { e.currentTarget.style.background = 'var(--green-700)'; e.currentTarget.style.transform = 'translateY(0)'; }}
         >
-          <span style={{ fontSize: 20 }}>📋</span>
+          <ClipboardList size={20} />
           Crear Reporte de Conducta
         </button>
       </div>
@@ -109,7 +110,7 @@ export default function AdminDashboard() {
         borderRadius: 'var(--radius)', padding: '12px 16px',
         display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: '1.5rem',
       }}>
-        <span style={{ fontSize: 18 }}>⚠️</span>
+        <AlertTriangle size={18} color="#92400e" />
         <div>
           <div style={{ fontSize: 14, fontWeight: 600, color: '#92400e' }}>Periodo de Reinscripción Activo</div>
           <div style={{ fontSize: 13, color: '#78350f', marginTop: 1 }}>Del 1 al 15 de Mayo, 2026. Recordatorio enviado a tutores.</div>
@@ -148,7 +149,7 @@ export default function AdminDashboard() {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <PtsBadge pts={a.puntosConducta} />
-                <span style={{ color: 'var(--red-500)', fontSize: 14 }}>↘</span>
+                <TrendingDown size={14} color="var(--red-500)" />
               </div>
             </Link>
           ))}

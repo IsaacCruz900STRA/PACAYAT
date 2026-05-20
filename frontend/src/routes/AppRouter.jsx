@@ -22,6 +22,7 @@ import PrefectoDashboard from '../pages/prefecto/Dashboard';
 import PrefectoAlumnos   from '../pages/prefecto/Alumnos';
 import PrefectoHorarios  from '../pages/prefecto/Horarios';
 import PrefectoReportes  from '../pages/prefecto/Reportes';
+import PrefectoAvisos    from '../pages/prefecto/Avisos';
 
 // Docente
 import DocenteLayout         from '../layouts/DocenteLayout';
@@ -57,6 +58,7 @@ import TutorHorario  from '../pages/tutor/Horario';
 import TutorBoleta   from '../pages/tutor/Boleta';
 import TutorReportes from '../pages/tutor/Reportes';
 import TutorContacto from '../pages/tutor/Contacto';
+import TutorAvisos   from '../pages/tutor/Avisos';
 
 //Directivo
 import DirectivoLayout       from '../layouts/DirectivoLayout';
@@ -166,6 +168,7 @@ export default function AppRouter() {
             <Route path="alumnos"   element={<PrefectoAlumnos />} />
             <Route path="horarios"  element={<PrefectoHorarios />} />
             <Route path="reportes"  element={<PrefectoReportes />} />
+            <Route path="avisos"    element={<PrefectoAvisos />} />
           </Route>
         </Route>
 
@@ -204,6 +207,7 @@ export default function AppRouter() {
             <Route path="horario"  element={<TutorHorario />}  />
             <Route path="boleta"   element={<TutorBoleta />}   />
             <Route path="reportes" element={<TutorReportes />} />
+            <Route path="avisos"   element={<TutorAvisos />}   />
             <Route path="contacto" element={<TutorContacto />} />
           </Route>
         </Route>

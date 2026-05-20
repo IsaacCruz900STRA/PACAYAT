@@ -5,7 +5,10 @@ import Card            from '../../components/ui/Card';
 import Button          from '../../components/ui/Button';
 import PageHeader      from '../../components/layout/PageHeader';
 import ModalCrearReporte from '../../components/reportes/ModalCrearReporte';
+import AvisosNuevosBanner from '../../components/avisos/AvisosNuevosBanner';
 import { useState }    from 'react';
+
+const TIPOS_PREFECTO = ['CONDUCTA', 'GENERAL'];
 
 // ── Helpers ─────────────────────────────────────────────────────
 function ptsBadge(pts) {
@@ -60,6 +63,9 @@ export default function PrefectoDashboard() {
         title="Panel de Prefectura"
         subtitle={user?.nombre || 'Prefecto'}
       />
+
+      {/* Banner de avisos nuevos */}
+      <AvisosNuevosBanner tiposPermitidos={TIPOS_PREFECTO} avisosPath="/prefecto/avisos" />
 
       {/* Stats */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'1rem', marginBottom:'1.5rem' }}>

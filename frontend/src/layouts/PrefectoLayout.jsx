@@ -1,15 +1,17 @@
 // src/layouts/PrefectoLayout.jsx
 import { useLocation, Outlet } from 'react-router-dom';
+import { LayoutDashboard, Users, Clock, ClipboardList, Bell } from 'lucide-react';
 import Sidebar   from '../components/layout/Sidebar';
 import Navbar    from '../components/layout/Navbar';
 import { Toast } from '../components/ui/Toast';
 import HelpFAB   from '../components/ui/HelpFAB';
 
 const NAV_ITEMS = [
-  { to: '/prefecto/dashboard', icon: '⊞', label: 'Dashboard' },
-  { to: '/prefecto/alumnos',   icon: '👥', label: 'Alumnos'   },
-  { to: '/prefecto/horarios',  icon: '📅', label: 'Horarios'  },
-  { to: '/prefecto/reportes',  icon: '📋', label: 'Reportes'  },
+  { to: '/prefecto/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
+  { to: '/prefecto/alumnos',   icon: <Users size={18} />,           label: 'Alumnos'   },
+  { to: '/prefecto/horarios',  icon: <Clock size={18} />,           label: 'Horarios'  },
+  { to: '/prefecto/reportes',  icon: <ClipboardList size={18} />,   label: 'Reportes'  },
+  { to: '/prefecto/avisos',    icon: <Bell size={18} />,            label: 'Avisos'    },
 ];
 
 const BREADCRUMBS = {
@@ -17,6 +19,7 @@ const BREADCRUMBS = {
   '/prefecto/alumnos':   'Alumnos',
   '/prefecto/horarios':  'Horarios',
   '/prefecto/reportes':  'Reportes',
+  '/prefecto/avisos':    'Avisos',
 };
 
 export default function PrefectoLayout() {

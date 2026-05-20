@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
+import { LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { initials } from '../../utils/formatters';
 
@@ -60,7 +61,7 @@ export default function Sidebar({ navItems }) {
               e.currentTarget.style.background = isActive ? 'var(--sidebar-active)' : 'transparent';
             }}
           >
-            <span style={{ fontSize: 18, width: 24, textAlign: 'center' }}>{item.icon}</span>
+            <span style={{ width: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{item.icon}</span>
             {item.label}
           </NavLink>
         ))}
@@ -77,7 +78,7 @@ export default function Sidebar({ navItems }) {
           onMouseEnter={e => e.currentTarget.style.color = '#fff'}
           onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}
         >
-          <span style={{ fontSize: 16 }}>→</span> Cerrar sesión
+          <LogOut size={16} /> Cerrar sesión
         </button>
       </div>
     </aside>
